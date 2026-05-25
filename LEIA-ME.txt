@@ -1,0 +1,79 @@
+╔══════════════════════════════════════════════════════════════╗
+║      SISTEMA DE CONTROLE DE MANUTENÇÃO TPM - CALOI          ║
+║                       v2.0                                   ║
+╚══════════════════════════════════════════════════════════════╝
+
+=== COMO USAR ===
+
+1. Copie a pasta "Manutencao_TPM" para um local de sua preferência
+   (Desktop, Documentos, C:\, etc.)
+
+2. Certifique-se de ter o Python instalado no computador.
+   - Download: https://www.python.org/downloads/
+   - Durante a instalação: marque "Add Python to PATH"
+
+3. Dê duplo clique no arquivo:
+   👉 INICIAR_SISTEMA.bat
+
+4. O sistema irá:
+   - Instalar as dependências automaticamente (Flask, openpyxl)
+   - Criar a pasta "Banco de dados Manutenção" no seu Desktop
+   - Abrir o formulário no navegador (http://localhost:5000)
+
+=== FUNCIONALIDADES ===
+
+📝 FORMULÁRIO (http://localhost:5000)
+   - Scanner de código de barras (câmera do dispositivo)
+   - Campos com listas de seleção para agilizar o preenchimento
+   - Cálculo automático do total de horas paradas
+   - Assinatura digital do técnico e do solicitante
+   - Validação antes de salvar
+
+📊 DASHBOARD (http://localhost:5000/dashboard)
+   - KPIs: total de registros, horas paradas, setores afetados
+   - Gráfico de barras por setor produtivo
+   - Top motivos de parada
+   - Tabela com todos os registros
+   - Filtro por setor e busca livre
+
+⬇️ EXPORTAR (http://localhost:5000/download)
+   - Baixa o banco de dados Excel atualizado
+
+=== BANCO DE DADOS ===
+
+O arquivo Excel fica salvo em:
+  %USERPROFILE%\Desktop\Banco de dados Manutenção\Manutencao_TPM.xlsx
+
+O Excel possui 3 abas:
+  1. Registros — todos os lançamentos
+  2. Resumo por Setor — tabela dinâmica por setor
+  3. Catálogo Equipamentos — lista de equipamentos cadastrados
+
+As assinaturas digitais são salvas como imagens PNG em:
+  %USERPROFILE%\Desktop\Banco de dados Manutenção\assinaturas\
+
+Backups automáticos são criados em:
+  %USERPROFILE%\Desktop\Banco de dados Manutenção\backups\
+  (mantém os 10 backups mais recentes)
+
+=== PERSONALIZAÇÃO ===
+
+Para adicionar técnicos, equipamentos ou modificar listas:
+  Edite o arquivo app.py com um editor de texto (Notepad, VS Code)
+  e modifique as listas no início do arquivo:
+  - TECNICOS
+  - SETORES
+  - MOTIVOS_PARADA
+  - SOLUCOES
+  - EQUIPAMENTOS_CATALOGO
+
+=== SUPORTE TÉCNICO ===
+
+Em caso de problemas:
+  - Verifique se o Python está instalado corretamente
+  - Execute o INICIAR_SISTEMA.bat como Administrador
+  - Certifique-se de que a porta 5000 não está em uso
+
+═══════════════════════════════════════════════════════════════
+CALOI S.A. | Sistema de Manutenção TPM | Uso Interno
+═══════════════════════════════════════════════════════════════
