@@ -431,6 +431,7 @@ body{margin-left:220px!important;}
   <button class="tab-btn" onclick="showTab('solucoes', this)">✔ Soluções</button>
   <button class="tab-btn" onclick="showTab('equipamentos', this)">🏭 Equipamentos</button>
   <button class="tab-btn" onclick="showTab('producao', this)">&#128230; Produção</button>
+  <button class="tab-btn" onclick="showTab('estoque', this)">&#128230; Estoque</button>
   <button class="tab-btn" onclick="showTab('backup', this)">&#128190; Backup</button>
 </div>
 
@@ -854,6 +855,51 @@ body{margin-left:220px!important;}
   </div>
 </div>
 
+  <!-- ===== ABA ESTOQUE ===== -->
+  <div class="tab-pane" id="tab-estoque">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🔩 Estoque de Peças por Equipamento</div>
+        <div class="card-sub">Cadastre as peças disponíveis para cada equipamento. No formulário, ao selecionar a TAG, a lista de peças aparece automaticamente.</div>
+      </div>
+      <div class="card-body">
+
+        <!-- Seletor de equipamento -->
+        <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <label style="font-size:12px;font-weight:600;color:#6B7A8D;text-transform:uppercase;display:block;margin-bottom:6px;">TAG do Equipamento</label>
+            <select id="est-eqp-sel" onchange="carregarPecasEquipamento(this.value)"
+              style="width:100%;padding:10px 12px;border:1.5px solid #e0e6f0;border-radius:8px;font-size:14px;">
+              <option value="">Selecione o equipamento...</option>
+              {% for eq in equipamentos_lista %}
+              <option value="{{ eq.tag }}">{{ eq.tag }} — {{ eq.descricao }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button onclick="adicionarPeca()" type="button"
+            style="padding:10px 20px;background:#1B3A6B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;">
+            + Adicionar Peça
+          </button>
+        </div>
+
+        <!-- Lista de peças do equipamento selecionado -->
+        <div id="est-pecas-container" style="display:none;">
+          <div style="font-weight:600;font-size:13px;color:#1B3A6B;margin-bottom:10px;" id="est-eqp-titulo">Peças cadastradas:</div>
+          <div id="est-pecas-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+          <button onclick="salvarEstoque()" type="button"
+            style="padding:11px 28px;background:#1E8449;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
+            💾 Salvar Estoque
+          </button>
+        </div>
+
+        <div id="est-empty-msg" style="color:#6B7A8D;font-size:13px;padding:16px 0;">
+          Selecione um equipamento para gerenciar suas peças.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ===== ABA BACKUP ===== -->
   <div class="tab-pane" id="tab-backup">
     <div class="card">
@@ -1164,6 +1210,96 @@ document.addEventListener('keydown', e => {
 });
 
 document.addEventListener('DOMContentLoaded', atualizarContadorEq);
+
+// ---- ESTOQUE ----
+let estoqueAtual = {{ estoque | tojson }};
+let tagAtual = '';
+
+function carregarPecasEquipamento(tag) {
+  tagAtual = tag;
+  const container = document.getElementById('est-pecas-container');
+  const empty = document.getElementById('est-empty-msg');
+  const lista = document.getElementById('est-pecas-lista');
+  const titulo = document.getElementById('est-eqp-titulo');
+
+  if (!tag) {
+    container.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  container.style.display = 'block';
+  empty.style.display = 'none';
+  titulo.textContent = `Peças cadastradas para ${tag}:`;
+  lista.innerHTML = '';
+
+  const pecas = estoqueAtual[tag] || [];
+  if (pecas.length === 0) {
+    lista.innerHTML = '<div style="color:#6B7A8D;font-size:13px;">Nenhuma peça cadastrada. Clique em "+ Adicionar Peça".</div>';
+  } else {
+    pecas.forEach((peca, i) => renderPecaRow(peca, i));
+  }
+}
+
+function renderPecaRow(peca, idx) {
+  const lista = document.getElementById('est-pecas-lista');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  row.innerHTML = `
+    <input type="text" value="${peca}" data-idx="${idx}"
+      style="flex:1;padding:9px 12px;border:1.5px solid #e0e6f0;border-radius:7px;font-size:14px;"
+      onchange="atualizarPeca(${idx}, this.value)"
+      placeholder="Nome da peça / material">
+    <button type="button" onclick="removerPeca(${idx})"
+      style="padding:8px 14px;background:#ffeaea;color:#c0392b;border:1px solid #f5c6c6;border-radius:7px;font-size:13px;cursor:pointer;">
+      🗑
+    </button>
+  `;
+  lista.appendChild(row);
+}
+
+function adicionarPeca() {
+  if (!tagAtual) { alert('Selecione um equipamento primeiro.'); return; }
+  if (!estoqueAtual[tagAtual]) estoqueAtual[tagAtual] = [];
+  estoqueAtual[tagAtual].push('');
+  carregarPecasEquipamento(tagAtual);
+  // Foca no último input
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#est-pecas-lista input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function atualizarPeca(idx, valor) {
+  if (estoqueAtual[tagAtual]) estoqueAtual[tagAtual][idx] = valor;
+}
+
+function removerPeca(idx) {
+  if (estoqueAtual[tagAtual]) {
+    estoqueAtual[tagAtual].splice(idx, 1);
+    carregarPecasEquipamento(tagAtual);
+  }
+}
+
+function salvarEstoque() {
+  // Coletar valores atuais dos inputs antes de salvar
+  if (tagAtual) {
+    const inputs = document.querySelectorAll('#est-pecas-lista input');
+    estoqueAtual[tagAtual] = Array.from(inputs).map(i => i.value.trim()).filter(v => v);
+  }
+
+  fetch('/admin/estoque/salvar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ estoque: estoqueAtual })
+  })
+  .then(r => r.json())
+  .then(d => {
+    showToast(d.message, d.success ? 'success' : 'error');
+    if (d.success) carregarPecasEquipamento(tagAtual);
+  })
+  .catch(() => showToast('Erro ao salvar estoque', 'error'));
+}
 </script>
 </body>
 </html>
