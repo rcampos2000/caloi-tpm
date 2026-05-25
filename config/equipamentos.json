@@ -1,0 +1,14 @@
+[
+  {
+    "descricao": "Prensa Hidráulica",
+    "tag": "EQ001",
+    "area": "Estamparia",
+    "fornecedor": "Schuler"
+  },
+  {
+    "descricao": "Robô de Solda",
+    "tag": "EQ002",
+    "area": "Montagem",
+    "fornecedor": "ABB"
+  }
+]
