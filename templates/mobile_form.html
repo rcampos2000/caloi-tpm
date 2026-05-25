@@ -250,17 +250,17 @@ input[name="tipo_manutencao"] { display: none; }
           <span style="font-size:22px">✅</span>
           <div>
             <strong id="chip-nome">—</strong>
-            <span>Código: <span id="chip-cod">—</span></span>
+            <span>TAG: <span id="chip-cod">—</span></span>
           </div>
           <button type="button" onclick="limparEqp()">✕</button>
         </div>
 
         <div class="fg" id="fg-eqp-cod">
-          <label>🏷️ Código do Equipamento <span class="req">*</span></label>
+          <label>🏷️ TAG do Equipamento <span class="req">*</span></label>
           <input type="text" id="eqp_cod" placeholder="Ex: EQ001"
                  oninput="buscaEqp(this.value)" autocomplete="off"
-                 autocapitalize="characters">
-          <span class="err-msg">Informe o código do equipamento</span>
+                 autocapitalize="characters" style="text-transform:uppercase;">
+          <span class="err-msg">Informe a TAG do equipamento</span>
         </div>
 
         <div class="fg" id="fg-eqp-nome">
@@ -388,6 +388,31 @@ input[name="tipo_manutencao"] { display: none; }
           <textarea id="observacoes" placeholder="Informações adicionais..."></textarea>
         </div>
 
+        <!-- MATERIAL UTILIZADO -->
+        <div class="fg">
+          <label>🔩 Material Utilizado</label>
+          <div id="materiais-container"
+            style="border:1.5px solid var(--gray2);border-radius:8px;padding:12px;background:#fff;min-height:46px;">
+            <span id="materiais-empty" style="color:var(--muted);font-size:13px;">
+              Selecione a TAG do equipamento para ver as peças disponíveis.
+            </span>
+            <div id="materiais-lista" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+        </div>
+
+        <!-- FOTOS -->
+        <div class="fg">
+          <label>📷 Fotos da Ocorrência <span style="font-size:11px;font-weight:normal;color:var(--muted);">(máx. 3)</span></label>
+          <div id="fotos-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
+          <label id="fotos-btn"
+            style="display:inline-flex;align-items:center;gap:6px;padding:13px 18px;background:var(--blue);color:#fff;border-radius:8px;cursor:pointer;font-size:15px;font-weight:bold;width:100%;justify-content:center;">
+            📷 Tirar / Selecionar Fotos
+            <input type="file" id="fotos-input" accept="image/*" multiple style="display:none"
+                   onchange="processarFotos(this)">
+          </label>
+          <span id="fotos-count" style="text-align:center;display:block;margin-top:6px;font-size:12px;color:var(--muted);">0/3 fotos</span>
+        </div>
+
       </div>
     </div>
 
@@ -456,11 +481,14 @@ setInterval(atualizarRelogio, 30000);
 
 // ── Busca equipamento ──
 let buscaTimer = null;
+let fotosB64 = [];
+
 function buscaEqp(val) {
   clearTimeout(buscaTimer);
   if (val.length < 2) return;
   buscaTimer = setTimeout(() => {
-    fetch('/api/equipamento/' + encodeURIComponent(val.trim().toUpperCase()))
+    const tag = val.trim().toUpperCase();
+    fetch('/api/equipamento/' + encodeURIComponent(tag))
       .then(r => r.json())
       .then(d => {
         if (d.found) {
@@ -468,9 +496,70 @@ function buscaEqp(val) {
           document.getElementById('chip-nome').textContent = d.nome;
           document.getElementById('chip-cod').textContent = d.codigo;
           document.getElementById('equip-chip').classList.add('show');
+          carregarMateriais(tag);
         }
       }).catch(() => {});
   }, 500);
+}
+
+function carregarMateriais(tag) {
+  fetch('/api/estoque/' + encodeURIComponent(tag))
+    .then(r => r.json())
+    .then(d => {
+      const lista = document.getElementById('materiais-lista');
+      const empty = document.getElementById('materiais-empty');
+      lista.innerHTML = '';
+      if (!d.pecas || d.pecas.length === 0) {
+        empty.textContent = 'Nenhuma peça cadastrada para este equipamento.';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      d.pecas.forEach(peca => {
+        const label = document.createElement('label');
+        label.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray);border:1.5px solid var(--gray2);border-radius:8px;cursor:pointer;font-size:15px;';
+        label.innerHTML = `<input type="checkbox" value="${peca}" style="width:20px;height:20px;accent-color:var(--blue2);flex-shrink:0;"> ${peca}`;
+        lista.appendChild(label);
+      });
+    }).catch(() => {});
+}
+
+// ── Fotos ──
+function processarFotos(input) {
+  const files = Array.from(input.files);
+  const slots = 3 - fotosB64.length;
+  files.slice(0, slots).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      fotosB64.push(e.target.result);
+      atualizarPreviewFotos();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function atualizarPreviewFotos() {
+  const preview = document.getElementById('fotos-preview');
+  const count = document.getElementById('fotos-count');
+  preview.innerHTML = '';
+  fotosB64.forEach((b64, i) => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;';
+    wrap.innerHTML = `
+      <img src="${b64}" style="width:90px;height:90px;object-fit:cover;border-radius:8px;border:2px solid var(--gray2);">
+      <button type="button" onclick="removerFoto(${i})"
+        style="position:absolute;top:-6px;right:-6px;background:#c0392b;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;">✕</button>
+    `;
+    preview.appendChild(wrap);
+  });
+  count.textContent = fotosB64.length + '/3 fotos';
+  document.getElementById('fotos-btn').style.display = fotosB64.length >= 3 ? 'none' : 'flex';
+}
+
+function removerFoto(i) {
+  fotosB64.splice(i, 1);
+  atualizarPreviewFotos();
 }
 
 function limparEqp() {
@@ -556,7 +645,9 @@ function enviarForm() {
     pecas_necessarias:    document.getElementById('pecas_necessarias').value.trim(),
     nome_solicitante:     document.getElementById('nome_solicitante').value.trim(),
     assinatura_tecnico:   '',
-    assinatura_solicitante: ''
+    assinatura_solicitante: '',
+    materiais_utilizados: Array.from(document.querySelectorAll('#materiais-lista input[type=checkbox]:checked')).map(c => c.value),
+    fotos: fotosB64,
   };
 
   fetch('/submit', {
