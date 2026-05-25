@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ajuda - Caloi TPM</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:"Segoe UI",Arial,sans-serif;background:#f0f3f8;color:#222;min-height:100vh;}
+.page-topbar{
+  height:56px;background:#fff;border-bottom:1px solid #e3e8f0;
+  display:flex;align-items:center;padding:0 28px;
+  justify-content:space-between;
+  box-shadow:0 1px 6px rgba(0,0,0,0.06);
+  position:sticky;top:0;z-index:100;
+}
+.page-title{font-size:18px;font-weight:700;color:#1B3A6B;display:flex;align-items:center;gap:8px;}
+.content{padding:28px 32px;max-width:900px;}
+.card{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,0.07);margin-bottom:20px;overflow:hidden;}
+.card-header{padding:18px 24px;background:linear-gradient(90deg,#1B3A6B,#2456a4);color:#fff;}
+.card-header h2{font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;}
+.card-body{padding:20px 24px;}
+.step{display:flex;gap:16px;margin-bottom:18px;align-items:flex-start;}
+.step:last-child{margin-bottom:0;}
+.step-num{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  background:#1B3A6B;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;
+}
+.step-text h4{font-size:14px;font-weight:700;color:#1B3A6B;margin-bottom:4px;}
+.step-text p{font-size:13px;color:#555;line-height:1.6;}
+.faq-item{border-bottom:1px solid #f0f4f9;padding:14px 0;}
+.faq-item:last-child{border-bottom:none;}
+.faq-q{font-size:14px;font-weight:700;color:#1B3A6B;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.faq-a{font-size:13px;color:#555;line-height:1.6;}
+.shortcut-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.sc-item{display:flex;align-items:center;gap:10px;font-size:13px;}
+.sc-key{
+  background:#f0f3f8;border:1px solid #dde0e8;border-radius:6px;
+  padding:3px 10px;font-family:monospace;font-size:12px;
+  color:#1B3A6B;font-weight:700;white-space:nowrap;
+}
+.tag{
+  display:inline-block;padding:2px 10px;border-radius:12px;
+  font-size:11px;font-weight:700;margin-left:6px;
+}
+.tag-admin{background:#e8f0fc;color:#1B3A6B;}
+.tag-tec{background:#e8f7ef;color:#1a7a45;}
+.contact-box{
+  background:linear-gradient(135deg,#1B3A6B,#2456a4);
+  border-radius:12px;padding:20px 24px;color:#fff;
+  display:flex;align-items:center;gap:16px;margin-top:8px;
+}
+.contact-icon{font-size:32px;}
+.contact-text h4{font-size:15px;font-weight:700;margin-bottom:4px;}
+.contact-text p{font-size:13px;opacity:0.8;}
+</style>
+</head>
+<body>
+{% include "nav.html" %}
+
+<div class="page-topbar">
+  <div class="page-title">❓ Ajuda e Guia de Uso</div>
+</div>
+
+<div class="content">
+
+  <!-- Como usar o formulário -->
+  <div class="card">
+    <div class="card-header"><h2>📋 Como preencher o Formulário de Manutenção</h2></div>
+    <div class="card-body">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <h4>Acesse o Formulário</h4>
+          <p>Clique em <strong>Formulário</strong> no menu lateral ou no botão de acesso rápido na tela Início.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <h4>Informe o Equipamento</h4>
+          <p>Digite ou escaneie o código do equipamento (ex: EQ001). O nome será preenchido automaticamente. Caso não haja código, preencha manualmente o nome.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <h4>Preencha os dados da ocorrência</h4>
+          <p>Informe: técnico responsável, setor, horário de parada, horário de liberação, motivo e solução. O sistema calculará automaticamente o total de horas paradas.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-text">
+          <h4>Assine e finalize</h4>
+          <p>O técnico e o solicitante devem assinar nos campos de assinatura digital. Clique em <strong>Registrar Manutenção</strong> para salvar. O Excel é atualizado automaticamente.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Perfis de usuário -->
+  <div class="card">
+    <div class="card-header"><h2>👥 Perfis de Usuário</h2></div>
+    <div class="card-body">
+      <div class="faq-item">
+        <div class="faq-q">🛡 Administrador <span class="tag tag-admin">Admin</span></div>
+        <div class="faq-a">Acesso completo: preenche formulários, visualiza dashboard, gerencia usuários e configurações do sistema (técnicos, setores, senhas).</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">🔧 Técnico <span class="tag tag-tec">Técnico</span></div>
+        <div class="faq-a">Acesso ao formulário de manutenção e dashboard. Não acessa as Configurações do sistema.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="card">
+    <div class="card-header"><h2>❓ Perguntas Frequentes</h2></div>
+    <div class="card-body">
+      <div class="faq-item">
+        <div class="faq-q">📄 O Excel é atualizado automaticamente?</div>
+        <div class="faq-a">Sim. A cada registro finalizado o sistema salva automaticamente no arquivo <strong>Manutencao_TPM.xlsx</strong>, localizado na pasta <em>Manutencao_TPM</em> no Desktop. Se o arquivo estiver aberto, o sistema tentará salvar por até 5 vezes.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">🔑 Esqueci minha senha. O que faço?</div>
+        <div class="faq-a">Solicite ao Administrador do sistema que redefina sua senha no menu <strong>Configurações → Usuários → Editar</strong>.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">➕ Como adicionar um novo técnico à lista do formulário?</div>
+        <div class="faq-a">Acesse <strong>Configurações → aba Técnicos</strong>, clique em "Adicionar Técnico", preencha o nome e clique em <strong>Salvar Alterações</strong>. A lista do formulário será atualizada imediatamente.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">💾 Onde ficam os backups?</div>
+        <div class="faq-a">O sistema cria backups automáticos a cada 10 registros, salvos na pasta <strong>Manutencao_TPM/backups/</strong>. Os 10 backups mais recentes são mantidos.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">📊 Como exportar os dados para Excel?</div>
+        <div class="faq-a">Clique em <strong>Exportar Excel</strong> no menu lateral ou acesse <em>/download</em>. Um backup é criado automaticamente antes do download.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">⚡ O sistema não está abrindo. O que fazer?</div>
+        <div class="faq-a">Feche o servidor e abra novamente pelo arquivo <strong>INICIAR.vbs</strong>. Certifique-se que o Python está instalado e o PowerShell tem permissão de execução.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Atalhos do menu -->
+  <div class="card">
+    <div class="card-header"><h2>🖱 Navegação pelo Sistema</h2></div>
+    <div class="card-body">
+      <div class="shortcut-grid">
+        <div class="sc-item"><span class="sc-key">Menu → Início</span> Tela principal com resumo</div>
+        <div class="sc-item"><span class="sc-key">Menu → Formulário</span> Registrar manutenção</div>
+        <div class="sc-item"><span class="sc-key">Menu → Dashboard</span> Relatórios e gráficos</div>
+        <div class="sc-item"><span class="sc-key">Menu → Exportar</span> Baixar planilha Excel</div>
+        <div class="sc-item"><span class="sc-key">Menu → Config.</span> Configurações (Admin)</div>
+        <div class="sc-item"><span class="sc-key">Menu → Sair</span> Encerrar sessão</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contato -->
+  <div class="contact-box">
+    <div class="contact-icon">🛠</div>
+    <div class="contact-text">
+      <h4>Suporte Técnico</h4>
+      <p>Para problemas não listados acima, entre em contato com o administrador do sistema ou com o responsável pela TI da Caloi.</p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
