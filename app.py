@@ -635,6 +635,22 @@ def formulario():
     )
 
 
+@app.route('/mobile')
+@login_required
+def mobile_form():
+    return render_template(
+        'mobile_form.html',
+        tecnicos=get_tecnicos(),
+        setores=get_setores(),
+        motivos=get_motivos(),
+        solucoes=get_solucoes(),
+        equipamentos=equipamentos_como_catalogo(),
+        data_hoje=datetime.now().strftime('%d/%m/%Y'),
+        hora_atual=datetime.now().strftime('%H:%M'),
+        session_user=session.get('usuario', '')
+    )
+
+
 @app.route('/api/equipamento/<codigo>')
 @login_required
 def buscar_equipamento(codigo):
