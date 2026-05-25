@@ -32,10 +32,12 @@ PLANO_ACAO_FILE = DATA_DIR / "Plano_de_Acao.xlsx"
 ASSINATURAS_DIR = DATA_DIR / "assinaturas"
 BACKUP_DIR      = DATA_DIR / "backups"
 CONFIG_DIR      = DATA_DIR / "config"
+FOTOS_DIR       = DATA_DIR / "fotos"
 USUARIOS_FILE   = CONFIG_DIR / "usuarios.json"
 LISTAS_FILE     = CONFIG_DIR / "listas.json"
 EQUIPAMENTOS_FILE = CONFIG_DIR / "equipamentos.json"
 PRODUCAO_FILE     = CONFIG_DIR / "producao.json"
+ESTOQUE_FILE      = CONFIG_DIR / "estoque.json"
 
 # ============================================================
 # DADOS PADRÃO (usados na primeira inicialização)
@@ -358,11 +360,47 @@ def criar_excel_plano_acao():
     print(f"  Plano de Ação criado: {PLANO_ACAO_FILE}")
 
 
+def carregar_estoque():
+    """Retorna dict {TAG: [lista de peças]} do estoque.json."""
+    if ESTOQUE_FILE.exists():
+        with open(ESTOQUE_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {}
+
+
+def salvar_estoque(dados):
+    CONFIG_DIR.mkdir(exist_ok=True)
+    with open(ESTOQUE_FILE, 'w', encoding='utf-8') as f:
+        json.dump(dados, f, ensure_ascii=False, indent=2)
+
+
+def salvar_fotos(fotos_b64, record_id):
+    """Salva lista de imagens base64 em FOTOS_DIR. Retorna lista de nomes de arquivo."""
+    FOTOS_DIR.mkdir(exist_ok=True)
+    nomes = []
+    for i, b64 in enumerate(fotos_b64[:3], 1):
+        if not b64 or b64 == 'data:,':
+            continue
+        try:
+            if ',' in b64:
+                b64 = b64.split(',', 1)[1]
+            dados = base64.b64decode(b64)
+            nome = f"foto_{record_id:04d}_{i}_{datetime.now().strftime('%Y%m%d%H%M%S')}.jpg"
+            caminho = FOTOS_DIR / nome
+            with open(caminho, 'wb') as f:
+                f.write(dados)
+            nomes.append(nome)
+        except Exception as e:
+            print(f"  Aviso: erro ao salvar foto {i}: {e}")
+    return nomes
+
+
 def init_database():
     APP_DIR.mkdir(parents=True, exist_ok=True)
     ASSINATURAS_DIR.mkdir(exist_ok=True)
     BACKUP_DIR.mkdir(exist_ok=True)
     CONFIG_DIR.mkdir(exist_ok=True)
+    FOTOS_DIR.mkdir(exist_ok=True)
 
     if not DB_FILE.exists():
         criar_excel_banco_dados()
@@ -421,6 +459,11 @@ def init_config():
         salvar_producao([])
         print("  ✓ producao.json criado (vazio — configure em Configurações > Produção)")
 
+    # Criar estoque.json vazio se não existir
+    if not ESTOQUE_FILE.exists():
+        salvar_estoque({})
+        print("  ✓ estoque.json criado (vazio — configure em Configurações > Estoque)")
+
     # Criar equipamentos.json a partir do catálogo legado se não existir
     if not EQUIPAMENTOS_FILE.exists():
         equipamentos_padrao = [
@@ -446,7 +489,8 @@ def criar_excel_banco_dados():
         "Código do Equipamento", "Técnico Responsável", "Setor Produtivo",
         "Horário de Parada", "Horário de Liberação", "Total Horas Paradas",
         "Motivo da Parada", "Solução do Problema", "Observações",
-        "Assinatura Técnico", "Nome Solicitante", "Liberação Solicitante", "Status"
+        "Assinatura Técnico", "Nome Solicitante", "Liberação Solicitante", "Status",
+        "Materiais Utilizados", "Fotos Registradas"
     ]
 
     font_header = Font(bold=True, color="FFFFFF", size=10, name="Calibri")
@@ -466,7 +510,7 @@ def criar_excel_banco_dados():
         cell.alignment = align_center
         cell.border = border_thin
 
-    larguras = [6, 20, 15, 28, 16, 22, 20, 15, 15, 15, 30, 30, 25, 16, 20, 16, 12]
+    larguras = [6, 20, 15, 28, 16, 22, 20, 15, 15, 15, 30, 30, 25, 16, 20, 16, 12, 40, 14]
     for col, larg in enumerate(larguras, 1):
         ws.column_dimensions[get_column_letter(col)].width = larg
 
@@ -651,6 +695,28 @@ def mobile_form():
     )
 
 
+@app.route('/api/estoque/<tag>')
+@login_required
+def api_estoque(tag):
+    estoque = carregar_estoque()
+    pecas = estoque.get(tag.upper().strip(), [])
+    return jsonify({'tag': tag.upper(), 'pecas': pecas})
+
+
+@app.route('/admin/estoque/salvar', methods=['POST'])
+@admin_required
+def admin_salvar_estoque():
+    try:
+        dados = request.get_json()
+        estoque = dados.get('estoque', {})
+        # Normalizar TAGs para maiúsculas
+        estoque_norm = {k.upper().strip(): v for k, v in estoque.items() if k.strip()}
+        salvar_estoque(estoque_norm)
+        return jsonify({'success': True, 'message': 'Estoque salvo com sucesso!'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+
 @app.route('/api/equipamento/<codigo>')
 @login_required
 def buscar_equipamento(codigo):
@@ -760,6 +826,14 @@ def submit():
             f"solicitante_{record_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
         )
 
+        # Fotos
+        fotos_b64 = data.get('fotos', [])
+        nomes_fotos = salvar_fotos(fotos_b64, record_id) if fotos_b64 else []
+
+        # Materiais utilizados
+        materiais = data.get('materiais_utilizados', [])
+        materiais_str = ', '.join(materiais) if materiais else ''
+
         row_data = [
             record_id,
             datetime.now().strftime('%d/%m/%Y %H:%M:%S'),
@@ -777,7 +851,9 @@ def submit():
             'SIM' if sig_tecnico_path else 'NÃO',
             data.get('nome_solicitante', ''),
             'SIM' if sig_solicitante_path else 'NÃO',
-            status
+            status,
+            materiais_str,
+            len(nomes_fotos)
         ]
 
         salvar_registro_excel(row_data, next_row, record_id, total_horas)
@@ -822,6 +898,12 @@ def dashboard():
 
         total = len(records)
         total_horas = sum(r.get('Total Horas Paradas', 0) or 0 for r in records)
+        horas_list = [r.get('Total Horas Paradas', 0) or 0 for r in records if r.get('Total Horas Paradas')]
+        tempo_medio = round(sum(horas_list) / len(horas_list), 1) if horas_list else 0
+
+        # Status counts
+        finalizadas = sum(1 for r in records if str(r.get('Status', '')).strip() == 'Concluído')
+        em_aberto   = sum(1 for r in records if str(r.get('Status', '')).strip() == 'Pendente')
 
         por_setor = {}
         for r in records:
@@ -833,6 +915,50 @@ def dashboard():
             motivo = r.get('Motivo da Parada', 'N/A') or 'N/A'
             motivo_curto = motivo.split(' - ')[0] if ' - ' in motivo else motivo
             por_motivo[motivo_curto] = por_motivo.get(motivo_curto, 0) + 1
+
+        # Tipo de manutenção
+        por_tipo = {'Corretiva': 0, 'Preventiva': 0, 'Preditiva': 0, 'Melhoria': 0}
+        for r in records:
+            tipo = str(r.get('Tipo Manutenção', r.get('Motivo da Parada', '')) or '')
+            for t in por_tipo:
+                if t.lower() in tipo.lower():
+                    por_tipo[t] += 1
+                    break
+            else:
+                # Inferir pelo motivo
+                motivo = str(r.get('Motivo da Parada', '') or '')
+                if 'Preventiva' in motivo or 'Lubrificação' in motivo or '5S' in motivo:
+                    por_tipo['Preventiva'] += 1
+                elif 'Melhoria' in motivo:
+                    por_tipo['Melhoria'] += 1
+                elif 'Preditiva' in motivo:
+                    por_tipo['Preditiva'] += 1
+                else:
+                    por_tipo['Corretiva'] += 1
+
+        # Top equipamentos por ocorrências
+        por_equipamento = {}
+        for r in records:
+            eq = r.get('Equipamento') or r.get('Código do Equipamento') or 'N/A'
+            por_equipamento[str(eq)] = por_equipamento.get(str(eq), 0) + 1
+        top_equipamentos = sorted(por_equipamento.items(), key=lambda x: x[1], reverse=True)[:10]
+
+        # Por mês (últimos 12 meses)
+        from collections import defaultdict
+        por_mes = defaultdict(int)
+        for r in records:
+            data_str = r.get('Data/Hora Registro') or r.get('Data Ocorrência') or ''
+            try:
+                if data_str:
+                    partes = str(data_str).split('/')
+                    if len(partes) >= 2:
+                        mes_ano = f"{partes[1].zfill(2)}/{partes[2][:4] if len(partes) > 2 else datetime.now().strftime('%Y')}"
+                        por_mes[mes_ano] += 1
+            except Exception:
+                pass
+        # Ordenar por ano/mês e pegar últimos 12
+        meses_ord = sorted(por_mes.keys(), key=lambda x: (x.split('/')[1], x.split('/')[0]))[-12:]
+        por_mes_lista = [{'mes': m, 'qtd': por_mes[m]} for m in meses_ord]
 
         # Status por equipamento para o gráfico de barras
         status_eq = get_status_por_equipamento()
@@ -852,17 +978,32 @@ def dashboard():
         n_ok        = sum(1 for m in grafico_maquinas if m['status'] == 'Concluído')
         n_sem_dados = sum(1 for m in grafico_maquinas if m['status'] == 'Sem registros')
 
+        # Anos disponíveis para filtro
+        anos = sorted(set(
+            str(r.get('Data/Hora Registro', '') or '').split('/')[-1][:4]
+            for r in records
+            if r.get('Data/Hora Registro')
+        ), reverse=True) or [str(datetime.now().year)]
+
         return render_template(
             'dashboard.html',
             records=records[-50:],
+            records_json=records,
             total=total,
+            finalizadas=finalizadas,
+            em_aberto=em_aberto,
+            tempo_medio=tempo_medio,
             total_horas=round(total_horas, 1),
             por_setor=por_setor,
             por_motivo=por_motivo,
+            por_tipo=por_tipo,
+            top_equipamentos=top_equipamentos,
+            por_mes_lista=por_mes_lista,
             grafico_maquinas=grafico_maquinas,
             n_pendente=n_pendente,
             n_ok=n_ok,
-            n_sem_dados=n_sem_dados
+            n_sem_dados=n_sem_dados,
+            anos=anos
         )
     except Exception as e:
         return f"<h1>Erro ao carregar dashboard: {e}</h1>", 500
@@ -918,14 +1059,17 @@ def admin():
     listas = carregar_listas()
     equipamentos = carregar_equipamentos()
     producao = carregar_producao()
+    estoque = carregar_estoque()
     # Índice de producao por tag para fácil lookup no template
     producao_por_tag = {p['tag']: p for p in producao}
     return render_template('admin.html',
         usuarios=usuarios,
         listas=listas,
         equipamentos=equipamentos,
+        equipamentos_lista=equipamentos,
         producao=producao,
-        producao_por_tag=producao_por_tag
+        producao_por_tag=producao_por_tag,
+        estoque=estoque
     )
 
 
