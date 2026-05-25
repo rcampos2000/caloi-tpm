@@ -1,0 +1,19 @@
+# Dados locais — ficam no volume persistente do Railway, não no repositório
+Manutencao_TPM.xlsx
+Plano_de_Acao.xlsx
+assinaturas/
+backups/
+config/usuarios.json
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+.venv/
+
+# Sistema
+.DS_Store
+Thumbs.db
+_temp_*.xlsx
