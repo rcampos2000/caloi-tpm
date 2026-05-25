@@ -1231,6 +1231,52 @@ def admin_salvar_producao():
         return jsonify({'success': False, 'message': str(e)}), 500
 
 
+# ============================================================
+# ROTAS: BACKUP / DOWNLOAD
+# ============================================================
+@app.route('/admin/backup/download/manutencao')
+@admin_required
+def backup_manutencao():
+    if not DB_FILE.exists():
+        return "Arquivo não encontrado no servidor.", 404
+    return send_file(
+        str(DB_FILE),
+        as_attachment=True,
+        download_name=f"Manutencao_TPM_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+
+@app.route('/admin/backup/download/plano')
+@admin_required
+def backup_plano():
+    if not PLANO_ACAO_FILE.exists():
+        return "Arquivo não encontrado no servidor.", 404
+    return send_file(
+        str(PLANO_ACAO_FILE),
+        as_attachment=True,
+        download_name=f"Plano_de_Acao_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
+        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+
+
+@app.route('/admin/backup/download/config')
+@admin_required
+def backup_config():
+    import zipfile, io
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for f in CONFIG_DIR.glob('*.json'):
+            zf.write(f, f.name)
+    buf.seek(0)
+    return send_file(
+        buf,
+        as_attachment=True,
+        download_name=f"Config_TPM_{datetime.now().strftime('%Y%m%d_%H%M')}.zip",
+        mimetype='application/zip'
+    )
+
+
 # Inicializar banco e config sempre que o processo sobe (local + nuvem)
 init_database()
 init_config()
