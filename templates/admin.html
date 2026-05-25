@@ -254,6 +254,12 @@ tbody tr:hover { background: #f8fafd; }
   flex-shrink: 0;
 }
 .btn-rem:hover { background: #ffd5d5; }
+.btn-qr {
+  background: #EBF5FB; border: 1px solid #AED6F1; color: #1B3A6B;
+  padding: 4px 9px; border-radius: 6px; cursor: pointer; font-size: 12px;
+  font-weight: 700; margin-right: 4px; transition: background 0.15s;
+}
+.btn-qr:hover { background: #D6EAF8; }
 .btn-add-item {
   display: flex; align-items: center; gap: 6px;
   padding: 10px 14px;
@@ -647,7 +653,7 @@ body{margin-left:220px!important;}
                 <th class="col-tag">TAG</th>
                 <th class="col-area">Área</th>
                 <th class="col-forn">Fornecedor</th>
-                <th class="col-acao">Ação</th>
+                <th class="col-acao" style="min-width:110px;">Ações</th>
               </tr>
             </thead>
             <tbody id="tbody-equipamentos">
@@ -657,7 +663,10 @@ body{margin-left:220px!important;}
                 <td><input type="text" class="eq-tag input-tag" value="{{ eq.tag }}" placeholder="EQ001"></td>
                 <td><input type="text" class="eq-area" value="{{ eq.area }}" placeholder="Ex: Preparação Aço"></td>
                 <td><input type="text" class="eq-forn" value="{{ eq.fornecedor }}" placeholder="Ex: Schuler AG"></td>
-                <td style="text-align:center"><button class="btn-rem" onclick="removerEquipamento(this)" title="Remover">✖</button></td>
+                <td style="text-align:center;white-space:nowrap;">
+                  <button class="btn-qr" onclick="gerarQRCode(this)" title="Gerar QR Code">&#9638; QR</button>
+                  <button class="btn-rem" onclick="removerEquipamento(this)" title="Remover">✖</button>
+                </td>
               </tr>
               {% endfor %}
             </tbody>
@@ -1300,6 +1309,90 @@ function salvarEstoque() {
   })
   .catch(() => showToast('Erro ao salvar estoque', 'error'));
 }
+
+// ---- QR CODE ----
+function gerarQRCode(btn) {
+  const tr   = btn.closest('tr');
+  const tag  = tr.querySelector('.eq-tag').value.trim().toUpperCase();
+  const desc = tr.querySelector('.eq-desc').value.trim();
+  const area = tr.querySelector('.eq-area').value.trim();
+  if (!tag) { showToast('Informe a TAG antes de gerar o QR Code.', 'error'); return; }
+  const modal = document.getElementById('qr-modal');
+  document.getElementById('qr-modal-tag').textContent  = tag;
+  document.getElementById('qr-modal-desc').textContent = desc || '—';
+  document.getElementById('qr-modal-area').textContent = area || '—';
+  const qrDiv = document.getElementById('qr-canvas');
+  qrDiv.innerHTML = '';
+  const texto = `CALOI TPM\nTAG: ${tag}\nDesc: ${desc}\nArea: ${area}\nhttps://web-production-97918.up.railway.app/historico?tag=${encodeURIComponent(tag)}`;
+  if (window.QRCode) {
+    new QRCode(qrDiv, { text: texto, width: 220, height: 220, colorDark: '#1B3A6B', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+  } else {
+    qrDiv.innerHTML = '<p style="color:#c00;font-size:12px;">⚠ Carregando biblioteca QR…</p>';
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.onload = () => {
+      qrDiv.innerHTML = '';
+      new QRCode(qrDiv, { text: texto, width: 220, height: 220, colorDark: '#1B3A6B', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+    };
+    document.head.appendChild(s);
+  }
+  modal.style.display = 'flex';
+}
+
+function fecharQRModal() {
+  document.getElementById('qr-modal').style.display = 'none';
+}
+
+function imprimirQR() {
+  const tag  = document.getElementById('qr-modal-tag').textContent;
+  const desc = document.getElementById('qr-modal-desc').textContent;
+  const area = document.getElementById('qr-modal-area').textContent;
+  const img  = document.querySelector('#qr-canvas img');
+  if (!img) { showToast('Aguarde o QR Code carregar.', 'error'); return; }
+  const w = window.open('', '_blank', 'width=400,height=500');
+  w.document.write(`
+    <html><head><title>QR Code — ${tag}</title>
+    <style>body{font-family:Arial,sans-serif;text-align:center;padding:30px;}
+      h2{color:#1B3A6B;margin:0 0 4px;} p{color:#555;font-size:13px;margin:2px 0;}
+      img{margin:16px 0;border:2px solid #E0E5F0;border-radius:8px;}
+      .foot{font-size:10px;color:#999;margin-top:12px;}
+    </style></head>
+    <body>
+      <h2>${tag}</h2>
+      <p>${desc}</p>${area !== '—' ? `<p style="color:#888;">${area}</p>` : ''}
+      <br><img src="${img.src}"><br>
+      <p>Escaneie para ver o histórico de manutenção</p>
+      <div class="foot">Caloi TPM v2.0 — Sistema de Controle de Manutenção</div>
+    </body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 400);
+}
 </script>
+
+<!-- MODAL QR CODE -->
+<div id="qr-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,20,50,0.6);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.4);width:min(92vw,380px);overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#0d1f3c,#2451A3);padding:16px 20px;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:20px;">&#9638;</span>
+      <div style="flex:1;">
+        <div style="color:#fff;font-size:15px;font-weight:800;" id="qr-modal-tag">—</div>
+        <div style="color:rgba(255,255,255,0.6);font-size:11px;" id="qr-modal-desc">—</div>
+      </div>
+      <button onclick="fecharQRModal()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div style="padding:24px;text-align:center;">
+      <div id="qr-canvas" style="display:inline-block;padding:12px;border:2px solid #E0E5F0;border-radius:10px;background:#fff;"></div>
+      <div style="margin-top:12px;font-size:11px;color:#6B7A8D;">
+        Área: <strong id="qr-modal-area">—</strong>
+      </div>
+      <div style="margin-top:6px;font-size:10px;color:#B0B0B0;">Escaneie para acessar o histórico do equipamento</div>
+      <div style="display:flex;gap:10px;margin-top:16px;justify-content:center;">
+        <button onclick="imprimirQR()" style="padding:9px 20px;background:linear-gradient(135deg,#1B3A6B,#2451A3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">🖨 Imprimir</button>
+        <button onclick="fecharQRModal()" style="padding:9px 20px;background:#f0f0f0;color:#555;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
