@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Configuração - Caloi TPM</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
+
+/* TOPBAR */
+.topbar {
+  background: linear-gradient(90deg, #1B3A6B 0%, #2456a4 100%);
+  color: white;
+  padding: 0 28px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.topbar-logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+.topbar-logo span { color: #D62B2B; }
+.topbar-sub { font-size: 13px; opacity: 0.7; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.user-badge {
+  background: rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-links a {
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.nav-links a:hover { background: rgba(255,255,255,0.15); color: white; }
+.btn-logout {
+  background: rgba(214,43,43,0.3);
+  border: 1px solid rgba(214,43,43,0.5);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.btn-logout:hover { background: rgba(214,43,43,0.6); }
+
+/* TABS */
+.tabs-bar {
+  background: white;
+  border-bottom: 2px solid #e0e6f0;
+  display: flex;
+  padding: 0 28px;
+  gap: 4px;
+}
+.tab-btn {
+  padding: 16px 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #777;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.tab-btn:hover { color: #1B3A6B; }
+.tab-btn.active { color: #1B3A6B; border-bottom-color: #1B3A6B; }
+
+/* CONTENT */
+.content { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* CARDS */
+.card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #eef2f8;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-size: 16px; font-weight: 700; color: #1B3A6B; display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 24px; }
+
+/* BOTÕES */
+.btn {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-primary { background: #1B3A6B; color: white; }
+.btn-primary:hover { background: #15306a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,58,107,0.3); }
+.btn-danger { background: #D62B2B; color: white; }
+.btn-danger:hover { background: #b52222; }
+.btn-secondary { background: #eef2f8; color: #1B3A6B; border: 1px solid #d0daea; }
+.btn-secondary:hover { background: #dde6f5; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-success { background: #27ae60; color: white; }
+.btn-success:hover { background: #229954; }
+
+/* TABELA */
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left;
+  padding: 11px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  background: #f8fafd;
+  border-bottom: 1px solid #eef2f8;
+}
+tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f4f9;
+  font-size: 14px;
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #f8fafd; }
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-admin { background: #e8f0fc; color: #1B3A6B; }
+.badge-tecnico { background: #e8f7ef; color: #1a7a45; }
+.badge-ativo { background: #e8f7ef; color: #1a7a45; }
+.badge-inativo { background: #fff0f0; color: #c0392b; }
+
+/* FORMULÁRIO DO MODAL */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #dde0e8;
+  border-radius: 9px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: #1B3A6B;
+  box-shadow: 0 0 0 3px rgba(27,58,107,0.1);
+}
+.form-hint { font-size: 12px; color: #999; margin-top: 4px; }
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: 14px;
+  width: 520px;
+  max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  overflow: hidden;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-header {
+  padding: 20px 24px;
+  background: linear-gradient(90deg, #1B3A6B, #2456a4);
+  color: white;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-size: 16px; font-weight: 700; }
+.modal-close {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: rgba(255,255,255,0.3); }
+.modal-body { padding: 24px; }
+.modal-footer {
+  padding: 16px 24px;
+  background: #f8fafd;
+  border-top: 1px solid #eef2f8;
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+
+/* LISTAS EDITÁVEIS */
+.lista-editor {
+  border: 1.5px solid #dde0e8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.lista-item {
+  display: flex; align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f4f9;
+  gap: 10px;
+}
+.lista-item:last-child { border-bottom: none; }
+.lista-item:hover { background: #f8fafd; }
+.lista-item input {
+  flex: 1;
+  border: 1px solid #dde0e8;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 14px;
+}
+.lista-item input:focus { outline: none; border-color: #1B3A6B; }
+.btn-rem {
+  background: #ffeaea;
+  border: 1px solid #f5a0a0;
+  color: #c0392b;
+  width: 30px; height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.btn-rem:hover { background: #ffd5d5; }
+.btn-add-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 14px;
+  background: #f0f7ff;
+  border: none;
+  color: #1B3A6B;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  width: 100%;
+  border-radius: 0 0 8px 8px;
+}
+.btn-add-item:hover { background: #ddeeff; }
+
+/* TABELA EQUIPAMENTOS */
+.eq-table { width: 100%; border-collapse: collapse; }
+.eq-table thead th {
+  background: #1B3A6B; color: white;
+  padding: 10px 12px; font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-align: left; white-space: nowrap;
+}
+.eq-table thead th.col-tag    { width: 110px; }
+.eq-table thead th.col-area   { width: 160px; }
+.eq-table thead th.col-forn   { width: 160px; }
+.eq-table thead th.col-acao   { width: 46px; text-align: center; }
+.eq-table tbody tr { border-bottom: 1px solid #eef2f8; transition: background .15s; }
+.eq-table tbody tr:hover { background: #f5f8ff; }
+.eq-table td { padding: 6px 8px; }
+.eq-table td input {
+  width: 100%; padding: 7px 10px;
+  border: 1.5px solid #dde0e8; border-radius: 7px;
+  font-size: 13px; color: #222; background: #fafafa;
+  transition: border-color .2s;
+}
+.eq-table td input:focus { outline: none; border-color: #1B3A6B; background: #fff; }
+.eq-table td input.input-tag { text-transform: uppercase; font-weight: 700; font-family: monospace; font-size: 13px; }
+.eq-table-wrap { border: 1.5px solid #dde0e8; border-radius: 10px; overflow: hidden; max-height: 460px; overflow-y: auto; }
+.eq-add-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 14px; background: #f0f6ff;
+  border-top: 1.5px dashed #c5d8f5; color: #1B3A6B;
+  font-size: 13px; font-weight: 600; cursor: pointer; width: 100%;
+  border: none; transition: background .2s;
+}
+.eq-add-row:hover { background: #ddeeff; }
+.eq-count { font-size: 12px; color: #888; margin-left: auto; }
+
+/* PRODUCAO / OEE CARDS */
+.prod-card {
+  background: #f8fafd; border: 1.5px solid #dde3f0;
+  border-radius: 12px; padding: 18px 20px; margin-bottom: 16px;
+}
+.prod-card-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.prod-tag {
+  font-family: monospace; font-size: 13px; font-weight: 700; color: #fff;
+  background: #1B3A6B; border-radius: 6px; padding: 4px 10px;
+}
+.prod-desc { font-size: 14px; font-weight: 600; color: #222; flex: 1; }
+.prod-fields {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px;
+}
+.prod-field label { display: block; font-size: 12px; font-weight: 600; color: #888; margin-bottom: 4px; }
+.prod-field input {
+  width: 100%; padding: 8px 10px; border: 1.5px solid #dde0e8;
+  border-radius: 8px; font-size: 14px;
+}
+.prod-field input:focus { outline: none; border-color: #1B3A6B; }
+.prod-modelos-wrap { border: 1.5px solid #dde0e8; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+.prod-modelos-wrap table { width: 100%; border-collapse: collapse; }
+.prod-modelos-wrap thead th {
+  background: #1B3A6B; color: #fff; padding: 8px 12px; font-size: 12px; font-weight: 700;
+  text-align: left; text-transform: none; letter-spacing: 0;
+}
+.prod-modelos-wrap tbody tr { border-bottom: 1px solid #eef2f8; }
+.prod-modelos-wrap tbody td { padding: 5px 8px; }
+.prod-modelos-wrap tbody td input {
+  width: 100%; padding: 6px 10px; border: 1.5px solid #dde0e8;
+  border-radius: 7px; font-size: 13px;
+}
+.btn-add-modelo {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px; background: #f0f7ff; border: none;
+  color: #1B3A6B; cursor: pointer; font-size: 12px; font-weight: 600;
+  transition: background .2s;
+}
+.btn-add-modelo:hover { background: #ddeeff; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  z-index: 9999;
+  display: flex; align-items: center; gap: 10px;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { background: #27ae60; }
+.toast.error { background: #D62B2B; }
+
+/* STATS ROW */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+.stat-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.stat-icon.blue { background: #e8f0fc; }
+.stat-icon.green { background: #e8f7ef; }
+.stat-icon.red { background: #ffeaea; }
+.stat-label { font-size: 12px; color: #888; font-weight: 600; text-transform: uppercase; }
+.stat-value { font-size: 26px; font-weight: 800; color: #1B3A6B; }
+
+/* TOGGLE */
+.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: #ccc; border-radius: 24px; transition: 0.3s;
+}
+.toggle-slider:before {
+  content: ""; position: absolute;
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background: white; border-radius: 50%; transition: 0.3s;
+}
+.toggle-switch input:checked + .toggle-slider { background: #27ae60; }
+.toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+/* Sidebar override */
+body{margin-left:220px!important;}
+.topbar{display:none!important;}
+</style>
+</head>
+<body>
+{% include 'nav.html' %}
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">CALOI <span>TPM</span></div>
+    <div class="topbar-sub">⚙ Painel de Configuração</div>
+  </div>
+  <div class="topbar-right">
+    <div class="nav-links">
+      <a href="/formulario">📋 Formulário</a>
+      <a href="/dashboard">📊 Dashboard</a>
+    </div>
+    <div class="user-badge">👤 {{ usuario.nome }}</div>
+    <a href="/logout" class="btn-logout">Sair</a>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('usuarios', this)">👥 Usuários</button>
+  <button class="tab-btn" onclick="showTab('tecnicos', this)">🔧 Técnicos</button>
+  <button class="tab-btn" onclick="showTab('setores', this)">🏭 Setores</button>
+  <button class="tab-btn" onclick="showTab('motivos', this)">⚠ Motivos de Parada</button>
+  <button class="tab-btn" onclick="showTab('solucoes', this)">✔ Soluções</button>
+  <button class="tab-btn" onclick="showTab('equipamentos', this)">🏭 Equipamentos</button>
+  <button class="tab-btn" onclick="showTab('producao', this)">&#128230; Produção</button>
+</div>
+
+<!-- CONTEÚDO -->
+<div class="content">
+
+  <!-- ===== ABA USUÁRIOS ===== -->
+  <div class="tab-pane active" id="tab-usuarios">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue">👥</div>
+        <div>
+          <div class="stat-label">Total de Usuários</div>
+          <div class="stat-value">{{ usuarios|length }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">🛡</div>
+        <div>
+          <div class="stat-label">Administradores</div>
+          <div class="stat-value">{{ usuarios|selectattr('perfil','eq','admin')|list|length }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">🔧</div>
+        <div>
+          <div class="stat-label">Técnicos</div>
+          <div class="stat-value">{{ usuarios|selectattr('perfil','eq','tecnico')|list|length }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">👥 Gerenciar Usuários</div>
+        <button class="btn btn-primary" onclick="abrirModalNovoUsuario()">➕ Novo Usuário</button>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th>Usuário</th>
+              <th>Perfil</th>
+              <th>Situação</th>
+              <th>Criado em</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in usuarios %}
+            <tr>
+              <td style="color:#aaa;font-size:12px">{{ u.id }}</td>
+              <td><strong>{{ u.nome }}</strong></td>
+              <td style="font-family:monospace;color:#555">{{ u.username }}</td>
+              <td>
+                {% if u.perfil == 'admin' %}
+                  <span class="badge badge-admin">🛡 Admin</span>
+                {% else %}
+                  <span class="badge badge-tecnico">🔧 Técnico</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if u.ativo %}
+                  <span class="badge badge-ativo">✔ Ativo</span>
+                {% else %}
+                  <span class="badge badge-inativo">✖ Inativo</span>
+                {% endif %}
+              </td>
+              <td style="color:#888;font-size:13px">{{ u.criado_em }}</td>
+              <td>
+                <button class="btn btn-secondary btn-sm"
+                  onclick="abrirModalEditarUsuario({{ u.id }}, '{{ u.nome }}', '{{ u.username }}', '{{ u.perfil }}', {{ 'true' if u.ativo else 'false' }})">
+                  ✏ Editar
+                </button>
+                {% if u.id != usuario.id %}
+                <button class="btn btn-danger btn-sm" style="margin-left:4px"
+                  onclick="confirmarExclusao({{ u.id }}, '{{ u.nome }}')">
+                  🗑 Excluir
+                </button>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABA TÉCNICOS ===== -->
+  <div class="tab-pane" id="tab-tecnicos">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🔧 Lista de Técnicos Responsáveis</div>
+        <button class="btn btn-success" onclick="salvarLista('tecnicos')">💾 Salvar Alterações</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:16px">
+          Gerencie os técnicos disponíveis no formulário de manutenção. Clique em <strong>+</strong> para adicionar e <strong>✖</strong> para remover.
+        </p>
+        <div class="lista-editor" id="lista-tecnicos">
+          {% for t in listas.tecnicos %}
+          <div class="lista-item">
+            <input type="text" value="{{ t }}" placeholder="Nome do técnico">
+            <button class="btn-rem" onclick="removerItem(this)" title="Remover">✖</button>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="btn-add-item" onclick="adicionarItem('lista-tecnicos', 'Nome do técnico')">
+          ➕ Adicionar Técnico
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABA SETORES ===== -->
+  <div class="tab-pane" id="tab-setores">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏭 Setores Produtivos</div>
+        <button class="btn btn-success" onclick="salvarLista('setores')">💾 Salvar Alterações</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:16px">
+          Gerencie os setores disponíveis no formulário de manutenção.
+        </p>
+        <div class="lista-editor" id="lista-setores">
+          {% for s in listas.setores %}
+          <div class="lista-item">
+            <input type="text" value="{{ s }}" placeholder="Nome do setor">
+            <button class="btn-rem" onclick="removerItem(this)" title="Remover">✖</button>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="btn-add-item" onclick="adicionarItem('lista-setores', 'Nome do setor')">
+          ➕ Adicionar Setor
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABA MOTIVOS DE PARADA ===== -->
+  <div class="tab-pane" id="tab-motivos">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⚠ Motivos de Parada</div>
+        <button class="btn btn-success" onclick="salvarLista('motivos')">💾 Salvar Alterações</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:16px">
+          Gerencie os motivos de parada disponíveis no formulário de manutenção. Clique em <strong>+</strong> para adicionar e <strong>✖</strong> para remover.
+        </p>
+        <div class="lista-editor" id="lista-motivos">
+          {% for m in listas.motivos %}
+          <div class="lista-item">
+            <input type="text" value="{{ m }}" placeholder="Descrição do motivo">
+            <button class="btn-rem" onclick="removerItem(this)" title="Remover">✖</button>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="btn-add-item" onclick="adicionarItem('lista-motivos', 'Descrição do motivo')">
+          ➕ Adicionar Motivo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABA SOLUÇÕES ===== -->
+  <div class="tab-pane" id="tab-solucoes">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">✔ Soluções do Problema</div>
+        <button class="btn btn-success" onclick="salvarLista('solucoes')">💾 Salvar Alterações</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:16px">
+          Gerencie as soluções disponíveis no formulário de manutenção.
+        </p>
+        <div class="lista-editor" id="lista-solucoes">
+          {% for s in listas.solucoes %}
+          <div class="lista-item">
+            <input type="text" value="{{ s }}" placeholder="Descrição da solução">
+            <button class="btn-rem" onclick="removerItem(this)" title="Remover">✖</button>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="btn-add-item" onclick="adicionarItem('lista-solucoes', 'Descrição da solução')">
+          ➕ Adicionar Solução
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== ABA EQUIPAMENTOS ===== -->
+  <div class="tab-pane" id="tab-equipamentos">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏭 Cadastro de Equipamentos</div>
+        <button class="btn btn-success" onclick="salvarEquipamentos()">💾 Salvar Alterações</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:16px">
+          Gerencie os equipamentos cadastrados no sistema. A <strong>TAG</strong> é usada como código de busca no formulário — deve ser única por equipamento.
+        </p>
+        <div class="eq-table-wrap">
+          <table class="eq-table">
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th class="col-tag">TAG</th>
+                <th class="col-area">Área</th>
+                <th class="col-forn">Fornecedor</th>
+                <th class="col-acao">Ação</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-equipamentos">
+              {% for eq in equipamentos %}
+              <tr>
+                <td><input type="text" class="eq-desc" value="{{ eq.descricao }}" placeholder="Ex: Prensa Hidráulica #1"></td>
+                <td><input type="text" class="eq-tag input-tag" value="{{ eq.tag }}" placeholder="EQ001"></td>
+                <td><input type="text" class="eq-area" value="{{ eq.area }}" placeholder="Ex: Preparação Aço"></td>
+                <td><input type="text" class="eq-forn" value="{{ eq.fornecedor }}" placeholder="Ex: Schuler AG"></td>
+                <td style="text-align:center"><button class="btn-rem" onclick="removerEquipamento(this)" title="Remover">✖</button></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <button class="eq-add-row" onclick="adicionarEquipamento()">
+          ➕ Adicionar Equipamento
+          <span class="eq-count" id="eq-count"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== ABA PRODUCAO / OEE ===== -->
+  <div class="tab-pane" id="tab-producao">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">&#128230; Configuracao de Producao por Equipamento</div>
+        <button class="btn btn-success" onclick="salvarProducao()">&#128190; Salvar Tudo</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:20px">
+          Configure para cada equipamento: os <strong>modelos</strong> com seus volumes de producao, o
+          <strong>indice de qualidade</strong> (padrao 100%), e os <strong>tempos disponiveis</strong>
+          por turno e por mes (em horas). Esses dados sao usados nos calculos de OEE.
+        </p>
+
+        {% if equipamentos %}
+          {% for eq in equipamentos %}
+          {% set cfg = producao_por_tag.get(eq.tag, {}) %}
+          <div class="prod-card" data-tag="{{ eq.tag }}">
+            <div class="prod-card-header">
+              <span class="prod-tag">{{ eq.tag }}</span>
+              <span class="prod-desc">{{ eq.descricao }}{% if eq.area %} &mdash; {{ eq.area }}{% endif %}</span>
+            </div>
+
+            <!-- Campos escalares -->
+            <div class="prod-fields">
+              <div class="prod-field">
+                <label>&#127919; Indice de Qualidade (%)</label>
+                <input type="number" class="prod-qualidade" min="0" max="100" step="0.1"
+                       value="{{ cfg.get('indice_qualidade', 100) }}" placeholder="100">
+              </div>
+              <div class="prod-field">
+                <label>&#128337; Tempo Disponivel / Turno (h)</label>
+                <input type="number" class="prod-turno" min="0" step="0.5"
+                       value="{{ cfg.get('tempo_turno', 8) }}" placeholder="8">
+              </div>
+              <div class="prod-field">
+                <label>&#128197; Tempo Disponivel / Mes (h)</label>
+                <input type="number" class="prod-mes" min="0" step="1"
+                       value="{{ cfg.get('tempo_mes', 176) }}" placeholder="176">
+              </div>
+            </div>
+
+            <!-- Tabela de modelos -->
+            <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px;">
+              Modelos e Volume de Producao
+            </div>
+            <div class="prod-modelos-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:60%">Modelo / Produto</th>
+                    <th>Volume (unid/turno)</th>
+                    <th style="width:46px;text-align:center">Remover</th>
+                  </tr>
+                </thead>
+                <tbody id="modelos-{{ eq.tag }}">
+                  {% for mod in cfg.get('modelos', []) %}
+                  <tr>
+                    <td><input type="text" class="mod-nome" value="{{ mod.nome }}" placeholder="Ex: Bicicleta Aro 29"></td>
+                    <td><input type="number" class="mod-vol" min="0" step="1" value="{{ mod.volume }}" placeholder="500" style="width:100%;padding:6px 10px;border:1.5px solid #dde0e8;border-radius:7px;"></td>
+                    <td style="text-align:center"><button class="btn-rem" style="width:28px;height:28px;font-size:13px;" onclick="this.closest('tr').remove()">&#10006;</button></td>
+                  </tr>
+                  {% else %}
+                  <tr>
+                    <td><input type="text" class="mod-nome" placeholder="Ex: Bicicleta Aro 29"></td>
+                    <td><input type="number" class="mod-vol" min="0" step="1" placeholder="500" style="width:100%;padding:6px 10px;border:1.5px solid #dde0e8;border-radius:7px;"></td>
+                    <td style="text-align:center"><button class="btn-rem" style="width:28px;height:28px;font-size:13px;" onclick="this.closest('tr').remove()">&#10006;</button></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              <button class="btn-add-modelo" onclick="adicionarModelo('{{ eq.tag }}')">
+                &#10133; Adicionar Modelo
+              </button>
+            </div>
+
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="text-align:center;padding:40px;color:#aaa;">
+            <div style="font-size:40px;margin-bottom:12px;">&#127981;</div>
+            <p>Nenhum equipamento cadastrado ainda.</p>
+            <p style="margin-top:6px;font-size:13px;">
+              Cadastre equipamentos na aba <strong>Equipamentos</strong> primeiro.
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- ===== MODAL NOVO USUÁRIO ===== -->
+<div class="modal-overlay" id="modal-novo">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>➕ Novo Usuário</h3>
+      <button class="modal-close" onclick="fecharModal('modal-novo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome Completo *</label>
+          <input type="text" id="novo-nome" placeholder="Ex: João Silva">
+        </div>
+        <div class="form-group">
+          <label>Nome de Usuário *</label>
+          <input type="text" id="novo-username" placeholder="Ex: joao.silva">
+          <div class="form-hint">Sem espaços, letras minúsculas</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Senha *</label>
+          <input type="password" id="novo-senha" placeholder="Mínimo 4 caracteres">
+        </div>
+        <div class="form-group">
+          <label>Perfil *</label>
+          <select id="novo-perfil">
+            <option value="tecnico">🔧 Técnico</option>
+            <option value="admin">🛡 Administrador</option>
+          </select>
+          <div class="form-hint">Admin: acessa configurações</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-novo')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarNovoUsuario()">✔ Criar Usuário</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL EDITAR USUÁRIO ===== -->
+<div class="modal-overlay" id="modal-editar">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏ Editar Usuário</h3>
+      <button class="modal-close" onclick="fecharModal('modal-editar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome Completo *</label>
+          <input type="text" id="edit-nome" placeholder="Nome completo">
+        </div>
+        <div class="form-group">
+          <label>Usuário</label>
+          <input type="text" id="edit-username" disabled style="background:#f0f0f0;color:#888">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nova Senha</label>
+          <input type="password" id="edit-senha" placeholder="Deixe em branco para manter">
+          <div class="form-hint">Preencha somente para alterar a senha</div>
+        </div>
+        <div class="form-group">
+          <label>Perfil *</label>
+          <select id="edit-perfil">
+            <option value="tecnico">🔧 Técnico</option>
+            <option value="admin">🛡 Administrador</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Situação</label>
+        <label class="toggle-switch" style="margin-top:4px">
+          <input type="checkbox" id="edit-ativo" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <span id="edit-ativo-label" style="margin-left:10px;font-size:13px;color:#555">Usuário Ativo</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-editar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicaoUsuario()">&#128190; Salvar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ---- TABS ----
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ---- MODAIS ----
+function abrirModalNovoUsuario() {
+  ['novo-nome','novo-username','novo-senha'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('novo-perfil').value = 'tecnico';
+  document.getElementById('modal-novo').classList.add('open');
+}
+
+function abrirModalEditarUsuario(id, nome, username, perfil, ativo) {
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-nome').value = nome;
+  document.getElementById('edit-username').value = username;
+  document.getElementById('edit-perfil').value = perfil;
+  document.getElementById('edit-senha').value = '';
+  const chk = document.getElementById('edit-ativo');
+  chk.checked = ativo;
+  atualizarLabelAtivo();
+  document.getElementById('modal-editar').classList.add('open');
+}
+
+function fecharModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.getElementById('edit-ativo').addEventListener('change', atualizarLabelAtivo);
+function atualizarLabelAtivo() {
+  const ativo = document.getElementById('edit-ativo').checked;
+  document.getElementById('edit-ativo-label').textContent = ativo ? 'Usuario Ativo' : 'Usuario Inativo';
+  document.getElementById('edit-ativo-label').style.color = ativo ? '#27ae60' : '#c0392b';
+}
+
+// Fechar modal ao clicar fora
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+// ---- API CALLS ----
+async function api(url, body) {
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return resp.json();
+}
+
+function toast(msg, tipo = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = (tipo === 'success' ? '&#10004; ' : '&#10006; ') + msg;
+  el.className = `toast ${tipo} show`;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ---- USUARIOS ----
+async function salvarNovoUsuario() {
+  const nome = document.getElementById('novo-nome').value.trim();
+  const username = document.getElementById('novo-username').value.trim();
+  const senha = document.getElementById('novo-senha').value;
+  const perfil = document.getElementById('novo-perfil').value;
+
+  if (!nome || !username || !senha) { toast('Preencha todos os campos obrigatorios.', 'error'); return; }
+  if (senha.length < 4) { toast('A senha deve ter pelo menos 4 caracteres.', 'error'); return; }
+
+  const r = await api('/admin/usuarios/adicionar', { nome, username, senha, perfil });
+  if (r.success) {
+    toast(r.message);
+    fecharModal('modal-novo');
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    toast(r.message, 'error');
+  }
+}
+
+async function salvarEdicaoUsuario() {
+  const id = parseInt(document.getElementById('edit-id').value);
+  const nome = document.getElementById('edit-nome').value.trim();
+  const senha = document.getElementById('edit-senha').value;
+  const perfil = document.getElementById('edit-perfil').value;
+  const ativo = document.getElementById('edit-ativo').checked;
+
+  if (!nome) { toast('O nome e obrigatorio.', 'error'); return; }
+  if (senha && senha.length < 4) { toast('A nova senha deve ter pelo menos 4 caracteres.', 'error'); return; }
+
+  const r = await api(`/admin/usuarios/editar/${id}`, { nome, senha, perfil, ativo });
+  if (r.success) {
+    toast(r.message);
+    fecharModal('modal-editar');
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    toast(r.message, 'error');
+  }
+}
+
+function confirmarExclusao(id, nome) {
+  if (!confirm(`Deseja excluir o usuario "${nome}"?\n\nEsta acao nao pode ser desfeita.`)) return;
+  api(`/admin/usuarios/excluir/${id}`, {}).then(r => {
+    if (r.success) {
+      toast(r.message);
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      toast(r.message, 'error');
+    }
+  });
+}
+
+// ---- LISTAS ----
+function adicionarItem(listaId, placeholder) {
+  const lista = document.getElementById(listaId);
+  const div = document.createElement('div');
+  div.className = 'lista-item';
+  div.innerHTML = `
+    <input type="text" placeholder="${placeholder}">
+    <button class="btn-rem" onclick="removerItem(this)" title="Remover">&#10006;</button>
+  `;
+  lista.appendChild(div);
+  div.querySelector('input').focus();
+}
+
+function removerItem(btn) {
+  const item = btn.closest('.lista-item');
+  if (document.querySelectorAll('#' + item.closest('.lista-editor').id + ' .lista-item').length <= 1) {
+    toast('Deve haver pelo menos um item na lista.', 'error');
+    return;
+  }
+  item.remove();
+}
+
+async function salvarLista(tipo) {
+  const listaId = 'lista-' + tipo;
+  const inputs = document.querySelectorAll(`#${listaId} input[type="text"]`);
+  const itens = Array.from(inputs).map(i => i.value.trim()).filter(v => v);
+
+  if (itens.length === 0) { toast('A lista nao pode ficar vazia.', 'error'); return; }
+
+  const body = {};
+  body[tipo] = itens;
+
+  const r = await api('/admin/listas/salvar', body);
+  if (r.success) {
+    toast(r.message);
+  } else {
+    toast(r.message, 'error');
+  }
+}
+
+// ---- EQUIPAMENTOS ----
+function adicionarEquipamento() {
+  const tbody = document.getElementById('tbody-equipamentos');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" class="eq-desc" placeholder="Ex: Prensa Hidraulica #1"></td>
+    <td><input type="text" class="eq-tag input-tag" placeholder="EQ021"></td>
+    <td><input type="text" class="eq-area" placeholder="Ex: Preparacao Aco"></td>
+    <td><input type="text" class="eq-forn" placeholder="Ex: Schuler AG"></td>
+    <td style="text-align:center"><button class="btn-rem" onclick="removerEquipamento(this)" title="Remover">&#10006;</button></td>
+  `;
+  tbody.appendChild(tr);
+  tr.querySelector('input').focus();
+  atualizarContadorEq();
+}
+
+function removerEquipamento(btn) {
+  btn.closest('tr').remove();
+  atualizarContadorEq();
+}
+
+function atualizarContadorEq() {
+  const n = document.querySelectorAll('#tbody-equipamentos tr').length;
+  const el = document.getElementById('eq-count');
+  if (el) el.textContent = n + ' equipamento(s)';
+}
+
+async function salvarEquipamentos() {
+  const rows = document.querySelectorAll('#tbody-equipamentos tr');
+  const equipamentos = [];
+  rows.forEach(tr => {
+    const desc = tr.querySelector('.eq-desc').value.trim();
+    const tag  = tr.querySelector('.eq-tag').value.trim().toUpperCase();
+    const area = tr.querySelector('.eq-area').value.trim();
+    const forn = tr.querySelector('.eq-forn').value.trim();
+    if (desc || tag) equipamentos.push({ descricao: desc, tag, area, fornecedor: forn });
+  });
+  if (equipamentos.length === 0) {
+    toast('Adicione pelo menos um equipamento.', 'error');
+    return;
+  }
+  const r = await api('/admin/equipamentos/salvar', { equipamentos });
+  if (r.success) toast(r.message);
+  else toast(r.message, 'error');
+}
+
+// ---- PRODUCAO / OEE ----
+function adicionarModelo(tag) {
+  const tbody = document.getElementById('modelos-' + tag);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" class="mod-nome" placeholder="Ex: Bicicleta Aro 29"></td>
+    <td><input type="number" class="mod-vol" min="0" step="1" placeholder="Ex: 500" style="width:100%;padding:6px 10px;border:1.5px solid #dde0e8;border-radius:7px;"></td>
+    <td style="text-align:center"><button class="btn-rem" style="width:28px;height:28px;font-size:13px;" onclick="this.closest('tr').remove()">&#10006;</button></td>
+  `;
+  tbody.appendChild(tr);
+  tr.querySelector('input').focus();
+}
+
+async function salvarProducao() {
+  const cards = document.querySelectorAll('.prod-card');
+  const producao = [];
+  cards.forEach(card => {
+    const tag = card.dataset.tag;
+    const indice_qualidade = parseFloat(card.querySelector('.prod-qualidade').value) || 100;
+    const tempo_turno = parseFloat(card.querySelector('.prod-turno').value) || 8;
+    const tempo_mes   = parseFloat(card.querySelector('.prod-mes').value) || 176;
+    const modelos = [];
+    card.querySelectorAll('tbody tr').forEach(tr => {
+      const nome = tr.querySelector('.mod-nome').value.trim();
+      const volume = parseFloat(tr.querySelector('.mod-vol').value) || 0;
+      if (nome) modelos.push({ nome, volume });
+    });
+    producao.push({ tag, modelos, indice_qualidade, tempo_turno, tempo_mes });
+  });
+  if (producao.length === 0) { toast('Nenhum equipamento para configurar.', 'error'); return; }
+  const r = await api('/admin/producao/salvar', { producao });
+  if (r.success) toast(r.message);
+  else toast(r.message, 'error');
+}
+
+// Atalho teclado ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+});
+
+document.addEventListener('DOMContentLoaded', atualizarContadorEq);
+</script>
+</body>
+</html>
