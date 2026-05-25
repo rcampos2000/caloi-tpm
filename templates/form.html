@@ -552,16 +552,16 @@ body{margin-left:220px!important;}
           <span style="font-size:22px">&#9989;</span>
           <div>
             <strong id="chip-nome">—</strong>
-            <span>Código: <span id="chip-cod">—</span></span>
+            <span>TAG: <span id="chip-cod">—</span></span>
           </div>
           <button type="button" onclick="limparEqp()">&#10005;</button>
         </div>
 
         <div class="g2" style="margin-top:14px">
           <div class="fg">
-            <label>&#127991; Código do Equipamento <span class="req">*</span></label>
+            <label>&#127991; TAG do Equipamento <span class="req">*</span></label>
             <input type="text" id="eqp_cod" placeholder="Ex: EQ001 (ou use o scanner no celular)"
-                   oninput="buscaEqp(this.value)" autocomplete="off">
+                   oninput="buscaEqp(this.value)" autocomplete="off" style="text-transform:uppercase;">
           </div>
           <div class="fg">
             <label>&#128295; Descrição do Equipamento <span class="req">*</span></label>
@@ -674,6 +674,34 @@ body{margin-left:220px!important;}
             <label>&#128221; Observações Complementares</label>
             <textarea id="obs"
               placeholder="Descreva detalhes adicionais: peças substituídas, medidas tomadas, próximas ações previstas..."></textarea>
+          </div>
+
+          <!-- MATERIAL UTILIZADO -->
+          <div class="fg s2" id="fg-materiais">
+            <label>&#128230; Material Utilizado</label>
+            <div id="materiais-container"
+              style="border:1.5px solid var(--gray2);border-radius:var(--rs);padding:12px 14px;background:#fff;min-height:50px;">
+              <span id="materiais-empty" style="color:var(--muted);font-size:13px;">
+                ℹ️ Selecione a TAG do equipamento para carregar as peças disponíveis.
+              </span>
+              <div id="materiais-lista" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+            </div>
+          </div>
+
+          <!-- FOTOS -->
+          <div class="fg s2">
+            <label>&#128247; Fotos da Ocorrência <span style="font-size:11px;font-weight:normal;color:var(--muted);">(máx. 3 fotos)</span></label>
+            <div id="fotos-area"
+              style="border:2px dashed var(--gray2);border-radius:var(--rs);padding:16px;background:#fafbff;">
+              <div id="fotos-preview" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;"></div>
+              <label id="fotos-btn"
+                style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:var(--blue);color:#fff;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:600;">
+                &#128247; Selecionar Fotos
+                <input type="file" id="fotos-input" accept="image/*" multiple style="display:none"
+                       onchange="processarFotos(this)">
+              </label>
+              <span id="fotos-count" style="margin-left:10px;font-size:12px;color:var(--muted);">0/3 fotos</span>
+            </div>
           </div>
 
         </div>
@@ -838,14 +866,80 @@ document.getElementById('data-hdr').textContent =
 ------------------------------------------------------- */
 function buscaEqp(cod) {
   if (!cod || cod.length < 2) return;
-  const nome = EQPS[cod.toUpperCase().trim()];
+  const tag = cod.toUpperCase().trim();
+  const nome = EQPS[tag];
   if (nome) {
     document.getElementById('eqp_nome').value = nome;
     document.getElementById('chip-nome').textContent = nome;
-    document.getElementById('chip-cod').textContent = cod.toUpperCase();
+    document.getElementById('chip-cod').textContent = tag;
     document.getElementById('equip-chip').classList.add('show');
     status_('&#9989; Equipamento: ' + nome, 'ok');
+    carregarMateriais(tag);
   }
+}
+
+// ── Materiais por equipamento ──
+let fotosB64 = [];
+
+function carregarMateriais(tag) {
+  fetch('/api/estoque/' + encodeURIComponent(tag))
+    .then(r => r.json())
+    .then(d => {
+      const lista = document.getElementById('materiais-lista');
+      const empty = document.getElementById('materiais-empty');
+      lista.innerHTML = '';
+      if (!d.pecas || d.pecas.length === 0) {
+        empty.textContent = 'Nenhuma peça cadastrada para este equipamento.';
+        empty.style.display = 'block';
+        return;
+      }
+      empty.style.display = 'none';
+      d.pecas.forEach(peca => {
+        const label = document.createElement('label');
+        label.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--gray);border:1.5px solid var(--gray2);border-radius:6px;cursor:pointer;font-size:13px;user-select:none;';
+        label.innerHTML = `<input type="checkbox" value="${peca}" style="width:15px;height:15px;accent-color:var(--blue2);"> ${peca}`;
+        lista.appendChild(label);
+      });
+    }).catch(() => {});
+}
+
+// ── Fotos ──
+function processarFotos(input) {
+  const files = Array.from(input.files);
+  const slots = 3 - fotosB64.length;
+  const novos = files.slice(0, slots);
+  novos.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      fotosB64.push(e.target.result);
+      atualizarPreviewFotos();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function atualizarPreviewFotos() {
+  const preview = document.getElementById('fotos-preview');
+  const count = document.getElementById('fotos-count');
+  preview.innerHTML = '';
+  fotosB64.forEach((b64, i) => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;display:inline-block;';
+    wrap.innerHTML = `
+      <img src="${b64}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:2px solid var(--gray2);">
+      <button type="button" onclick="removerFoto(${i})"
+        style="position:absolute;top:-6px;right:-6px;background:#c0392b;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;line-height:20px;text-align:center;">✕</button>
+    `;
+    preview.appendChild(wrap);
+  });
+  count.textContent = fotosB64.length + '/3 fotos';
+  document.getElementById('fotos-btn').style.display = fotosB64.length >= 3 ? 'none' : 'inline-flex';
+}
+
+function removerFoto(i) {
+  fotosB64.splice(i, 1);
+  atualizarPreviewFotos();
 }
 
 function abrirCameraLeitor() {
@@ -1086,6 +1180,8 @@ document.getElementById('form').addEventListener('submit', async e => {
     assinatura_solicitante: getSigData('sol'),
     outros_problemas:   document.getElementById('outros_problemas').value.trim(),
     pecas_necessarias:  document.getElementById('pecas_necessarias').value.trim(),
+    materiais_utilizados: Array.from(document.querySelectorAll('#materiais-lista input[type=checkbox]:checked')).map(c => c.value),
+    fotos: fotosB64,
   };
 
   const erros = validar(data);
