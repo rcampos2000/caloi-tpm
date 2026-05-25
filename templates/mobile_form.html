@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TPM Mobile | Caloi</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:  #1B3A6B;
+  --blue2: #2451A3;
+  --red:   #D62B2B;
+  --gray:  #F2F5FB;
+  --gray2: #DDE3EF;
+  --text:  #2C3E50;
+  --muted: #6B7A8D;
+  --green: #1E8449;
+  --r: 12px;
+}
+
+html, body { height: 100%; background: var(--gray); font-family: Arial, Helvetica, sans-serif; color: var(--text); }
+
+/* ── HEADER ── */
+.hdr {
+  background: linear-gradient(135deg, #162D55 0%, #1B3A6B 60%, #2451A3 100%);
+  color: #fff;
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.hdr-logo { display: flex; align-items: center; gap: 10px; }
+.hdr-logo svg { width: 44px; height: 28px; }
+.hdr-logo-txt { line-height: 1.2; }
+.hdr-logo-txt strong { font-size: 16px; letter-spacing: 1px; }
+.hdr-logo-txt span { font-size: 9px; opacity: .7; display: block; }
+.hdr-right { text-align: right; font-size: 11px; opacity: .85; line-height: 1.6; }
+.hdr-right strong { font-size: 13px; display: block; }
+
+/* ── CONTEÚDO ── */
+.page { padding: 12px 12px 80px; max-width: 480px; margin: 0 auto; }
+
+/* ── CARD ── */
+.card {
+  background: #fff;
+  border-radius: var(--r);
+  box-shadow: 0 2px 8px rgba(27,58,107,.10);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.card-hdr {
+  background: linear-gradient(90deg, var(--blue) 0%, var(--blue2) 100%);
+  color: #fff;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: .3px;
+}
+.card-hdr .ico { font-size: 16px; }
+.card-hdr .step { margin-left: auto; font-size: 10px; opacity: .75; font-weight: normal; }
+.card-body { padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+
+/* ── CAMPO ── */
+.fg { display: flex; flex-direction: column; gap: 5px; }
+.fg label {
+  font-size: 12px; font-weight: bold; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .4px;
+}
+.fg .req { color: var(--red); }
+.fg input, .fg select, .fg textarea {
+  width: 100%;
+  padding: 13px 14px;
+  font-size: 16px; /* 16px evita zoom automático no iOS */
+  border: 1.5px solid var(--gray2);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  -webkit-appearance: none;
+  transition: border-color .2s;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus {
+  outline: none;
+  border-color: var(--blue2);
+  box-shadow: 0 0 0 3px rgba(36,81,163,.12);
+}
+.fg textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+.fg select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%236B7A8D'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── CHIP EQUIPAMENTO ── */
+.equip-chip {
+  display: none;
+  background: #E8F5E9;
+  border: 1.5px solid #81C784;
+  border-radius: 8px;
+  padding: 10px 14px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.equip-chip.show { display: flex; }
+.equip-chip strong { display: block; color: var(--green); font-size: 14px; }
+.equip-chip span { color: var(--muted); font-size: 11px; }
+.equip-chip button {
+  margin-left: auto; background: none; border: none;
+  font-size: 18px; cursor: pointer; color: var(--muted);
+  padding: 4px; line-height: 1;
+}
+
+/* ── TIPO MANUTENÇÃO ── */
+.tipo-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tipo-btn {
+  padding: 14px 8px;
+  border: 2px solid var(--gray2);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--muted);
+  transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tipo-btn .ico { font-size: 22px; display: block; margin-bottom: 4px; }
+.tipo-btn.sel-corretiva { border-color: var(--red); background: #FFF5F5; color: var(--red); }
+.tipo-btn.sel-preventiva { border-color: var(--green); background: #F0FFF4; color: var(--green); }
+.tipo-btn.sel-preditiva  { border-color: #7B3F00; background: #FFF8F0; color: #7B3F00; }
+.tipo-btn.sel-melhoria   { border-color: var(--blue2); background: #EEF3FF; color: var(--blue2); }
+input[name="tipo_manutencao"] { display: none; }
+
+/* ── BOTÃO ENVIAR ── */
+.btn-submit {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: .5px;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .1s, box-shadow .2s;
+  box-shadow: 0 4px 16px rgba(27,58,107,.3);
+}
+.btn-submit:active { transform: scale(.98); }
+.btn-submit:disabled { opacity: .6; }
+
+.spin {
+  width: 20px; height: 20px;
+  border: 3px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: rot .7s linear infinite;
+  display: none;
+}
+@keyframes rot { to { transform: rotate(360deg); } }
+
+/* ── AVISO DE CAMPO OBRIGATÓRIO ── */
+.fg.err input, .fg.err select, .fg.err textarea { border-color: var(--red); }
+.fg .err-msg { display: none; font-size: 11px; color: var(--red); }
+.fg.err .err-msg { display: block; }
+
+/* ── MODAL DE SUCESSO ── */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(22,45,85,.7);
+  z-index: 999; align-items: center; justify-content: center;
+}
+.modal-bg.show { display: flex; }
+.modal {
+  background: #fff; border-radius: var(--r);
+  padding: 32px 24px; max-width: 340px; width: 90%;
+  text-align: center;
+  animation: pop .3s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes pop { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+.modal-ico { font-size: 54px; margin-bottom: 10px; display: block; }
+.modal h3 { font-size: 18px; font-weight: bold; color: var(--blue); margin-bottom: 6px; }
+.modal p { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+.modal-id {
+  background: var(--gray); border-radius: 8px;
+  padding: 12px; margin-bottom: 16px;
+  font-size: 13px; line-height: 2; text-align: left;
+}
+.modal-id strong { color: var(--blue); }
+.modal-btns { display: flex; flex-direction: column; gap: 8px; }
+.btn-novo {
+  padding: 14px; border-radius: 8px; border: none;
+  font-size: 15px; font-weight: bold; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-novo.prim { background: var(--blue); color: #fff; }
+.btn-novo.sec  { background: var(--gray); color: var(--text); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-logo">
+    <svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="32" cy="40" r="25" fill="none" stroke="#D62B2B" stroke-width="3.5"/>
+      <circle cx="32" cy="40" r="8"  fill="none" stroke="#D62B2B" stroke-width="3"/>
+      <line x1="32" y1="15" x2="32" y2="65" stroke="#D62B2B" stroke-width="2.2"/>
+      <line x1="7"  y1="40" x2="57" y2="40" stroke="#D62B2B" stroke-width="2.2"/>
+      <line x1="14" y1="22" x2="50" y2="58" stroke="#D62B2B" stroke-width="1.8"/>
+      <line x1="14" y1="58" x2="50" y2="22" stroke="#D62B2B" stroke-width="1.8"/>
+      <path d="M52 30 Q68 22 88 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="88" y1="16" x2="88" y2="30" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
+      <path d="M52 40 L72 22 L92 40 Z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/>
+      <circle cx="92" cy="40" r="4" fill="#fff"/>
+      <circle cx="52" cy="40" r="3" fill="#fff"/>
+    </svg>
+    <div class="hdr-logo-txt">
+      <strong>CALOI TPM</strong>
+      <span>Registro de Ocorrência</span>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <strong id="relogio">--:--</strong>
+    <span id="data-hdr"></span>
+    <span style="font-size:9px;opacity:.6">{{ session_user }}</span>
+  </div>
+</header>
+
+<!-- FORMULÁRIO -->
+<div class="page">
+  <form id="form" novalidate>
+
+    <!-- SEÇÃO 1: EQUIPAMENTO -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="ico">⚙️</span> Equipamento
+        <span class="step">1 / 5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="equip-chip" id="equip-chip">
+          <span style="font-size:22px">✅</span>
+          <div>
+            <strong id="chip-nome">—</strong>
+            <span>Código: <span id="chip-cod">—</span></span>
+          </div>
+          <button type="button" onclick="limparEqp()">✕</button>
+        </div>
+
+        <div class="fg" id="fg-eqp-cod">
+          <label>🏷️ Código do Equipamento <span class="req">*</span></label>
+          <input type="text" id="eqp_cod" placeholder="Ex: EQ001"
+                 oninput="buscaEqp(this.value)" autocomplete="off"
+                 autocapitalize="characters">
+          <span class="err-msg">Informe o código do equipamento</span>
+        </div>
+
+        <div class="fg" id="fg-eqp-nome">
+          <label>🔧 Descrição do Equipamento <span class="req">*</span></label>
+          <input type="text" id="eqp_nome" placeholder="Nome / descrição" required>
+          <span class="err-msg">Informe a descrição do equipamento</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEÇÃO 2: DADOS DA OCORRÊNCIA -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="ico">📋</span> Dados da Ocorrência
+        <span class="step">2 / 5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="fg" id="fg-tecnico">
+          <label>👷 Técnico Responsável <span class="req">*</span></label>
+          <select id="tecnico" required>
+            {% for t in tecnicos %}
+            <option value="{{ t }}" {% if loop.first %}disabled selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+          </select>
+          <span class="err-msg">Selecione o técnico responsável</span>
+        </div>
+
+        <div class="fg" id="fg-setor">
+          <label>🏭 Setor Produtivo <span class="req">*</span></label>
+          <select id="setor" required>
+            <option value="" disabled selected>Selecione o setor...</option>
+            {% for s in setores %}
+            <option value="{{ s }}">{{ s }}</option>
+            {% endfor %}
+          </select>
+          <span class="err-msg">Selecione o setor produtivo</span>
+        </div>
+
+        <div class="fg">
+          <label>📅 Data da Ocorrência</label>
+          <input type="text" id="data_ocorrencia" value="{{ data_hoje }}" placeholder="DD/MM/AAAA">
+        </div>
+
+        <div class="g2">
+          <div class="fg">
+            <label>🕐 Início da Parada</label>
+            <input type="time" id="horario_parada" value="{{ hora_atual }}">
+          </div>
+          <div class="fg">
+            <label>🕐 Liberação</label>
+            <input type="time" id="horario_liberacao">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEÇÃO 3: TIPO E MOTIVO -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="ico">🔍</span> Tipo e Motivo
+        <span class="step">3 / 5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="fg">
+          <label>Tipo de Manutenção <span class="req">*</span></label>
+          <div class="tipo-btns">
+            <button type="button" class="tipo-btn" data-tipo="Corretiva" onclick="selecionarTipo(this)">
+              <span class="ico">🔴</span> Corretiva
+            </button>
+            <button type="button" class="tipo-btn" data-tipo="Preventiva" onclick="selecionarTipo(this)">
+              <span class="ico">🟢</span> Preventiva
+            </button>
+            <button type="button" class="tipo-btn" data-tipo="Preditiva" onclick="selecionarTipo(this)">
+              <span class="ico">🟡</span> Preditiva
+            </button>
+            <button type="button" class="tipo-btn" data-tipo="Melhoria" onclick="selecionarTipo(this)">
+              <span class="ico">🔵</span> Melhoria
+            </button>
+          </div>
+          <input type="hidden" id="tipo_manutencao" name="tipo_manutencao">
+        </div>
+
+        <div class="fg" id="fg-motivo">
+          <label>❓ Motivo da Parada <span class="req">*</span></label>
+          <select id="motivo_parada" required>
+            {% for m in motivos %}
+            <option value="{{ m }}" {% if loop.first %}disabled selected{% endif %}>{{ m }}</option>
+            {% endfor %}
+          </select>
+          <span class="err-msg">Selecione o motivo da parada</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEÇÃO 4: DESCRIÇÃO E SOLUÇÃO -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="ico">📝</span> Descrição e Solução
+        <span class="step">4 / 5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="fg">
+          <label>📌 Descrição do Problema <span class="req">*</span></label>
+          <textarea id="descricao_problema" placeholder="Descreva o problema encontrado..." required></textarea>
+        </div>
+
+        <div class="fg">
+          <label>✅ Solução Aplicada</label>
+          <select id="solucao_problema">
+            <option value="">Selecione a solução...</option>
+            {% for s in solucoes %}
+            <option value="{{ s }}">{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="fg">
+          <label>💬 Observações</label>
+          <textarea id="observacoes" placeholder="Informações adicionais..."></textarea>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEÇÃO 5: PLANO DE AÇÃO -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="ico">📋</span> Plano de Ação (Opcional)
+        <span class="step">5 / 5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="fg">
+          <label>⚠️ Outros Problemas Encontrados</label>
+          <textarea id="outros_problemas" placeholder="Problemas que precisam de ação futura..."></textarea>
+        </div>
+
+        <div class="fg">
+          <label>🔩 Peças/Materiais Necessários</label>
+          <textarea id="pecas_necessarias" placeholder="Peças ou materiais a requisitar..."></textarea>
+        </div>
+
+        <div class="fg">
+          <label>👤 Nome do Solicitante</label>
+          <input type="text" id="nome_solicitante" placeholder="Nome de quem solicitou o atendimento">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BOTÃO ENVIAR -->
+    <button type="button" class="btn-submit" id="btn-submit" onclick="enviarForm()">
+      <span id="btn-txt">💾 Registrar Ocorrência</span>
+      <div class="spin" id="spin"></div>
+    </button>
+
+  </form>
+</div>
+
+<!-- MODAL SUCESSO -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <span class="modal-ico">✅</span>
+    <h3>Registrado!</h3>
+    <p>Ocorrência salva com sucesso no sistema.</p>
+    <div class="modal-id" id="modal-info"></div>
+    <div class="modal-btns">
+      <button class="btn-novo prim" onclick="novoRegistro()">📝 Novo Registro</button>
+      <button class="btn-novo sec" onclick="window.location.href='/inicio'">🏠 Voltar ao Início</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Relógio ──
+function atualizarRelogio() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('relogio').textContent = h + ':' + m;
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  document.getElementById('data-hdr').textContent = dias[now.getDay()] + ', ' + now.getDate() + ' ' + meses[now.getMonth()];
+}
+atualizarRelogio();
+setInterval(atualizarRelogio, 30000);
+
+// ── Busca equipamento ──
+let buscaTimer = null;
+function buscaEqp(val) {
+  clearTimeout(buscaTimer);
+  if (val.length < 2) return;
+  buscaTimer = setTimeout(() => {
+    fetch('/api/equipamento/' + encodeURIComponent(val.trim().toUpperCase()))
+      .then(r => r.json())
+      .then(d => {
+        if (d.found) {
+          document.getElementById('eqp_nome').value = d.nome;
+          document.getElementById('chip-nome').textContent = d.nome;
+          document.getElementById('chip-cod').textContent = d.codigo;
+          document.getElementById('equip-chip').classList.add('show');
+        }
+      }).catch(() => {});
+  }, 500);
+}
+
+function limparEqp() {
+  document.getElementById('eqp_cod').value = '';
+  document.getElementById('eqp_nome').value = '';
+  document.getElementById('equip-chip').classList.remove('show');
+}
+
+// ── Tipo de manutenção ──
+function selecionarTipo(btn) {
+  document.querySelectorAll('.tipo-btn').forEach(b => {
+    b.className = 'tipo-btn';
+  });
+  const tipo = btn.dataset.tipo;
+  btn.classList.add('sel-' + tipo.toLowerCase());
+  document.getElementById('tipo_manutencao').value = tipo;
+}
+
+// ── Validação ──
+function validar() {
+  let ok = true;
+
+  const campos = [
+    { id: 'eqp_cod',    fg: 'fg-eqp-cod' },
+    { id: 'eqp_nome',   fg: 'fg-eqp-nome' },
+    { id: 'tecnico',    fg: 'fg-tecnico' },
+    { id: 'setor',      fg: 'fg-setor' },
+    { id: 'motivo_parada', fg: 'fg-motivo' },
+  ];
+
+  campos.forEach(c => {
+    const el = document.getElementById(c.id);
+    const fg = document.getElementById(c.fg);
+    if (!el.value || el.value === el.options?.[0]?.value) {
+      fg.classList.add('err'); ok = false;
+    } else {
+      fg.classList.remove('err');
+    }
+  });
+
+  // Descrição do problema
+  const desc = document.getElementById('descricao_problema');
+  if (!desc.value.trim()) {
+    desc.parentElement.classList.add('err'); ok = false;
+  } else {
+    desc.parentElement.classList.remove('err');
+  }
+
+  // Tipo de manutenção
+  if (!document.getElementById('tipo_manutencao').value) {
+    alert('Selecione o Tipo de Manutenção'); ok = false;
+  }
+
+  return ok;
+}
+
+// ── Envio ──
+function enviarForm() {
+  if (!validar()) return;
+
+  const btn = document.getElementById('btn-submit');
+  const txt = document.getElementById('btn-txt');
+  const spin = document.getElementById('spin');
+
+  btn.disabled = true;
+  txt.style.display = 'none';
+  spin.style.display = 'block';
+
+  const data = {
+    equipamento_codigo:   document.getElementById('eqp_cod').value.trim().toUpperCase(),
+    equipamento_nome:     document.getElementById('eqp_nome').value.trim(),
+    tecnico:              document.getElementById('tecnico').value,
+    setor:                document.getElementById('setor').value,
+    data_ocorrencia:      document.getElementById('data_ocorrencia').value,
+    horario_parada:       document.getElementById('horario_parada').value,
+    horario_liberacao:    document.getElementById('horario_liberacao').value,
+    tipo_manutencao:      document.getElementById('tipo_manutencao').value,
+    motivo_parada:        document.getElementById('motivo_parada').value,
+    descricao_problema:   document.getElementById('descricao_problema').value.trim(),
+    solucao_problema:     document.getElementById('solucao_problema').value,
+    observacoes:          document.getElementById('observacoes').value.trim(),
+    outros_problemas:     document.getElementById('outros_problemas').value.trim(),
+    pecas_necessarias:    document.getElementById('pecas_necessarias').value.trim(),
+    nome_solicitante:     document.getElementById('nome_solicitante').value.trim(),
+    assinatura_tecnico:   '',
+    assinatura_solicitante: ''
+  };
+
+  fetch('/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(r => r.json())
+  .then(res => {
+    btn.disabled = false;
+    txt.style.display = 'inline';
+    spin.style.display = 'none';
+
+    if (res.success) {
+      const info = document.getElementById('modal-info');
+      info.innerHTML =
+        '<strong>Registro:</strong> ' + res.message + '<br>' +
+        '<strong>Equipamento:</strong> ' + data.equipamento_nome + '<br>' +
+        '<strong>Técnico:</strong> ' + data.tecnico + '<br>' +
+        '<strong>Tempo de Parada:</strong> ' + (res.total_horas || 'N/A') + '<br>' +
+        '<strong>Status:</strong> ' + (res.status || 'Concluído');
+      document.getElementById('modal-bg').classList.add('show');
+    } else {
+      alert('Erro: ' + res.message);
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    txt.style.display = 'inline';
+    spin.style.display = 'none';
+    alert('Erro de conexão. Verifique a internet e tente novamente.');
+  });
+}
+
+// ── Novo registro ──
+function novoRegistro() {
+  document.getElementById('modal-bg').classList.remove('show');
+  document.getElementById('form').reset();
+  document.querySelectorAll('.tipo-btn').forEach(b => b.className = 'tipo-btn');
+  document.getElementById('tipo_manutencao').value = '';
+  limparEqp();
+  document.querySelectorAll('.fg.err').forEach(f => f.classList.remove('err'));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Fechar modal clicando fora
+document.getElementById('modal-bg').addEventListener('click', function(e) {
+  if (e.target === this) novoRegistro();
+});
+</script>
+</body>
+</html>
