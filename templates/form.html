@@ -570,6 +570,42 @@ body{margin-left:220px!important;}
         </div>
 
       </div>
+
+      <!-- ── PAINEL HISTÓRICO INLINE ── -->
+      <div id="hist-panel" style="display:none;margin-top:14px;border:1.5px solid #AED6F1;border-radius:10px;overflow:hidden;background:#F0F7FF;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:#1B3A6B;color:#fff;">
+          <span style="font-size:16px;">📋</span>
+          <strong id="hist-panel-title" style="font-size:13px;">Histórico do Equipamento</strong>
+          <span id="hist-panel-count" style="font-size:11px;color:rgba(255,255,255,0.6);margin-left:4px;"></span>
+          <a id="hist-panel-link" href="#" target="_blank"
+             style="margin-left:auto;font-size:11px;color:#AED6F1;text-decoration:none;font-weight:600;">
+            Ver completo →
+          </a>
+        </div>
+        <div id="hist-panel-body" style="padding:12px 16px;">
+          <div id="hist-loading" style="text-align:center;color:#6B7A8D;padding:12px;font-size:12px;">⏳ Carregando histórico…</div>
+          <div id="hist-rows"></div>
+        </div>
+        <div id="hist-panel-kpis" style="display:flex;gap:0;border-top:1px solid #D6EAF8;"></div>
+      </div>
+      <style>
+        .hist-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid #D6EAF8; font-size:12px; }
+        .hist-row:last-child { border-bottom:none; }
+        .hist-id   { font-weight:800; color:#1B3A6B; min-width:46px; }
+        .hist-data { color:#6B7A8D; min-width:90px; font-size:11px; }
+        .hist-tec  { min-width:110px; font-weight:600; }
+        .hist-motivo { flex:1; color:#2C3E50; font-size:11px; }
+        .hist-h    { min-width:44px; text-align:right; font-weight:700; }
+        .hist-h.alto { color:#D62B2B; }
+        .hist-h.ok   { color:#27AE60; }
+        .hist-badge { padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; }
+        .hb-ok  { background:#D5F5E3; color:#1E8449; }
+        .hb-pend{ background:#FFF3CD; color:#856404; }
+        .hist-kpi-item { flex:1; text-align:center; padding:8px 4px; }
+        .hist-kpi-val  { font-size:18px; font-weight:800; color:#1B3A6B; }
+        .hist-kpi-lbl  { font-size:10px; color:#6B7A8D; text-transform:uppercase; }
+      </style>
+
     </div>
 
     <!-- === SEÇÃO 2: DADOS DA OCORRÊNCIA === -->
@@ -865,7 +901,7 @@ document.getElementById('data-hdr').textContent =
    EQUIPAMENTO / SCANNER
 ------------------------------------------------------- */
 function buscaEqp(cod) {
-  if (!cod || cod.length < 2) return;
+  if (!cod || cod.length < 2) { fecharHistPanel(); return; }
   const tag = cod.toUpperCase().trim();
   const nome = EQPS[tag];
   if (nome) {
@@ -875,7 +911,70 @@ function buscaEqp(cod) {
     document.getElementById('equip-chip').classList.add('show');
     status_('&#9989; Equipamento: ' + nome, 'ok');
     carregarMateriais(tag);
+    carregarHistorico(tag);
+  } else {
+    fecharHistPanel();
   }
+}
+
+/* ── Histórico inline ── */
+let _histTag = null;
+function carregarHistorico(tag) {
+  if (_histTag === tag) return;
+  _histTag = tag;
+  const panel = document.getElementById('hist-panel');
+  const rows  = document.getElementById('hist-rows');
+  const load  = document.getElementById('hist-loading');
+  const kpis  = document.getElementById('hist-panel-kpis');
+  panel.style.display = '';
+  rows.innerHTML = '';
+  kpis.innerHTML = '';
+  load.style.display = '';
+  document.getElementById('hist-panel-title').textContent = 'Histórico: ' + tag;
+  document.getElementById('hist-panel-link').href = '/historico?tag=' + encodeURIComponent(tag);
+
+  fetch('/api/historico/' + encodeURIComponent(tag))
+    .then(r => r.json())
+    .then(d => {
+      load.style.display = 'none';
+      document.getElementById('hist-panel-count').textContent =
+        d.total ? '(' + d.total + ' OS registradas)' : '(sem registros)';
+
+      // KPIs
+      kpis.innerHTML = `
+        <div class="hist-kpi-item"><div class="hist-kpi-val">${d.total}</div><div class="hist-kpi-lbl">Total OS</div></div>
+        <div class="hist-kpi-item"><div class="hist-kpi-val" style="color:#27AE60;">${d.total_horas}h</div><div class="hist-kpi-lbl">Total Horas</div></div>`;
+
+      if (!d.registros || d.registros.length === 0) {
+        rows.innerHTML = '<div style="text-align:center;color:#6B7A8D;padding:10px;font-size:12px;">✅ Nenhuma ocorrência registrada ainda.</div>';
+        return;
+      }
+
+      rows.innerHTML = d.registros.map(r => {
+        const h    = Number(r.horas || 0);
+        const hCls = h > 4 ? 'alto' : 'ok';
+        const hTxt = h ? h + 'h' : '—';
+        const bCls = r.status === 'Pendente' ? 'hb-pend' : 'hb-ok';
+        const bTxt = r.status === 'Pendente' ? '⚠ Pendente' : '✓ OK';
+        const mot  = (r.motivo || '—').split(' - ')[0].slice(0, 45);
+        return `<div class="hist-row">
+          <span class="hist-id">#${String(r.id||0).padStart(4,'0')}</span>
+          <span class="hist-data">${r.data ? r.data.slice(0,16) : '—'}</span>
+          <span class="hist-tec">👷 ${r.tecnico || '—'}</span>
+          <span class="hist-motivo">${mot}</span>
+          <span class="hist-h ${hCls}">⏱ ${hTxt}</span>
+          <span class="hist-badge ${bCls}">${bTxt}</span>
+        </div>`;
+      }).join('');
+    })
+    .catch(() => {
+      load.textContent = '⚠ Erro ao carregar histórico.';
+    });
+}
+
+function fecharHistPanel() {
+  _histTag = null;
+  document.getElementById('hist-panel').style.display = 'none';
 }
 
 // ── Materiais por equipamento ──
