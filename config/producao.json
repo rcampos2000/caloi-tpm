@@ -1,0 +1,14 @@
+[
+  {
+    "tag": "EQ001",
+    "modelos": [
+      {
+        "nome": "Bike Aro 29",
+        "volume": 500.0
+      }
+    ],
+    "indice_qualidade": 98.5,
+    "tempo_turno": 8.0,
+    "tempo_mes": 176.0
+  }
+]
