@@ -1009,6 +1009,95 @@ def dashboard():
         return f"<h1>Erro ao carregar dashboard: {e}</h1>", 500
 
 
+@app.route('/historico')
+@login_required
+def historico():
+    """Página de histórico de equipamentos."""
+    tag_busca = request.args.get('tag', '').strip().upper()
+    desc_busca = request.args.get('desc', '').strip().lower()
+    equipamentos_info = carregar_equipamentos()
+
+    registros = []
+    if tag_busca or desc_busca:
+        try:
+            wb = openpyxl.load_workbook(DB_FILE)
+            ws = wb["Registros"]
+            headers = [cell.value for cell in ws[1]]
+            for row in ws.iter_rows(min_row=2, values_only=True):
+                if any(v is not None for v in row):
+                    r = dict(zip(headers, row))
+                    eq_tag  = str(r.get('Código do Equipamento') or '').upper()
+                    eq_desc = str(r.get('Equipamento') or '').lower()
+                    if tag_busca and tag_busca in eq_tag:
+                        registros.append(r)
+                    elif desc_busca and desc_busca in eq_desc:
+                        registros.append(r)
+            wb.close()
+        except Exception:
+            pass
+
+    registros_rev = list(reversed(registros))
+    total_h = sum(float(r.get('Total Horas Paradas') or 0) for r in registros)
+    fins    = sum(1 for r in registros if str(r.get('Status','')).strip() == 'Concluído')
+    pends   = sum(1 for r in registros if str(r.get('Status','')).strip() == 'Pendente')
+    med_h   = round(total_h / len(registros), 1) if registros else 0
+
+    return render_template(
+        'historico.html',
+        registros=registros_rev,
+        total=len(registros),
+        total_horas=round(total_h, 1),
+        finalizadas=fins,
+        pendentes=pends,
+        media_horas=med_h,
+        tag_busca=tag_busca,
+        desc_busca=desc_busca,
+        equipamentos=equipamentos_info
+    )
+
+
+@app.route('/api/historico/<tag>')
+@login_required
+def api_historico_tag(tag):
+    """Retorna os últimos registros de um equipamento (para painel inline no formulário)."""
+    tag_upper = tag.strip().upper()
+    registros = []
+    try:
+        wb = openpyxl.load_workbook(DB_FILE)
+        ws = wb["Registros"]
+        headers = [cell.value for cell in ws[1]]
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            if any(v is not None for v in row):
+                r = dict(zip(headers, row))
+                eq_tag = str(r.get('Código do Equipamento') or '').upper()
+                if tag_upper and tag_upper in eq_tag:
+                    registros.append({
+                        'id':        r.get('ID'),
+                        'data':      str(r.get('Data/Hora Registro') or ''),
+                        'equipamento': str(r.get('Equipamento') or ''),
+                        'tag':       eq_tag,
+                        'tecnico':   str(r.get('Técnico Responsável') or ''),
+                        'motivo':    str(r.get('Motivo da Parada') or ''),
+                        'solucao':   str(r.get('Solução do Problema') or ''),
+                        'horas':     r.get('Total Horas Paradas'),
+                        'status':    str(r.get('Status') or 'Concluído'),
+                        'setor':     str(r.get('Setor Produtivo') or ''),
+                    })
+        wb.close()
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+    registros_rev = list(reversed(registros))
+    total_h = sum(float(r.get('horas') or 0) for r in registros_rev)
+    return jsonify({
+        'success': True,
+        'tag': tag_upper,
+        'total': len(registros_rev),
+        'total_horas': round(total_h, 1),
+        'registros': registros_rev[:10]   # últimos 10 para o painel inline
+    })
+
+
 @app.route('/download')
 @login_required
 def download():
