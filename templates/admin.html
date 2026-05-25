@@ -431,6 +431,7 @@ body{margin-left:220px!important;}
   <button class="tab-btn" onclick="showTab('solucoes', this)">✔ Soluções</button>
   <button class="tab-btn" onclick="showTab('equipamentos', this)">🏭 Equipamentos</button>
   <button class="tab-btn" onclick="showTab('producao', this)">&#128230; Produção</button>
+  <button class="tab-btn" onclick="showTab('backup', this)">&#128190; Backup</button>
 </div>
 
 <!-- CONTEÚDO -->
@@ -852,6 +853,70 @@ body{margin-left:220px!important;}
     </div>
   </div>
 </div>
+
+  <!-- ===== ABA BACKUP ===== -->
+  <div class="tab-pane" id="tab-backup">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">&#128190; Backup e Download de Dados</div>
+        <div class="card-sub">Baixe os arquivos Excel diretamente do servidor para o seu computador</div>
+      </div>
+      <div class="card-body">
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:24px;">
+
+          <!-- Card Manutenção -->
+          <div style="background:#f0f4ff;border:1.5px solid #c5d3f0;border-radius:10px;padding:22px;text-align:center;">
+            <div style="font-size:42px;margin-bottom:8px;">📊</div>
+            <div style="font-weight:700;font-size:16px;color:#1B3A6B;margin-bottom:6px;">Registros de Manutenção</div>
+            <div style="font-size:12px;color:#6B7A8D;margin-bottom:16px;line-height:1.6;">
+              Banco de dados principal com todos os registros de ocorrências, paradas e manutenções.
+            </div>
+            <a href="/admin/backup/download/manutencao"
+               style="display:inline-block;padding:12px 24px;background:#1B3A6B;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;">
+              ⬇️ Baixar Manutencao_TPM.xlsx
+            </a>
+          </div>
+
+          <!-- Card Plano de Ação -->
+          <div style="background:#fffbf0;border:1.5px solid #f0dfa0;border-radius:10px;padding:22px;text-align:center;">
+            <div style="font-size:42px;margin-bottom:8px;">📋</div>
+            <div style="font-weight:700;font-size:16px;color:#7D4E00;margin-bottom:6px;">Plano de Ação</div>
+            <div style="font-size:12px;color:#6B7A8D;margin-bottom:16px;line-height:1.6;">
+              Planilha com pendências e planos de ação gerados a partir dos registros de manutenção.
+            </div>
+            <a href="/admin/backup/download/plano"
+               style="display:inline-block;padding:12px 24px;background:#7D4E00;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;">
+              ⬇️ Baixar Plano_de_Acao.xlsx
+            </a>
+          </div>
+
+          <!-- Card Config -->
+          <div style="background:#f0fff4;border:1.5px solid #a8d5b5;border-radius:10px;padding:22px;text-align:center;">
+            <div style="font-size:42px;margin-bottom:8px;">⚙️</div>
+            <div style="font-weight:700;font-size:16px;color:#1E8449;margin-bottom:6px;">Configurações do Sistema</div>
+            <div style="font-size:12px;color:#6B7A8D;margin-bottom:16px;line-height:1.6;">
+              Arquivo ZIP com listas, equipamentos, produção e configurações salvas no servidor.
+            </div>
+            <a href="/admin/backup/download/config"
+               style="display:inline-block;padding:12px 24px;background:#1E8449;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;">
+              ⬇️ Baixar Config.zip
+            </a>
+          </div>
+
+        </div>
+
+        <div style="background:#fff8e1;border:1.5px solid #ffe082;border-radius:8px;padding:14px 18px;font-size:13px;color:#7D4E00;line-height:1.8;">
+          <strong>ℹ️ Informações importantes:</strong><br>
+          • Os dados ficam armazenados no volume persistente do Railway (<code>/data</code>)<br>
+          • Faça backup regularmente para ter uma cópia local dos seus dados<br>
+          • Os arquivos baixados podem ser abertos diretamente no Excel<br>
+          • O backup não apaga dados do servidor — apenas copia
+        </div>
+
+      </div>
+    </div>
+  </div>
 
 <div id="toast" class="toast"></div>
 
