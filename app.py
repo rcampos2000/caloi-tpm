@@ -254,7 +254,11 @@ def get_status_por_equipamento():
         headers = [cell.value for cell in ws[1]]
         # Índices das colunas que precisamos
         try:
-            idx_cod   = headers.index('Código Equipamento')
+            # Suporta ambos os nomes de coluna (compatibilidade)
+            idx_cod   = next((headers.index(n) for n in ('Código do Equipamento', 'Código Equipamento') if n in headers), None)
+            if idx_cod is None:
+                wb.close()
+                return resultado
             idx_stat  = headers.index('Status')
             idx_id    = headers.index('ID')
         except ValueError:
@@ -1302,7 +1306,6 @@ def admin_salvar_equipamentos():
                 tags_vistas.add(tag)
             equipamentos.append({'descricao': descricao, 'tag': tag,
                                   'area': area, 'fornecedor': fornecedor})
-        salvar_equipamentos(equipamentos)
         salvar_equipamentos(equipamentos)
         return jsonify({'success': True,
                         'message': f'{len(equipamentos)} equipamento(s) salvos com sucesso!'})
