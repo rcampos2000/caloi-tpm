@@ -1529,14 +1529,3 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
     print(f"=== Caloi TPM v2.0 === porta {port}")
     app.run(debug=debug, host='0.0.0.0', port=port)
-tion/zip'
-    )
-
-
-# Inicializar banco e config sempre que o processo sobe (local + nuvem)
-init_database()
-init_config()
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port, debug=False)
