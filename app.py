@@ -897,7 +897,9 @@ def dashboard():
         records = []
         for row in ws.iter_rows(min_row=2, values_only=True):
             if any(v is not None for v in row):
-                records.append(dict(zip(headers, row)))
+                # Remove colunas sem cabeçalho (None) para evitar TypeError em sorts/tojson
+                record = {k: v for k, v in zip(headers, row) if k is not None}
+                records.append(record)
         wb.close()
 
         total = len(records)
@@ -1020,7 +1022,9 @@ def dashboard():
             anos=anos
         )
     except Exception as e:
-        return f"<h1>Erro ao carregar dashboard: {e}</h1>", 500
+        import traceback as _tb
+        _full = _tb.format_exc()
+        return f"<pre style='font-size:13px;padding:20px'><b>Erro dashboard:</b>\n{_full}</pre>", 500
 
 
 @app.route('/historico')
