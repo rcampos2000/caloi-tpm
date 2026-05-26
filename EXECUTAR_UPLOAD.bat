@@ -1,13 +1,30 @@
 @echo off
-echo ============================================
-echo    CALOI TPM - Enviando arquivos ao GitHub
-echo    (via Python - sem necessidade de git)
-echo ============================================
+chcp 65001 > nul
+title CALOI TPM — Upload para GitHub
+
 echo.
-python "%~dp0UPLOAD_GITHUB.py"
-if errorlevel 1 (
+echo ╔══════════════════════════════════════════════════════════╗
+echo ║       CALOI TPM — ENVIAR ATUALIZACOES PARA NUVEM        ║
+echo ║       GitHub → Railway (deploy automatico)               ║
+echo ╚══════════════════════════════════════════════════════════╝
+echo.
+
+:: Verificar se github_token.txt existe
+if not exist "%~dp0github_token.txt" (
+    echo ERRO: arquivo 'github_token.txt' nao encontrado!
     echo.
-    echo ERRO: Python nao encontrado. Tentando python3...
+    echo    O arquivo com o token do GitHub e necessario para o upload.
+    echo    Contate o administrador do sistema.
+    echo.
+    pause
+    exit /b 1
+)
+
+:: Tentar Python
+python --version > nul 2>&1
+if errorlevel 1 (
     python3 "%~dp0UPLOAD_GITHUB.py"
+) else (
+    python "%~dp0UPLOAD_GITHUB.py"
 )
 pause
