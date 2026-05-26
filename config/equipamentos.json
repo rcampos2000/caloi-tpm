@@ -10,5 +10,11 @@
     "tag": "EQ002",
     "area": "Montagem",
     "fornecedor": "ABB"
+  },
+  {
+    "descricao": "Máquina de solda TIG Fronius",
+    "tag": "SAL-MAQ-001",
+    "area": "Solda Alumínio",
+    "fornecedor": "Fronius"
   }
 ]
