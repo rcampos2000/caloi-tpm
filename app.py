@@ -947,17 +947,23 @@ def dashboard():
         from collections import defaultdict
         por_mes = defaultdict(int)
         for r in records:
-            data_str = r.get('Data/Hora Registro') or r.get('Data Ocorrência') or ''
+            data_str = str(r.get('Data/Hora Registro') or r.get('Data Ocorrência') or '')
             try:
                 if data_str:
-                    partes = str(data_str).split('/')
-                    if len(partes) >= 2:
-                        mes_ano = f"{partes[1].zfill(2)}/{partes[2][:4] if len(partes) > 2 else datetime.now().strftime('%Y')}"
-                        por_mes[mes_ano] += 1
+                    partes = data_str.split('/')
+                    if len(partes) >= 3:
+                        mes  = partes[1].zfill(2)
+                        ano  = partes[2][:4]
+                        if mes.isdigit() and ano.isdigit() and len(ano) == 4:
+                            mes_ano = f"{mes}/{ano}"
+                            por_mes[mes_ano] += 1
             except Exception:
                 pass
         # Ordenar por ano/mês e pegar últimos 12
-        meses_ord = sorted(por_mes.keys(), key=lambda x: (x.split('/')[1], x.split('/')[0]))[-12:]
+        meses_ord = sorted(
+            (m for m in por_mes.keys() if '/' in m and len(m.split('/')) == 2),
+            key=lambda x: (x.split('/')[1], x.split('/')[0])
+        )[-12:]
         por_mes_lista = [{'mes': m, 'qtd': por_mes[m]} for m in meses_ord]
 
         # Status por equipamento para o gráfico de barras
@@ -972,18 +978,22 @@ def dashboard():
                 'descricao': eq_map.get(tag, tag),
                 'status': status
             })
-        grafico_maquinas.sort(key=lambda x: (x['status'] == 'Sem registros', x['status'] == 'Concluído', x['tag']))
+        grafico_maquinas.sort(key=lambda x: (x['status'] == 'Sem registros', x['status'] == 'Concluído', str(x['tag'] or '')))
 
         n_pendente  = sum(1 for m in grafico_maquinas if m['status'] == 'Pendente')
         n_ok        = sum(1 for m in grafico_maquinas if m['status'] == 'Concluído')
         n_sem_dados = sum(1 for m in grafico_maquinas if m['status'] == 'Sem registros')
 
         # Anos disponíveis para filtro
-        anos = sorted(set(
-            str(r.get('Data/Hora Registro', '') or '').split('/')[-1][:4]
-            for r in records
-            if r.get('Data/Hora Registro')
-        ), reverse=True) or [str(datetime.now().year)]
+        anos_set = set()
+        for r in records:
+            data_raw = str(r.get('Data/Hora Registro', '') or '')
+            partes = data_raw.split('/')
+            if len(partes) >= 3:
+                ano = partes[2][:4]
+                if ano.isdigit() and len(ano) == 4:
+                    anos_set.add(ano)
+        anos = sorted(anos_set, reverse=True) or [str(datetime.now().year)]
 
         return render_template(
             'dashboard.html',
@@ -1519,3 +1529,14 @@ if __name__ == '__main__':
     debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
     print(f"=== Caloi TPM v2.0 === porta {port}")
     app.run(debug=debug, host='0.0.0.0', port=port)
+tion/zip'
+    )
+
+
+# Inicializar banco e config sempre que o processo sobe (local + nuvem)
+init_database()
+init_config()
+
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
