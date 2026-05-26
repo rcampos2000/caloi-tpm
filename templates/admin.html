@@ -260,6 +260,17 @@ tbody tr:hover { background: #f8fafd; }
   font-weight: 700; margin-right: 4px; transition: background 0.15s;
 }
 .btn-qr:hover { background: #D6EAF8; }
+.btn-bc {
+  background: #FEF9E7; border: 1px solid #F9CA24; color: #8B6914;
+  padding: 3px 8px; border-radius: 6px; cursor: pointer; font-size: 11px;
+  font-weight: 700; transition: background 0.15s; margin-top: 3px;
+}
+.btn-bc:hover { background: #FDEBD0; }
+/* BARCODE INLINE */
+.bc-cell { text-align: center; width: 150px; vertical-align: middle; }
+.bc-svg-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.bc-svg { max-width: 130px; height: 44px; display: block; }
+.bc-empty { font-size: 10px; color: #bbb; font-style: italic; height: 44px; display: flex; align-items: center; justify-content: center; }
 .btn-add-item {
   display: flex; align-items: center; gap: 6px;
   padding: 10px 14px;
@@ -653,6 +664,7 @@ body{margin-left:220px!important;}
                 <th class="col-tag">TAG</th>
                 <th class="col-area">Área</th>
                 <th class="col-forn">Fornecedor</th>
+                <th class="bc-cell" style="background:#1B3A6B;color:#fff;padding:10px 12px;font-size:11px;font-weight:700;letter-spacing:1px;">Código de Barras</th>
                 <th class="col-acao" style="min-width:110px;">Ações</th>
               </tr>
             </thead>
@@ -663,6 +675,12 @@ body{margin-left:220px!important;}
                 <td><input type="text" class="eq-tag input-tag" value="{{ eq.tag }}" placeholder="EQ001"></td>
                 <td><input type="text" class="eq-area" value="{{ eq.area }}" placeholder="Ex: Preparação Aço"></td>
                 <td><input type="text" class="eq-forn" value="{{ eq.fornecedor }}" placeholder="Ex: Schuler AG"></td>
+                <td class="bc-cell">
+                  <div class="bc-svg-wrap">
+                    <svg class="bc-svg" data-tag="{{ eq.tag }}"></svg>
+                    <button class="btn-bc" onclick="imprimirBarcode(this)" title="Imprimir Código de Barras">🖨 Imprimir</button>
+                  </div>
+                </td>
                 <td style="text-align:center;white-space:nowrap;">
                   <button class="btn-qr" onclick="gerarQRCode(this)" title="Gerar QR Code">&#9638; QR</button>
                   <button class="btn-rem" onclick="removerEquipamento(this)" title="Remover">✖</button>
@@ -1133,12 +1151,23 @@ async function salvarLista(tipo) {
 // ---- EQUIPAMENTOS ----
 function adicionarEquipamento() {
   const tbody = document.getElementById('tbody-equipamentos');
+  // Próximo número de TAG
+  const tags = Array.from(tbody.querySelectorAll('.eq-tag')).map(i => i.value.trim()).filter(Boolean);
+  let nextNum = 1;
+  tags.forEach(t => { const m = t.match(/\d+$/); if (m) nextNum = Math.max(nextNum, parseInt(m[0]) + 1); });
+  const nextTag = 'EQ' + String(nextNum).padStart(3, '0');
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td><input type="text" class="eq-desc" placeholder="Ex: Prensa Hidraulica #1"></td>
-    <td><input type="text" class="eq-tag input-tag" placeholder="EQ021"></td>
+    <td><input type="text" class="eq-tag input-tag" placeholder="${nextTag}"></td>
     <td><input type="text" class="eq-area" placeholder="Ex: Preparacao Aco"></td>
     <td><input type="text" class="eq-forn" placeholder="Ex: Schuler AG"></td>
+    <td class="bc-cell">
+      <div class="bc-svg-wrap">
+        <svg class="bc-svg"></svg>
+        <button class="btn-bc" onclick="imprimirBarcode(this)" title="Imprimir Código de Barras">🖨 Imprimir</button>
+      </div>
+    </td>
     <td style="text-align:center"><button class="btn-rem" onclick="removerEquipamento(this)" title="Remover">&#10006;</button></td>
   `;
   tbody.appendChild(tr);
@@ -1218,7 +1247,10 @@ document.addEventListener('keydown', e => {
   }
 });
 
-document.addEventListener('DOMContentLoaded', atualizarContadorEq);
+document.addEventListener('DOMContentLoaded', function() {
+  atualizarContadorEq();
+  initBarcodes();
+});
 
 // ---- ESTOQUE ----
 let estoqueAtual = {{ estoque | tojson }};
@@ -1310,6 +1342,108 @@ function salvarEstoque() {
   .catch(() => showToast('Erro ao salvar estoque', 'error'));
 }
 
+// ---- CÓDIGO DE BARRAS (Code128 automático) ----
+let _jsBarcodeLoaded = false;
+let _jsBarcodeQueue  = [];
+
+function _carregarJsBarcode(cb) {
+  if (_jsBarcodeLoaded) { cb(); return; }
+  _jsBarcodeQueue.push(cb);
+  if (_jsBarcodeQueue.length > 1) return; // já está carregando
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js';
+  s.onload = () => {
+    _jsBarcodeLoaded = true;
+    _jsBarcodeQueue.forEach(fn => fn());
+    _jsBarcodeQueue = [];
+  };
+  s.onerror = () => { _jsBarcodeQueue = []; };
+  document.head.appendChild(s);
+}
+
+function renderizarBarcode(svg, tag) {
+  if (!tag || tag.length < 1) {
+    svg.innerHTML = '';
+    return;
+  }
+  _carregarJsBarcode(() => {
+    try {
+      JsBarcode(svg, tag.toUpperCase(), {
+        format: 'CODE128',
+        width: 1.6,
+        height: 36,
+        displayValue: true,
+        fontSize: 9,
+        margin: 3,
+        lineColor: '#1B3A6B',
+        background: '#ffffff'
+      });
+    } catch(e) { svg.innerHTML = ''; }
+  });
+}
+
+function initBarcodes() {
+  // Renderizar todos os barcodes existentes ao carregar a página
+  document.querySelectorAll('#tbody-equipamentos .bc-svg[data-tag]').forEach(svg => {
+    const tag = svg.dataset.tag;
+    if (tag) renderizarBarcode(svg, tag);
+  });
+
+  // Auto-atualizar barcode conforme a TAG é digitada
+  const tbody = document.getElementById('tbody-equipamentos');
+  if (tbody) {
+    tbody.addEventListener('input', e => {
+      const input = e.target;
+      if (!input.classList.contains('eq-tag')) return;
+      const tr = input.closest('tr');
+      const svg = tr ? tr.querySelector('.bc-svg') : null;
+      if (!svg) return;
+      clearTimeout(input._bcTimer);
+      input._bcTimer = setTimeout(() => {
+        renderizarBarcode(svg, input.value.trim().toUpperCase());
+      }, 450);
+    });
+  }
+}
+
+function imprimirBarcode(btn) {
+  const tr   = btn.closest('tr');
+  const tag  = tr.querySelector('.eq-tag').value.trim().toUpperCase();
+  const desc = tr.querySelector('.eq-desc').value.trim();
+  const area = tr.querySelector('.eq-area').value.trim();
+  if (!tag) { showToast('Informe a TAG antes de imprimir o código de barras.', 'error'); return; }
+  const w = window.open('', '_blank', 'width=520,height=380');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>Código de Barras — ${tag}</title>
+    <style>
+      body{font-family:Arial,sans-serif;text-align:center;padding:36px 24px;background:#fff;}
+      h2{color:#1B3A6B;margin:0 0 2px;font-size:20px;letter-spacing:2px;}
+      .desc{color:#555;font-size:13px;margin:4px 0;}
+      .area{color:#999;font-size:11px;margin:2px 0;}
+      svg{margin:18px 0;display:block;}
+      .foot{font-size:10px;color:#aaa;margin-top:14px;}
+      @media print{.noprint{display:none!important}}
+    </style></head><body>
+    <h2>${tag}</h2>
+    ${desc ? `<p class="desc">${desc}</p>` : ''}
+    ${area ? `<p class="area">${area}</p>` : ''}
+    <svg id="bc-print" style="margin:18px auto;"></svg>
+    <div class="foot">Caloi TPM v2.0 — Sistema de Controle de Manutenção Industrial</div>
+    <br><button class="noprint" onclick="window.print()"
+      style="padding:9px 22px;background:#1B3A6B;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;margin-top:8px;">
+      🖨 Imprimir
+    </button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"><\/script>
+    <script>
+      window.addEventListener('load', function() {
+        JsBarcode('#bc-print','${tag}',{format:'CODE128',width:2.5,height:80,
+          displayValue:true,fontSize:14,margin:8,lineColor:'#1B3A6B',background:'#ffffff'});
+        setTimeout(function(){window.print();},700);
+      });
+    <\/script></body></html>`);
+  w.document.close();
+}
+
 // ---- QR CODE ----
 function gerarQRCode(btn) {
   const tr   = btn.closest('tr');
@@ -1337,6 +1471,12 @@ function gerarQRCode(btn) {
     document.head.appendChild(s);
   }
   modal.style.display = 'flex';
+  // Renderizar barcode Code128 no modal
+  const bcSvg = document.getElementById('qr-barcode-svg');
+  if (bcSvg) {
+    bcSvg.innerHTML = '';
+    renderizarBarcode(bcSvg, tag);
+  }
 }
 
 function fecharQRModal() {
@@ -1349,23 +1489,43 @@ function imprimirQR() {
   const area = document.getElementById('qr-modal-area').textContent;
   const img  = document.querySelector('#qr-canvas img');
   if (!img) { showToast('Aguarde o QR Code carregar.', 'error'); return; }
-  const w = window.open('', '_blank', 'width=400,height=500');
-  w.document.write(`
-    <html><head><title>QR Code — ${tag}</title>
-    <style>body{font-family:Arial,sans-serif;text-align:center;padding:30px;}
-      h2{color:#1B3A6B;margin:0 0 4px;} p{color:#555;font-size:13px;margin:2px 0;}
-      img{margin:16px 0;border:2px solid #E0E5F0;border-radius:8px;}
-      .foot{font-size:10px;color:#999;margin-top:12px;}
+  const w = window.open('', '_blank', 'width=480,height=620');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>QR + Barcode — ${tag}</title>
+    <style>
+      body{font-family:Arial,sans-serif;text-align:center;padding:30px;background:#fff;}
+      h2{color:#1B3A6B;margin:0 0 4px;font-size:18px;letter-spacing:1px;}
+      p{color:#555;font-size:13px;margin:2px 0;}
+      .qr-img{margin:14px 0;border:2px solid #E0E5F0;border-radius:8px;}
+      .bc-section{margin:12px auto;padding:10px 16px;border:1.5px solid #E0E8F5;border-radius:10px;background:#F8FAFD;display:inline-block;}
+      .bc-label{font-size:9px;color:#888;font-weight:700;letter-spacing:1px;margin-bottom:5px;}
+      .foot{font-size:10px;color:#999;margin-top:14px;}
+      @media print{.noprint{display:none!important}}
     </style></head>
     <body>
       <h2>${tag}</h2>
       <p>${desc}</p>${area !== '—' ? `<p style="color:#888;">${area}</p>` : ''}
-      <br><img src="${img.src}"><br>
-      <p>Escaneie para ver o histórico de manutenção</p>
+      <br><img class="qr-img" src="${img.src}"><br>
+      <div class="bc-section">
+        <div class="bc-label">CÓDIGO DE BARRAS (Code 128)</div>
+        <svg id="bc-print-modal" style="display:block;max-width:240px;height:56px;"></svg>
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px;">Escaneie para ver o histórico de manutenção</p>
       <div class="foot">Caloi TPM v2.0 — Sistema de Controle de Manutenção</div>
+      <br><button class="noprint" onclick="window.print()"
+        style="padding:9px 22px;background:#1B3A6B;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;margin-top:8px;">
+        🖨 Imprimir
+      </button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"><\/script>
+    <script>
+      window.addEventListener('load', function() {
+        JsBarcode('#bc-print-modal','${tag}',{format:'CODE128',width:2,height:50,
+          displayValue:true,fontSize:11,margin:6,lineColor:'#1B3A6B',background:'#ffffff'});
+        setTimeout(function(){window.print();},700);
+      });
+    <\/script>
     </body></html>`);
   w.document.close();
-  setTimeout(() => w.print(), 400);
 }
 </script>
 
@@ -1382,12 +1542,16 @@ function imprimirQR() {
     </div>
     <div style="padding:24px;text-align:center;">
       <div id="qr-canvas" style="display:inline-block;padding:12px;border:2px solid #E0E5F0;border-radius:10px;background:#fff;"></div>
-      <div style="margin-top:12px;font-size:11px;color:#6B7A8D;">
+      <div style="margin-top:10px;padding:10px 14px;border:1.5px solid #E8F0FA;border-radius:10px;background:#F8FAFD;display:inline-block;">
+        <div style="font-size:10px;color:#888;margin-bottom:5px;font-weight:700;letter-spacing:1px;">CÓDIGO DE BARRAS (Code 128)</div>
+        <svg id="qr-barcode-svg" style="display:block;max-width:220px;height:50px;"></svg>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:#6B7A8D;">
         Área: <strong id="qr-modal-area">—</strong>
       </div>
-      <div style="margin-top:6px;font-size:10px;color:#B0B0B0;">Escaneie para acessar o histórico do equipamento</div>
+      <div style="margin-top:4px;font-size:10px;color:#B0B0B0;">Escaneie para acessar o histórico do equipamento</div>
       <div style="display:flex;gap:10px;margin-top:16px;justify-content:center;">
-        <button onclick="imprimirQR()" style="padding:9px 20px;background:linear-gradient(135deg,#1B3A6B,#2451A3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">🖨 Imprimir</button>
+        <button onclick="imprimirQR()" style="padding:9px 20px;background:linear-gradient(135deg,#1B3A6B,#2451A3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">🖨 QR + Barcode</button>
         <button onclick="fecharQRModal()" style="padding:9px 20px;background:#f0f0f0;color:#555;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Fechar</button>
       </div>
     </div>
