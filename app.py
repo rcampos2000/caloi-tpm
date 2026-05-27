@@ -732,7 +732,9 @@ def buscar_equipamento(codigo):
             if eq.get('area'):
                 nome += f" - {eq['area']}"
             return jsonify({'found': True, 'nome': nome, 'codigo': cod,
-                            'area': eq.get('area', ''), 'fornecedor': eq.get('fornecedor', '')})
+                            'descricao': eq.get('descricao', nome),
+                            'area': eq.get('area', ''), 'setor': eq.get('setor', eq.get('area', '')),
+                            'fornecedor': eq.get('fornecedor', '')})
     # Fallback no catálogo legado (compatibilidade)
     nome_legado = EQUIPAMENTOS_CATALOGO.get(cod)
     if nome_legado:
