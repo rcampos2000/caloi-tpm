@@ -458,6 +458,66 @@ hr.div { border:none; border-top:1px solid var(--gray2); margin:18px 0; }
 }
 /* Sidebar override */
 body{margin-left:220px!important;}
+
+/* ── MODAL SCANNER DE CÓDIGO DE BARRAS ── */
+.scanner-modal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 2000; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px 16px;
+}
+.scanner-modal.show { display: flex; }
+.scanner-box-modal {
+  width: min(420px, 95vw);
+  background: #111;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,.7);
+}
+.scanner-mhdr {
+  background: linear-gradient(90deg, #1B3A6B, #2451A3);
+  color: #fff; padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: bold; font-size: 15px;
+}
+.scanner-mhdr button {
+  background: rgba(255,255,255,.18); border: none; color: #fff;
+  font-size: 16px; cursor: pointer; padding: 4px 10px;
+  border-radius: 6px; line-height: 1;
+}
+#scanner-view-form {
+  width: 100%; background: #000;
+  min-height: 260px; position: relative;
+}
+#scanner-view-form::after {
+  content: '';
+  position: absolute; left: 10%; right: 10%;
+  top: 50%; height: 2px;
+  background: linear-gradient(90deg, transparent, #00FF88, transparent);
+  border-radius: 2px;
+  animation: scanline-f 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes scanline-f {
+  0%   { top: 25%; opacity: .6; }
+  50%  { top: 75%; opacity: 1;  }
+  100% { top: 25%; opacity: .6; }
+}
+.scanner-mtip {
+  color: #aaa; font-size: 12px; text-align: center;
+  padding: 10px 16px 14px; line-height: 1.6; background: #1a1a1a;
+}
+.scanner-mresult {
+  display: none;
+  background: #1E8449; color: #fff;
+  padding: 11px 16px; text-align: center;
+  font-size: 14px; font-weight: bold;
+}
+.scanner-mloading {
+  display: none; color: #aaa; font-size: 13px;
+  text-align: center; padding: 18px; background: #1a1a1a;
+}
 </style>
 </head>
 
@@ -531,19 +591,16 @@ body{margin-left:220px!important;}
 
         <div class="scan-box">
           <div class="scan-btns">
-            <button type="button" class="btn btn-blue" onclick="abrirCameraLeitor()">
-              &#128247; Escanear Código (Celular)
+            <button type="button" class="btn btn-blue" onclick="abrirScanner()">
+              &#128247; Escanear Código de Barras
             </button>
-            <!-- Input oculto para câmera no celular -->
-            <input type="file" id="cam-input" accept="image/*" capture="environment"
-                   style="display:none" onchange="imagemCapturada(this)">
             <button type="button" class="btn btn-file" onclick="limparEqp()">
               &#10060; Limpar
             </button>
           </div>
           <p>
-            &#128204; <strong>No celular:</strong> use "Escanear Código" para fotografar o código de barras.<br>
-            &#128204; <strong>No computador:</strong> informe o código manualmente no campo abaixo.
+            &#128204; <strong>No celular / tablet:</strong> clique em "Escanear" e aponte para o código de barras — TAG e descrição preenchidos automaticamente.<br>
+            &#128204; <strong>No computador:</strong> informe a TAG manualmente no campo abaixo.
           </p>
         </div>
 
@@ -865,6 +922,23 @@ body{margin-left:220px!important;}
 </div>
 
 
+<!-- MODAL SCANNER DE CÓDIGO DE BARRAS -->
+<div class="scanner-modal" id="scanner-modal-form">
+  <div class="scanner-box-modal">
+    <div class="scanner-mhdr">
+      <span>&#128247; Escanear TAG do Equipamento</span>
+      <button type="button" onclick="fecharScanner()" title="Fechar">&#10005;</button>
+    </div>
+    <div id="scanner-view-form"></div>
+    <div class="scanner-mloading" id="scanner-mloading">&#9203; Iniciando câmera…</div>
+    <div class="scanner-mresult" id="scanner-mresult"></div>
+    <div class="scanner-mtip">
+      Aponte a câmera para o <strong style="color:#fff">código de barras</strong> da etiqueta.<br>
+      A TAG e descrição serão preenchidas automaticamente.
+    </div>
+  </div>
+</div>
+
 <!-- =====================================================
      JAVASCRIPT — 100% LOCAL, SEM CDN
 ===================================================== -->
@@ -1041,25 +1115,135 @@ function removerFoto(i) {
   atualizarPreviewFotos();
 }
 
-function abrirCameraLeitor() {
-  document.getElementById('cam-input').click();
+// ── Scanner de Código de Barras (html5-qrcode via CDN) ─────────────────────
+let _scannerLibLoaded = false;
+let _scannerLibQueue  = [];
+let _qrScanner        = null;
+let _scannerAtivo     = false;
+
+function _carregarScannerLib(cb) {
+  if (_scannerLibLoaded) { cb(); return; }
+  _scannerLibQueue.push(cb);
+  if (_scannerLibQueue.length > 1) return;
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
+  s.onload = () => {
+    _scannerLibLoaded = true;
+    _scannerLibQueue.forEach(fn => fn());
+    _scannerLibQueue = [];
+  };
+  s.onerror = () => {
+    alert('Erro ao carregar o scanner. Verifique a conexão com a internet.');
+    fecharScanner();
+  };
+  document.head.appendChild(s);
 }
 
-function imagemCapturada(input) {
-  // Em dispositivos móveis a câmera é aberta pelo input[capture]
-  // Para desktops com webcam, o usuário seleciona o arquivo
-  // Aqui apenas indicamos que a imagem foi capturada e pedimos o código manual
-  if (input.files && input.files[0]) {
-    status_('&#128247; Imagem capturada. Digite o código que aparece na etiqueta abaixo.', 'inf');
-    document.getElementById('eqp_cod').focus();
+function abrirScanner() {
+  document.getElementById('scanner-modal-form').classList.add('show');
+  document.getElementById('scanner-mloading').style.display = 'block';
+  document.getElementById('scanner-mresult').style.display = 'none';
+  _carregarScannerLib(iniciarCamera);
+}
+
+function iniciarCamera() {
+  if (_scannerAtivo && _qrScanner) {
+    document.getElementById('scanner-mloading').style.display = 'none';
+    return;
   }
+  if (_qrScanner) {
+    try { _qrScanner.clear(); } catch(e) {}
+    _qrScanner = null;
+  }
+
+  _qrScanner = new Html5Qrcode('scanner-view-form');
+
+  const formatos = [];
+  if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+    const f = Html5QrcodeSupportedFormats;
+    [f.QR_CODE, f.CODE_128, f.CODE_39, f.EAN_13, f.EAN_8, f.UPC_A, f.UPC_E].forEach(v => {
+      if (v !== undefined) formatos.push(v);
+    });
+  }
+
+  const config = {
+    fps: 12,
+    qrbox: { width: Math.min(300, window.innerWidth - 80), height: 110 },
+    aspectRatio: 1.5,
+    ...(formatos.length ? { formatsToSupport: formatos } : {})
+  };
+
+  _qrScanner.start(
+    { facingMode: 'environment' },
+    config,
+    (textoDecodificado) => {
+      const tag = textoDecodificado.trim().toUpperCase();
+      const res = document.getElementById('scanner-mresult');
+      res.textContent = '✅ TAG detectada: ' + tag;
+      res.style.display = 'block';
+      if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+      document.getElementById('eqp_cod').value = tag;
+      buscaEqpImediato(tag);
+      setTimeout(fecharScanner, 1300);
+    },
+    (_erroFrame) => { /* erros de frame são normais — ignorar */ }
+  )
+  .then(() => {
+    _scannerAtivo = true;
+    document.getElementById('scanner-mloading').style.display = 'none';
+  })
+  .catch(err => {
+    _scannerAtivo = false;
+    document.getElementById('scanner-mloading').style.display = 'none';
+    console.error('Scanner error:', err);
+    alert('Não foi possível acessar a câmera.\n\nVerifique se o navegador tem permissão para usar a câmera e tente novamente.');
+    fecharScanner();
+  });
+}
+
+function fecharScanner() {
+  document.getElementById('scanner-modal-form').classList.remove('show');
+  document.getElementById('scanner-mresult').style.display = 'none';
+  document.getElementById('scanner-mloading').style.display = 'none';
+  if (_qrScanner && _scannerAtivo) {
+    _qrScanner.stop()
+      .then(() => { _qrScanner.clear(); _qrScanner = null; _scannerAtivo = false; })
+      .catch(() => { _qrScanner = null; _scannerAtivo = false; });
+  } else {
+    _qrScanner = null;
+    _scannerAtivo = false;
+  }
+}
+
+// Fechar ao clicar no fundo escuro
+document.getElementById('scanner-modal-form').addEventListener('click', function(e) {
+  if (e.target === this) fecharScanner();
+});
+
+// ── Busca imediata de equipamento (sem debounce) ── usada após scan ─────────
+function buscaEqpImediato(tag) {
+  if (!tag) return;
+  fetch('/api/equipamento/' + encodeURIComponent(tag))
+    .then(r => r.json())
+    .then(d => {
+      if (d.found) {
+        document.getElementById('eqp_nome').value = d.nome;
+        document.getElementById('chip-nome').textContent = d.nome;
+        document.getElementById('chip-cod').textContent  = d.codigo;
+        document.getElementById('equip-chip').classList.add('show');
+        carregarMateriais(tag);
+        status_('&#9989; Equipamento identificado: ' + d.nome, 'ok');
+      } else {
+        status_('&#128204; TAG não encontrada no cadastro. Preencha a descrição manualmente.', 'inf');
+      }
+    })
+    .catch(() => {});
 }
 
 function limparEqp() {
   document.getElementById('eqp_cod').value = '';
   document.getElementById('eqp_nome').value = '';
   document.getElementById('equip-chip').classList.remove('show');
-  document.getElementById('cam-input').value = '';
 }
 
 /* -------------------------------------------------------
@@ -1209,130 +1393,8 @@ function getSigData(id) {
   // Verifica se o canvas está em branco
   const ctx  = canvas.getContext('2d');
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-  const blank = !data.some(v => v !== 0);
-  return blank ? '' : canvas.toDataURL('image/png');
+  return blank ? '' : canvas.toDataURL();
 }
-
-/* -------------------------------------------------------
-   LIMPAR FORMULÁRIO
-------------------------------------------------------- */
-function limparForm() {
-  if (!confirm('Deseja realmente limpar todos os campos?')) return;
-  document.getElementById('form').reset();
-  limparSig('tec'); limparSig('sol');
-  limparEqp();
-  document.getElementById('total_disp').value = '';
-  document.getElementById('total_h').value = '';
-  document.getElementById('sb').style.display = 'none';
-  // restaurar data de hoje
-  const d = new Date();
-  document.getElementById('data_ocorr').value =
-    d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  window.scrollTo({top:0, behavior:'smooth'});
-}
-
-/* -------------------------------------------------------
-   MODAL
-------------------------------------------------------- */
-function fecharModal() {
-  document.getElementById('modal').classList.remove('show');
-}
-document.getElementById('modal').addEventListener('click', e => {
-  if (e.target === e.currentTarget) fecharModal();
-});
-
-/* -------------------------------------------------------
-   VALIDAÇÃO
-------------------------------------------------------- */
-function validar(d) {
-  const e = [];
-  if (!d.equipamento_codigo && !d.equipamento_nome) e.push('Informe o equipamento');
-  if (!d.tecnico || d.tecnico.includes('Selecione')) e.push('Selecione o técnico');
-  if (!d.setor) e.push('Selecione o setor');
-  if (!d.horario_parada) e.push('Informe o horário de parada');
-  if (!d.horario_liberacao) e.push('Informe o horário de liberação');
-  if (!d.motivo_parada || d.motivo_parada.includes('Selecione')) e.push('Selecione o motivo da parada');
-  if (!d.solucao_problema || d.solucao_problema.includes('Selecione')) e.push('Selecione a solução');
-  return e;
-}
-
-/* -------------------------------------------------------
-   SUBMISSÃO
-------------------------------------------------------- */
-document.getElementById('form').addEventListener('submit', async e => {
-  e.preventDefault();
-
-  const data = {
-    equipamento_codigo: document.getElementById('eqp_cod').value.trim(),
-    equipamento_nome:   document.getElementById('eqp_nome').value.trim(),
-    tecnico:            document.getElementById('tecnico').value,
-    setor:              document.getElementById('setor').value,
-    data_ocorrencia:    document.getElementById('data_ocorr').value,
-    horario_parada:     document.getElementById('hr_parada').value,
-    horario_liberacao:  document.getElementById('hr_lib').value,
-    total_horas:        document.getElementById('total_h').value,
-    motivo_parada:      document.getElementById('motivo').value,
-    solucao_problema:   document.getElementById('solucao').value,
-    observacoes:        document.getElementById('obs').value.trim(),
-    nome_solicitante:   document.getElementById('nome_sol').value.trim(),
-    assinatura_tecnico:     getSigData('tec'),
-    assinatura_solicitante: getSigData('sol'),
-    outros_problemas:   document.getElementById('outros_problemas').value.trim(),
-    pecas_necessarias:  document.getElementById('pecas_necessarias').value.trim(),
-    materiais_utilizados: Array.from(document.querySelectorAll('#materiais-lista input[type=checkbox]:checked')).map(c => c.value),
-    fotos: fotosB64,
-  };
-
-  const erros = validar(data);
-  if (erros.length) {
-    status_('&#10060; ' + erros.join(' &nbsp;|&nbsp; '), 'err');
-    return;
-  }
-
-  // Loading
-  const btn  = document.getElementById('btn-sub');
-  const spin = document.getElementById('spin');
-  const txt  = document.getElementById('btn-txt');
-  btn.disabled = true;
-  spin.style.display = 'inline-block';
-  txt.textContent = 'Salvando...';
-
-  try {
-    const r = await fetch('/submit', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(data)
-    });
-    const res = await r.json();
-
-    if (res.success) {
-      const dt = new Date().toLocaleDateString('pt-BR');
-      const statusBadge = res.tem_plano_acao
-        ? `<span style="background:#FFD700;color:#7D4E00;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;border:1.5px solid #E67E22;">&#9888; PENDENTE — Plano de Ação gerado</span>`
-        : `<span style="background:#D5F5E3;color:#1E8449;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:700;border:1.5px solid #27ae60;">&#10003; CONCLU&#205;DO</span>`;
-      document.getElementById('modal-det').innerHTML = `
-        <strong>Registro #:</strong> ${String(res.id).padStart(4,'0')}<br>
-        <strong>Status:</strong> ${statusBadge}<br>
-        <strong>Equipamento:</strong> ${data.equipamento_nome || data.equipamento_codigo}<br>
-        <strong>Técnico:</strong> ${data.tecnico}<br>
-        <strong>Setor:</strong> ${data.setor}<br>
-        <strong>Parada:</strong> ${data.horario_parada} &#8594; ${data.horario_liberacao}<br>
-        <strong>Duração:</strong> ${res.total_horas || document.getElementById('total_disp').value}<br>
-        <strong>Data:</strong> ${dt}
-      `;
-      document.getElementById('modal').classList.add('show');
-    } else {
-      status_('&#10060; Erro: ' + res.message, 'err');
-    }
-  } catch(err) {
-    status_('&#10060; Falha na conexão com o servidor. Verifique se o sistema está rodando.', 'err');
-  } finally {
-    btn.disabled = false;
-    spin.style.display = 'none';
-    txt.textContent = '&#128190; Registrar Manutenção';
-    txt.innerHTML   = '&#128190; Registrar Manutenção';
-  }
-});
 
 /* -------------------------------------------------------
    INICIALIZAR
