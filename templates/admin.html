@@ -1001,7 +1001,23 @@ function showTab(id, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + id).classList.add('active');
   btn.classList.add('active');
+  sessionStorage.setItem('adminTab', id);
 }
+
+// Restaurar aba ativa ao recarregar
+(function() {
+  const tab = sessionStorage.getItem('adminTab');
+  if (tab) {
+    const pane = document.getElementById('tab-' + tab);
+    const btn  = document.querySelector(`.tab-btn[onclick*="'${tab}'"]`);
+    if (pane && btn) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      pane.classList.add('active');
+      btn.classList.add('active');
+    }
+  }
+})();
 
 // ---- MODAIS ----
 function abrirModalNovoUsuario() {
@@ -1119,16 +1135,24 @@ function adicionarItem(listaId, placeholder) {
     <button class="btn-rem" onclick="removerItem(this)" title="Remover">&#10006;</button>
   `;
   lista.appendChild(div);
-  div.querySelector('input').focus();
+  const input = div.querySelector('input');
+  input.focus();
+  // Auto-salvar quando o usuário sair do campo após digitar
+  const tipo = listaId.replace('lista-', '');
+  input.addEventListener('blur', () => { if (input.value.trim()) salvarLista(tipo); });
 }
 
 function removerItem(btn) {
   const item = btn.closest('.lista-item');
-  if (document.querySelectorAll('#' + item.closest('.lista-editor').id + ' .lista-item').length <= 1) {
+  const listaEditor = item.closest('.lista-editor');
+  if (listaEditor.querySelectorAll('.lista-item').length <= 1) {
     toast('Deve haver pelo menos um item na lista.', 'error');
     return;
   }
   item.remove();
+  // Auto-salvar imediatamente após remoção
+  const tipo = listaEditor.id.replace('lista-', '');
+  salvarLista(tipo);
 }
 
 async function salvarLista(tipo) {
@@ -1144,6 +1168,8 @@ async function salvarLista(tipo) {
   const r = await api('/admin/listas/salvar', body);
   if (r.success) {
     toast(r.message);
+    sessionStorage.setItem('adminTab', tipo);
+    setTimeout(() => location.reload(), 1000);
   } else {
     toast(r.message, 'error');
   }
@@ -1172,13 +1198,20 @@ function adicionarEquipamento() {
     <td style="text-align:center"><button class="btn-rem" onclick="removerEquipamento(this)" title="Remover">&#10006;</button></td>
   `;
   tbody.appendChild(tr);
-  tr.querySelector('input').focus();
+  const firstInput = tr.querySelector('input');
+  firstInput.focus();
   atualizarContadorEq();
+  // Auto-salvar quando o usuário sair dos campos após preencher TAG
+  tr.querySelector('.eq-tag').addEventListener('blur', () => {
+    if (tr.querySelector('.eq-tag').value.trim()) salvarEquipamentos();
+  });
 }
 
 function removerEquipamento(btn) {
   btn.closest('tr').remove();
   atualizarContadorEq();
+  // Auto-salvar imediatamente após remoção
+  salvarEquipamentos();
 }
 
 function atualizarContadorEq() {
@@ -1202,8 +1235,13 @@ async function salvarEquipamentos() {
     return;
   }
   const r = await api('/admin/equipamentos/salvar', { equipamentos });
-  if (r.success) toast(r.message);
-  else toast(r.message, 'error');
+  if (r.success) {
+    toast(r.message);
+    sessionStorage.setItem('adminTab', 'equipamentos');
+    setTimeout(() => location.reload(), 1000);
+  } else {
+    toast(r.message, 'error');
+  }
 }
 
 // ---- PRODUCAO / OEE ----
@@ -1320,6 +1358,8 @@ function removerPeca(idx) {
   if (estoqueAtual[tagAtual]) {
     estoqueAtual[tagAtual].splice(idx, 1);
     carregarPecasEquipamento(tagAtual);
+    // Auto-salvar imediatamente após remoção
+    setTimeout(() => salvarEstoque(), 100);
   }
 }
 
@@ -1337,10 +1377,12 @@ function salvarEstoque() {
   })
   .then(r => r.json())
   .then(d => {
-    showToast(d.message, d.success ? 'success' : 'error');
-    if (d.success) carregarPecasEquipamento(tagAtual);
+    toast(d.message, d.success ? 'success' : 'error');
+    if (d.success) {
+      carregarPecasEquipamento(tagAtual);
+    }
   })
-  .catch(() => showToast('Erro ao salvar estoque', 'error'));
+  .catch(() => toast('Erro ao salvar estoque', 'error'));
 }
 
 // ---- CÓDIGO DE BARRAS (Code128 automático) ----
@@ -1412,7 +1454,7 @@ function imprimirBarcode(btn) {
   const tag  = tr.querySelector('.eq-tag').value.trim().toUpperCase();
   const desc = tr.querySelector('.eq-desc').value.trim();
   const area = tr.querySelector('.eq-area').value.trim();
-  if (!tag) { showToast('Informe a TAG antes de imprimir o código de barras.', 'error'); return; }
+  if (!tag) { toast('Informe a TAG antes de imprimir o código de barras.', 'error'); return; }
   const w = window.open('', '_blank', 'width=520,height=380');
   w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
     <title>Código de Barras — ${tag}</title>
@@ -1451,7 +1493,7 @@ function gerarQRCode(btn) {
   const tag  = tr.querySelector('.eq-tag').value.trim().toUpperCase();
   const desc = tr.querySelector('.eq-desc').value.trim();
   const area = tr.querySelector('.eq-area').value.trim();
-  if (!tag) { showToast('Informe a TAG antes de gerar o QR Code.', 'error'); return; }
+  if (!tag) { toast('Informe a TAG antes de gerar o QR Code.', 'error'); return; }
   const modal = document.getElementById('qr-modal');
   document.getElementById('qr-modal-tag').textContent  = tag;
   document.getElementById('qr-modal-desc').textContent = desc || '—';
@@ -1489,7 +1531,7 @@ function imprimirQR() {
   const desc = document.getElementById('qr-modal-desc').textContent;
   const area = document.getElementById('qr-modal-area').textContent;
   const img  = document.querySelector('#qr-canvas img');
-  if (!img) { showToast('Aguarde o QR Code carregar.', 'error'); return; }
+  if (!img) { toast('Aguarde o QR Code carregar.', 'error'); return; }
   const w = window.open('', '_blank', 'width=480,height=620');
   w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
     <title>QR + Barcode — ${tag}</title>
