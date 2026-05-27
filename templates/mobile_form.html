@@ -564,8 +564,8 @@ input[name="tipo_manutencao"] { display: none; }
     <p>Ocorrência salva com sucesso no sistema.</p>
     <div class="modal-id" id="modal-info"></div>
     <div class="modal-btns">
-      <button class="btn-novo prim" onclick="novoRegistro()">📝 Novo Registro</button>
-      <button class="btn-novo sec" onclick="window.location.href='/inicio'">🏠 Voltar ao Início</button>
+      <button class="btn-novo prim" onclick="novoRegistro()">📝 Nova Ocorrência</button>
+      <button class="btn-novo sec" onclick="fecharFormulario()">✕ Fechar Formulário</button>
     </div>
   </div>
 </div>
@@ -930,6 +930,28 @@ function buscaEqpImediato(tag) {
     })
     .catch(() => {});
 }
+
+// ── Fechar formulário ──────────────────────────────────────────────────────
+function fecharFormulario() {
+  document.getElementById('modal-bg').classList.remove('show');
+  // Tenta fechar a aba nativamente
+  try { window.close(); } catch(e) {}
+  // Fallback: exibe banner "pode fechar esta aba"
+  setTimeout(() => {
+    if (!document.hidden) {
+      novoRegistro();
+      const sb = document.createElement('div');
+      sb.id = 'sb-fechado';
+      sb.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#1E8449;color:#fff;'
+        + 'text-align:center;padding:16px 12px;font-size:15px;font-weight:bold;'
+        + 'z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,.3);letter-spacing:.3px;';
+      sb.innerHTML = '\u2705 Formulário encerrado &nbsp;|&nbsp; '
+        + '<span style="font-size:13px;opacity:.85">Você pode fechar esta aba agora</span>';
+      document.body.appendChild(sb);
+    }
+  }, 200);
+}
+
 </script>
 </body>
 </html>
