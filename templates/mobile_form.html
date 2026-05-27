@@ -919,11 +919,34 @@ function buscaEqpImediato(tag) {
     .then(r => r.json())
     .then(d => {
       if (d.found) {
-        document.getElementById('eqp_nome').value = d.nome;
-        document.getElementById('chip-nome').textContent = d.nome;
-        document.getElementById('chip-cod').textContent = d.codigo;
+        const descricao = d.descricao || d.nome;
+        // TAG exata do cadastro
+        document.getElementById('eqp_cod').value  = d.codigo;
+        // Descrição do equipamento (sem sufixo de área)
+        document.getElementById('eqp_nome').value = descricao;
+        document.getElementById('chip-nome').textContent = descricao;
+        document.getElementById('chip-cod').textContent  = d.codigo;
         document.getElementById('equip-chip').classList.add('show');
-        carregarMateriais(tag);
+        // Preencher setor produtivo com a área do cadastro
+        if (d.area || d.setor) {
+          const area = d.setor || d.area;
+          const selSetor = document.getElementById('setor');
+          if (selSetor) {
+            // Tentar match exato, depois case-insensitive
+            let matched = false;
+            for (const opt of selSetor.options) {
+              if (opt.value === area) { selSetor.value = area; matched = true; break; }
+            }
+            if (!matched) {
+              for (const opt of selSetor.options) {
+                if (opt.value.toLowerCase() === area.toLowerCase()) {
+                  selSetor.value = opt.value; matched = true; break;
+                }
+              }
+            }
+          }
+        }
+        carregarMateriais(d.codigo);
         document.getElementById('fg-eqp-cod').classList.remove('err');
         document.getElementById('fg-eqp-nome').classList.remove('err');
       }
