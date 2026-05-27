@@ -1227,12 +1227,34 @@ function buscaEqpImediato(tag) {
     .then(r => r.json())
     .then(d => {
       if (d.found) {
-        document.getElementById('eqp_nome').value = d.nome;
-        document.getElementById('chip-nome').textContent = d.nome;
+        const descricao = d.descricao || d.nome;
+        // TAG exata do cadastro
+        document.getElementById('eqp_cod').value  = d.codigo;
+        // Descrição do equipamento (sem sufixo de área)
+        document.getElementById('eqp_nome').value = descricao;
+        document.getElementById('chip-nome').textContent = descricao;
         document.getElementById('chip-cod').textContent  = d.codigo;
         document.getElementById('equip-chip').classList.add('show');
-        carregarMateriais(tag);
-        status_('&#9989; Equipamento identificado: ' + d.nome, 'ok');
+        // Preencher setor produtivo com a área do cadastro
+        if (d.area || d.setor) {
+          const area = d.setor || d.area;
+          const selSetor = document.getElementById('setor');
+          if (selSetor) {
+            let matched = false;
+            for (const opt of selSetor.options) {
+              if (opt.value === area) { selSetor.value = area; matched = true; break; }
+            }
+            if (!matched) {
+              for (const opt of selSetor.options) {
+                if (opt.value.toLowerCase() === area.toLowerCase()) {
+                  selSetor.value = opt.value; matched = true; break;
+                }
+              }
+            }
+          }
+        }
+        carregarMateriais(d.codigo);
+        status_('&#9989; Equipamento identificado: ' + descricao, 'ok');
       } else {
         status_('&#128204; TAG não encontrada no cadastro. Preencha a descrição manualmente.', 'inf');
       }
