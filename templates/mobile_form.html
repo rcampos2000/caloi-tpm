@@ -202,6 +202,86 @@ input[name="tipo_manutencao"] { display: none; }
 }
 .btn-novo.prim { background: var(--blue); color: #fff; }
 .btn-novo.sec  { background: var(--gray); color: var(--text); }
+
+/* ── SCANNER DE CÓDIGO DE BARRAS ── */
+.btn-scan {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 13px 14px;
+  background: linear-gradient(135deg, #1B3A6B 0%, #2451A3 100%);
+  color: #fff; border: none; border-radius: 8px;
+  font-size: 15px; font-weight: bold; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  margin-top: 6px; letter-spacing: .2px;
+  box-shadow: 0 2px 8px rgba(27,58,107,.25);
+  transition: opacity .15s;
+}
+.btn-scan:active { opacity: .82; }
+
+.scanner-modal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 1000; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px 16px;
+}
+.scanner-modal.show { display: flex; }
+
+.scanner-box {
+  width: min(380px, 95vw);
+  background: #111;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,.7);
+}
+.scanner-hdr {
+  background: linear-gradient(90deg, #1B3A6B, #2451A3);
+  color: #fff; padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: bold; font-size: 15px;
+}
+.scanner-hdr-info { display: flex; align-items: center; gap: 8px; }
+.scanner-hdr button {
+  background: rgba(255,255,255,.18); border: none; color: #fff;
+  font-size: 17px; cursor: pointer; padding: 4px 8px;
+  border-radius: 6px; line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#scanner-view {
+  width: 100%; background: #000;
+  min-height: 260px; position: relative;
+}
+/* Linha de scan animada */
+#scanner-view::after {
+  content: '';
+  position: absolute; left: 10%; right: 10%;
+  top: 50%; height: 2px;
+  background: linear-gradient(90deg, transparent, #00FF88, transparent);
+  border-radius: 2px;
+  animation: scanline 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes scanline {
+  0%   { top: 25%; opacity: .6; }
+  50%  { top: 75%; opacity: 1;  }
+  100% { top: 25%; opacity: .6; }
+}
+
+.scanner-tip {
+  color: #aaa; font-size: 12px; text-align: center;
+  padding: 10px 16px 14px; line-height: 1.6; background: #1a1a1a;
+}
+.scanner-result {
+  display: none;
+  background: #1E8449; color: #fff;
+  padding: 12px 16px; text-align: center;
+  font-size: 14px; font-weight: bold; letter-spacing: .3px;
+}
+.scanner-loading {
+  display: none; color: #aaa; font-size: 13px;
+  text-align: center; padding: 20px;
+  background: #1a1a1a;
+}
 </style>
 </head>
 <body>
@@ -262,6 +342,10 @@ input[name="tipo_manutencao"] { display: none; }
                  autocapitalize="characters" style="text-transform:uppercase;">
           <span class="err-msg">Informe a TAG do equipamento</span>
         </div>
+
+        <button type="button" class="btn-scan" onclick="abrirScanner()">
+          📷 Escanear Código de Barras
+        </button>
 
         <div class="fg" id="fg-eqp-nome">
           <label>🔧 Descrição do Equipamento <span class="req">*</span></label>
@@ -449,6 +533,27 @@ input[name="tipo_manutencao"] { display: none; }
     </button>
 
   </form>
+</div>
+
+<!-- MODAL SCANNER -->
+<div class="scanner-modal" id="scanner-modal">
+  <div class="scanner-box">
+    <div class="scanner-hdr">
+      <div class="scanner-hdr-info">
+        <span>📷</span> Escanear TAG do Equipamento
+      </div>
+      <button type="button" onclick="fecharScanner()" title="Fechar">✕</button>
+    </div>
+    <div id="scanner-view"></div>
+    <div class="scanner-loading" id="scanner-loading">
+      ⏳ Iniciando câmera…
+    </div>
+    <div class="scanner-result" id="scanner-result"></div>
+    <div class="scanner-tip">
+      Aponte a câmera para o <strong style="color:#fff">código de barras</strong> da etiqueta do equipamento.<br>
+      O campo TAG e a descrição serão preenchidos automaticamente.
+    </div>
+  </div>
 </div>
 
 <!-- MODAL SUCESSO -->
@@ -693,10 +798,138 @@ function novoRegistro() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// Fechar modal clicando fora
+// Fechar modal de sucesso clicando fora
 document.getElementById('modal-bg').addEventListener('click', function(e) {
   if (e.target === this) novoRegistro();
 });
+
+// ── Scanner de Código de Barras (html5-qrcode via CDN) ─────────────────────
+let _scannerLibLoaded = false;
+let _scannerLibQueue  = [];
+let _qrScanner        = null;
+let _scannerAtivo     = false;
+
+function _carregarScannerLib(cb) {
+  if (_scannerLibLoaded) { cb(); return; }
+  _scannerLibQueue.push(cb);
+  if (_scannerLibQueue.length > 1) return;
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
+  s.onload = () => {
+    _scannerLibLoaded = true;
+    _scannerLibQueue.forEach(fn => fn());
+    _scannerLibQueue = [];
+  };
+  s.onerror = () => {
+    alert('Erro ao carregar o scanner. Verifique a conexão com a internet.');
+    fecharScanner();
+  };
+  document.head.appendChild(s);
+}
+
+function abrirScanner() {
+  document.getElementById('scanner-modal').classList.add('show');
+  document.getElementById('scanner-loading').style.display = 'block';
+  document.getElementById('scanner-result').style.display = 'none';
+  _carregarScannerLib(iniciarCamera);
+}
+
+function iniciarCamera() {
+  if (_scannerAtivo && _qrScanner) {
+    document.getElementById('scanner-loading').style.display = 'none';
+    return;
+  }
+  if (_qrScanner) {
+    try { _qrScanner.clear(); } catch(e) {}
+    _qrScanner = null;
+  }
+
+  _qrScanner = new Html5Qrcode('scanner-view');
+
+  const formatos = [];
+  if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+    const f = Html5QrcodeSupportedFormats;
+    [f.QR_CODE, f.CODE_128, f.CODE_39, f.EAN_13, f.EAN_8, f.UPC_A, f.UPC_E].forEach(v => {
+      if (v !== undefined) formatos.push(v);
+    });
+  }
+
+  const config = {
+    fps: 12,
+    qrbox: { width: Math.min(280, window.innerWidth - 60), height: 110 },
+    aspectRatio: 1.4,
+    ...(formatos.length ? { formatsToSupport: formatos } : {})
+  };
+
+  _qrScanner.start(
+    { facingMode: 'environment' },
+    config,
+    (textoDecodificado) => {
+      const tag = textoDecodificado.trim().toUpperCase();
+
+      const res = document.getElementById('scanner-result');
+      res.textContent = '✅ TAG detectada: ' + tag;
+      res.style.display = 'block';
+
+      if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+
+      document.getElementById('eqp_cod').value = tag;
+      buscaEqpImediato(tag);
+      setTimeout(fecharScanner, 1300);
+    },
+    (_erroFrame) => { /* erros de frame são normais durante rastreamento */ }
+  )
+  .then(() => {
+    _scannerAtivo = true;
+    document.getElementById('scanner-loading').style.display = 'none';
+  })
+  .catch(err => {
+    _scannerAtivo = false;
+    document.getElementById('scanner-loading').style.display = 'none';
+    console.error('Scanner error:', err);
+    alert('Não foi possível acessar a câmera.\n\nVerifique se o navegador tem permissão para usar a câmera e tente novamente.');
+    fecharScanner();
+  });
+}
+
+function fecharScanner() {
+  document.getElementById('scanner-modal').classList.remove('show');
+  document.getElementById('scanner-result').style.display = 'none';
+  document.getElementById('scanner-loading').style.display = 'none';
+
+  if (_qrScanner && _scannerAtivo) {
+    _qrScanner.stop()
+      .then(() => { _qrScanner.clear(); _qrScanner = null; _scannerAtivo = false; })
+      .catch(() => { _qrScanner = null; _scannerAtivo = false; });
+  } else {
+    _qrScanner = null;
+    _scannerAtivo = false;
+  }
+}
+
+// Fechar scanner ao clicar no fundo escuro
+document.getElementById('scanner-modal').addEventListener('click', function(e) {
+  if (e.target === this) fecharScanner();
+});
+
+// ── Busca imediata (sem debounce) ── usada após leitura do scanner ──────────
+function buscaEqpImediato(tag) {
+  if (!tag || tag.length < 1) return;
+  fetch('/api/equipamento/' + encodeURIComponent(tag))
+    .then(r => r.json())
+    .then(d => {
+      if (d.found) {
+        document.getElementById('eqp_nome').value = d.nome;
+        document.getElementById('chip-nome').textContent = d.nome;
+        document.getElementById('chip-cod').textContent = d.codigo;
+        document.getElementById('equip-chip').classList.add('show');
+        carregarMateriais(tag);
+        document.getElementById('fg-eqp-cod').classList.remove('err');
+        document.getElementById('fg-eqp-nome').classList.remove('err');
+      }
+    })
+    .catch(() => {});
+}
 </script>
 </body>
 </html>
