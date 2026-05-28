@@ -1083,18 +1083,42 @@ function carregarMateriais(tag) {
       const lista = document.getElementById('materiais-lista');
       const empty = document.getElementById('materiais-empty');
       lista.innerHTML = '';
+
       if (!d.pecas || d.pecas.length === 0) {
-        empty.textContent = 'Nenhuma peça cadastrada para este equipamento.';
+        empty.textContent = 'Nenhuma peça cadastrada no estoque para este equipamento.';
         empty.style.display = 'block';
-        return;
+      } else {
+        empty.style.display = 'none';
+        d.pecas.forEach(peca => {
+          const label = document.createElement('label');
+          label.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--gray);border:1.5px solid var(--gray2);border-radius:6px;cursor:pointer;font-size:13px;user-select:none;';
+          label.innerHTML = `<input type="checkbox" name="mat_estoque" value="${peca}" style="width:15px;height:15px;accent-color:var(--blue2);"> ${peca}`;
+          lista.appendChild(label);
+        });
       }
-      empty.style.display = 'none';
-      d.pecas.forEach(peca => {
-        const label = document.createElement('label');
-        label.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--gray);border:1.5px solid var(--gray2);border-radius:6px;cursor:pointer;font-size:13px;user-select:none;';
-        label.innerHTML = `<input type="checkbox" value="${peca}" style="width:15px;height:15px;accent-color:var(--blue2);"> ${peca}`;
-        lista.appendChild(label);
-      });
+
+      // ── Separador + campo livre ──────────────────────────────
+      const sep = document.createElement('div');
+      sep.style.cssText = 'width:100%;margin:12px 0 6px;border-top:1px dashed var(--gray2);padding-top:10px;font-size:12px;color:var(--blue2);font-weight:700;letter-spacing:.5px;';
+      sep.textContent = '+ Adicionar peça não listada no estoque';
+      lista.appendChild(sep);
+
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:8px;width:100%;';
+      row.innerHTML = `
+        <input type="text" id="mat-custom-input"
+          placeholder="Ex: Rolamento 6203, Correia A42..."
+          style="flex:1;padding:8px 12px;border:1.5px solid var(--gray2);border-radius:6px;font-size:13px;">
+        <button type="button" onclick="adicionarMatCustom()"
+          style="padding:8px 16px;background:var(--blue2);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
+          + Adicionar
+        </button>`;
+      lista.appendChild(row);
+
+      const chips = document.createElement('div');
+      chips.id = 'mat-custom-chips';
+      chips.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;';
+      lista.appendChild(chips);
     }).catch(() => {});
 }
 
@@ -1439,6 +1463,118 @@ function getSigData(id) {
   const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
   return blank ? '' : canvas.toDataURL();
 }
+
+// ── Peça personalizada ──────────────────────────────────────
+function adicionarMatCustom() {
+  const input = document.getElementById('mat-custom-input');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  const chips = document.getElementById('mat-custom-chips');
+  if (!chips) return;
+  const existentes = Array.from(chips.querySelectorAll('span[data-val]')).map(s => s.dataset.val.toLowerCase());
+  if (existentes.includes(val.toLowerCase())) { input.value = ''; return; }
+  const chip = document.createElement('div');
+  chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:#e8f0fa;border:1.5px solid #a0b8d8;border-radius:20px;font-size:13px;';
+  chip.innerHTML = `
+    <span data-val="${val}" style="color:var(--blue2);font-weight:600;">📦 ${val}</span>
+    <input type="checkbox" name="mat_custom" value="${val}" checked style="display:none;">
+    <button type="button" onclick="this.closest('div').remove()" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;line-height:1;padding:0 2px;">×</button>`;
+  chips.appendChild(chip);
+  input.value = '';
+  input.focus();
+}
+
+// ── Envio do formulário (desktop) via fetch JSON ─────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Validação básica
+    const req = ['eqp_cod','eqp_nome','tecnico','setor','hr_parada','hr_lib','motivo','solucao'];
+    let ok = true;
+    req.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (!el.value || el.value.includes('Selecione')) {
+        el.style.borderColor = '#c0392b';
+        ok = false;
+      } else {
+        el.style.borderColor = '';
+      }
+    });
+    if (!ok) { status_('⚠️ Preencha todos os campos obrigatórios!', 'err'); return; }
+
+    const btn  = document.getElementById('btn-sub');
+    const txt  = document.getElementById('btn-txt');
+    const spin = document.getElementById('spin');
+    btn.disabled = true;
+    if (txt)  txt.style.display  = 'none';
+    if (spin) spin.style.display = 'inline-block';
+
+    // Coletar todos os materiais: checkboxes do estoque + chips personalizados
+    const materiais = Array.from(
+      document.querySelectorAll('#materiais-lista input[type=checkbox]:checked')
+    ).map(c => c.value);
+
+    const data = {
+      equipamento_codigo:    document.getElementById('eqp_cod').value.trim().toUpperCase(),
+      equipamento_nome:      document.getElementById('eqp_nome').value.trim(),
+      tecnico:               document.getElementById('tecnico').value,
+      setor:                 document.getElementById('setor').value,
+      data_ocorrencia:       document.getElementById('data_ocorr').value,
+      horario_parada:        document.getElementById('hr_parada').value,
+      horario_liberacao:     document.getElementById('hr_lib').value,
+      tipo_manutencao:       document.getElementById('tipo_manut') ? document.getElementById('tipo_manut').value : '',
+      motivo_parada:         document.getElementById('motivo').value,
+      descricao_problema:    document.getElementById('desc_prob') ? document.getElementById('desc_prob').value.trim() : '',
+      solucao_problema:      document.getElementById('solucao').value,
+      observacoes:           document.getElementById('obs') ? document.getElementById('obs').value.trim() : '',
+      outros_problemas:      document.getElementById('outros_problemas') ? document.getElementById('outros_problemas').value.trim() : '',
+      pecas_necessarias:     document.getElementById('pecas_necessarias') ? document.getElementById('pecas_necessarias').value.trim() : '',
+      nome_solicitante:      document.getElementById('nome_sol') ? document.getElementById('nome_sol').value.trim() : '',
+      assinatura_tecnico:    getSigData('tec'),
+      assinatura_solicitante: getSigData('sol'),
+      materiais_utilizados:  materiais,
+      fotos:                 fotosB64 || [],
+    };
+
+    try {
+      const resp = await fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const res = await resp.json();
+
+      btn.disabled = false;
+      if (txt)  txt.style.display  = '';
+      if (spin) spin.style.display = 'none';
+
+      if (res.success) {
+        const det = document.getElementById('modal-det');
+        if (det) det.innerHTML =
+          '<strong>Registro:</strong> ' + res.message + '<br>' +
+          '<strong>Equipamento:</strong> ' + data.equipamento_nome + '<br>' +
+          '<strong>Técnico:</strong> ' + data.tecnico + '<br>' +
+          '<strong>Tempo:</strong> ' + (res.total_horas || 'N/A') + '<br>' +
+          '<strong>Status:</strong> ' + (res.status || 'Concluído');
+        document.getElementById('modal').classList.add('show');
+        status_('✅ Registro salvo com sucesso!', 'ok');
+      } else {
+        status_('❌ Erro: ' + res.message, 'err');
+      }
+    } catch(err) {
+      btn.disabled = false;
+      if (txt)  txt.style.display  = '';
+      if (spin) spin.style.display = 'none';
+      status_('❌ Erro de conexão. Tente novamente.', 'err');
+    }
+  });
+});
 
 /* -------------------------------------------------------
    INICIALIZAR
