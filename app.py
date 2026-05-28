@@ -468,8 +468,26 @@ def init_config():
         salvar_estoque({})
         print("  ✓ estoque.json criado (vazio — configure em Configurações > Estoque)")
 
-    # Criar equipamentos.json a partir do catálogo legado se não existir
-    if not EQUIPAMENTOS_FILE.exists():
+    # Sincronizar equipamentos.json: usa o arquivo bundled do repositório
+    # quando o volume não tem o arquivo OU quando o bundled tem mais equipamentos
+    # (permite atualizar a lista via deploy sem perder edições manuais feitas na web)
+    BUNDLED_EQUIPAMENTOS = APP_DIR / "config" / "equipamentos.json"
+    if BUNDLED_EQUIPAMENTOS.exists():
+        try:
+            with open(BUNDLED_EQUIPAMENTOS, 'r', encoding='utf-8') as _f:
+                bundled_eqps = json.load(_f)
+            if not EQUIPAMENTOS_FILE.exists():
+                salvar_equipamentos(bundled_eqps)
+                print(f"  ✓ Equipamentos carregados do bundled: {len(bundled_eqps)} equipamentos")
+            else:
+                volume_eqps = carregar_equipamentos()
+                if len(bundled_eqps) > len(volume_eqps):
+                    salvar_equipamentos(bundled_eqps)
+                    print(f"  ✓ Equipamentos atualizados do bundled: {len(bundled_eqps)} (antes: {len(volume_eqps)})")
+        except Exception as _e:
+            print(f"  ⚠ Erro ao sincronizar equipamentos bundled: {_e}")
+    elif not EQUIPAMENTOS_FILE.exists():
+        # Fallback legado caso o bundled não exista
         equipamentos_padrao = [
             {
                 'descricao': v.split(' - ')[0] if ' - ' in v else v,
@@ -480,7 +498,7 @@ def init_config():
             for k, v in EQUIPAMENTOS_CATALOGO.items()
         ]
         salvar_equipamentos(equipamentos_padrao)
-        print("  ✓ Equipamentos migrados para equipamentos.json")
+        print("  ✓ Equipamentos migrados do catálogo legado")
 
 
 def criar_excel_banco_dados():
