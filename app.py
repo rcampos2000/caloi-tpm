@@ -220,6 +220,15 @@ def equipamentos_como_catalogo():
     }
 
 
+def equipamentos_meta():
+    """Retorna {TAG: {descricao, area}} para preenchimento automático de setor no formulário."""
+    eqs = carregar_equipamentos()
+    return {
+        eq['tag']: {'descricao': eq.get('descricao', ''), 'area': eq.get('area', eq.get('setor', ''))}
+        for eq in eqs if eq.get('tag')
+    }
+
+
 def carregar_producao():
     """Retorna lista de config OEE por equipamento."""
     if PRODUCAO_FILE.exists():
@@ -696,6 +705,8 @@ def formulario():
         motivos=get_motivos(),
         solucoes=get_solucoes(),
         equipamentos=equipamentos_como_catalogo(),
+        equipamentos_meta=equipamentos_meta(),
+        tecnico_logado=session.get('nome', ''),
         data_hoje=datetime.now().strftime('%d/%m/%Y'),
         hora_atual=datetime.now().strftime('%H:%M')
     )
@@ -718,6 +729,8 @@ def mobile_form():
         motivos=get_motivos(),
         solucoes=get_solucoes(),
         equipamentos=equipamentos_como_catalogo(),
+        equipamentos_meta=equipamentos_meta(),
+        tecnico_logado=session.get('nome', ''),
         data_hoje=datetime.now().strftime('%d/%m/%Y'),
         hora_atual=datetime.now().strftime('%H:%M'),
         session_user=session.get('usuario', '')
