@@ -627,21 +627,46 @@ function carregarMateriais(tag) {
   fetch('/api/estoque/' + encodeURIComponent(tag))
     .then(r => r.json())
     .then(d => {
-      const lista = document.getElementById('materiais-lista');
-      const empty = document.getElementById('materiais-empty');
+      const lista  = document.getElementById('materiais-lista');
+      const empty  = document.getElementById('materiais-empty');
       lista.innerHTML = '';
+
       if (!d.pecas || d.pecas.length === 0) {
-        empty.textContent = 'Nenhuma peça cadastrada para este equipamento.';
+        empty.textContent = 'Nenhuma peça cadastrada no estoque para este equipamento.';
         empty.style.display = 'block';
-        return;
+      } else {
+        empty.style.display = 'none';
+        d.pecas.forEach(peca => {
+          const label = document.createElement('label');
+          label.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray);border:1.5px solid var(--gray2);border-radius:8px;cursor:pointer;font-size:15px;user-select:none;';
+          label.innerHTML = `<input type="checkbox" name="mat_estoque" value="${peca}" style="width:20px;height:20px;accent-color:var(--blue2);flex-shrink:0;"> ${peca}`;
+          lista.appendChild(label);
+        });
       }
-      empty.style.display = 'none';
-      d.pecas.forEach(peca => {
-        const label = document.createElement('label');
-        label.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray);border:1.5px solid var(--gray2);border-radius:8px;cursor:pointer;font-size:15px;';
-        label.innerHTML = `<input type="checkbox" value="${peca}" style="width:20px;height:20px;accent-color:var(--blue2);flex-shrink:0;"> ${peca}`;
-        lista.appendChild(label);
-      });
+
+      // ── Separador + campo livre ──────────────────────────────
+      const sep = document.createElement('div');
+      sep.style.cssText = 'width:100%;margin:14px 0 8px;border-top:1px dashed var(--gray2);padding-top:12px;font-size:12px;color:var(--blue2);font-weight:700;letter-spacing:.5px;';
+      sep.textContent = '+ Adicionar peça não listada no estoque';
+      lista.appendChild(sep);
+
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:8px;width:100%;';
+      row.innerHTML = `
+        <input type="text" id="mat-custom-input"
+          placeholder="Ex: Rolamento 6203, Correia A42..."
+          style="flex:1;padding:12px 14px;border:1.5px solid var(--gray2);border-radius:10px;font-size:15px;background:#fff;-webkit-appearance:none;">
+        <button type="button" onclick="adicionarMatCustom()"
+          style="padding:12px 18px;background:var(--blue2);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;">
+          + Adicionar
+        </button>`;
+      lista.appendChild(row);
+
+      // ── Container chips peças personalizadas ─────────────────
+      const chips = document.createElement('div');
+      chips.id = 'mat-custom-chips';
+      chips.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;';
+      lista.appendChild(chips);
     }).catch(() => {});
 }
 
@@ -735,6 +760,30 @@ function validar() {
   }
 
   return ok;
+}
+
+// ── Peça personalizada ──
+function adicionarMatCustom() {
+  const input = document.getElementById('mat-custom-input');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  const chips = document.getElementById('mat-custom-chips');
+  if (!chips) return;
+
+  // Verificar duplicata
+  const existentes = Array.from(chips.querySelectorAll('span[data-val]')).map(s => s.dataset.val.toLowerCase());
+  if (existentes.includes(val.toLowerCase())) { input.value = ''; return; }
+
+  const chip = document.createElement('div');
+  chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#e8f0fa;border:1.5px solid #a0b8d8;border-radius:20px;font-size:13px;';
+  chip.innerHTML = `
+    <span data-val="${val}" style="color:#1B3A6B;font-weight:600;">📦 ${val}</span>
+    <input type="checkbox" name="mat_custom" value="${val}" checked style="display:none;">
+    <button type="button" onclick="this.closest('div').remove()" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;line-height:1;padding:0;">×</button>`;
+  chips.appendChild(chip);
+  input.value = '';
+  input.focus();
 }
 
 // ── Envio ──
