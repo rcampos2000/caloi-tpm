@@ -597,8 +597,22 @@ function atualizarRelogio() {
   const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   document.getElementById('data-hdr').textContent = dias[now.getDay()] + ', ' + now.getDate() + ' ' + meses[now.getMonth()];
 }
+// ── Catálogo de equipamentos (injetado pelo Flask) ──
+const EQPS_META = {{ equipamentos_meta | tojson }};
+const TECNICO_LOGADO = {{ tecnico_logado | tojson }};
+
 atualizarRelogio();
 setInterval(atualizarRelogio, 30000);
+
+// Pré-selecionar técnico logado
+if (TECNICO_LOGADO) {
+  const selTec = document.getElementById('tecnico');
+  if (selTec) {
+    for (const opt of selTec.options) {
+      if (opt.value === TECNICO_LOGADO) { selTec.value = TECNICO_LOGADO; break; }
+    }
+  }
+}
 
 // ── Busca equipamento ──
 let buscaTimer = null;
@@ -609,17 +623,49 @@ function buscaEqp(val) {
   if (val.length < 2) return;
   buscaTimer = setTimeout(() => {
     const tag = val.trim().toUpperCase();
-    fetch('/api/equipamento/' + encodeURIComponent(tag))
-      .then(r => r.json())
-      .then(d => {
-        if (d.found) {
-          document.getElementById('eqp_nome').value = d.nome;
-          document.getElementById('chip-nome').textContent = d.nome;
-          document.getElementById('chip-cod').textContent = d.codigo;
-          document.getElementById('equip-chip').classList.add('show');
-          carregarMateriais(tag);
+    const meta = EQPS_META[tag];
+    if (meta) {
+      // Preenche a partir do catálogo local (sem fetch)
+      const descricao = meta.descricao || tag;
+      document.getElementById('eqp_nome').value = descricao;
+      document.getElementById('chip-nome').textContent = descricao;
+      document.getElementById('chip-cod').textContent = tag;
+      document.getElementById('equip-chip').classList.add('show');
+      // Preencher setor automaticamente
+      if (meta.area) {
+        const selSetor = document.getElementById('setor');
+        for (const opt of selSetor.options) {
+          if (opt.value === meta.area || opt.value.toLowerCase() === meta.area.toLowerCase()) {
+            selSetor.value = opt.value; break;
+          }
         }
-      }).catch(() => {});
+      }
+      carregarMateriais(tag);
+    } else {
+      // Fallback via API para TAGs não listadas localmente
+      fetch('/api/equipamento/' + encodeURIComponent(tag))
+        .then(r => r.json())
+        .then(d => {
+          if (d.found) {
+            const descricao = d.descricao || d.nome;
+            document.getElementById('eqp_nome').value = descricao;
+            document.getElementById('chip-nome').textContent = descricao;
+            document.getElementById('chip-cod').textContent = d.codigo;
+            document.getElementById('equip-chip').classList.add('show');
+            // Preencher setor
+            const area = d.area || d.setor || '';
+            if (area) {
+              const selSetor = document.getElementById('setor');
+              for (const opt of selSetor.options) {
+                if (opt.value === area || opt.value.toLowerCase() === area.toLowerCase()) {
+                  selSetor.value = opt.value; break;
+                }
+              }
+            }
+            carregarMateriais(tag);
+          }
+        }).catch(() => {});
+    }
   }, 500);
 }
 
