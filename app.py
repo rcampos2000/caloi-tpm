@@ -701,6 +701,13 @@ def formulario():
     )
 
 
+@app.route('/manifest.json')
+def manifest():
+    """Manifest PWA para instalação como app no celular."""
+    from flask import send_from_directory
+    return send_from_directory(APP_DIR / 'static', 'manifest.json',
+                               mimetype='application/manifest+json')
+
 @app.route('/mobile')
 @login_required
 def mobile_form():
