@@ -1,1318 +1,1514 @@
 [
   {
-    "tag": "SA-P-MAQ-044",
     "descricao": "Máquina de curvar guidão",
-    "setor": "Preparação aço",
-    "modelo": "DB3010",
-    "fornecedor": "Shuz tung"
+    "tag": "SA-P-MAQ-044",
+    "area": "Preparação aço",
+    "fornecedor": "Shuz tung",
+    "modelo": "DB3010"
   },
   {
-    "tag": "SAL-L2-MAQ-013",
     "descricao": "Máquina de Soldar Veldi",
-    "setor": "Preparação aço",
-    "modelo": "Veldi 100",
-    "fornecedor": "Solutions for Business"
+    "tag": "SAL-L2-MAQ-013",
+    "area": "Preparação aço",
+    "fornecedor": "Solutions for Business",
+    "modelo": "Veldi 100"
   },
   {
-    "tag": "SA-MIG-MAQ-080",
     "descricao": "Máquina de solda MIG",
-    "setor": "Preparação aço",
-    "modelo": "YD 350RX",
-    "fornecedor": "Panasonic"
+    "tag": "SA-MIG-MAQ-080",
+    "area": "Preparação aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD 350RX"
   },
   {
-    "tag": "SAL-L2-MAQ-012",
     "descricao": "Máquina de soldar Veldi 100",
-    "setor": "Preparação aço",
-    "modelo": "Veldi 100",
-    "fornecedor": "Solutions for business"
+    "tag": "SAL-L2-MAQ-012",
+    "area": "Preparação aço",
+    "fornecedor": "Solutions for business",
+    "modelo": "Veldi 100"
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-069",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Preparação aço",
-    "modelo": "YD 350RX",
-    "fornecedor": "Panasonic"
+    "area": "Preparação aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD 350RX"
   },
   {
+    "descricao": "Prensa de estampagem",
     "tag": "SA-G-MAQ-015",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de curvar a perna do garfo",
     "tag": "SA-G-MAQ-003",
-    "descricao": "Máquina de curvar a perna do garfo",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Prensa de estampagem",
     "tag": "SA-GA16-MAQ-015",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "SA-GA16-MAQ-002",
     "descricao": "Máquina de curvar a perna do garfo",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "SA-GA16-MAQ-002",
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de preparar o tubo do selim",
     "tag": "SA-P-MAQ-017",
-    "descricao": "Máquina de preparar o tubo do selim",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "area": "Preparação aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de preparar o tubo do selim",
     "tag": "SA-P-MAQ-015",
-    "descricao": "Máquina de preparar o tubo do selim",
-    "setor": "Preparação aço",
-    "modelo": "HT-10372",
-    "fornecedor": "Shuz Tung"
+    "area": "Preparação aço",
+    "fornecedor": "Shuz Tung",
+    "modelo": "HT-10372"
   },
   {
+    "descricao": "Máquina de solda projeção",
     "tag": "SA-P-MAQ-021",
-    "descricao": "Máquina de solda projeção",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": "Shuz Tung"
+    "area": "Preparação aço",
+    "fornecedor": "Shuz Tung",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda projeção",
     "tag": "SA-P-MAQ-020",
-    "descricao": "Máquina de solda projeção",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": "Shuz Tung"
+    "area": "Preparação aço",
+    "fornecedor": "Shuz Tung",
+    "modelo": ""
   },
   {
-    "tag": "SA-P-MAQ-009",
     "descricao": "Máquina de solda tubo do selim + luva",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "tag": "SA-P-MAQ-009",
+    "area": "Preparação aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-051",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": "ESAB"
+    "area": "Preparação aço",
+    "fornecedor": "ESAB",
+    "modelo": ""
   },
   {
-    "tag": "SAL-P-MAQ-057",
     "descricao": "Máquina de Furar e Chanfrar LMC HT 10 643",
-    "setor": "Preparação aço",
-    "modelo": "HT 10 643",
-    "fornecedor": "Shuz Tung"
+    "tag": "SAL-P-MAQ-057",
+    "area": "Preparação aço",
+    "fornecedor": "Shuz Tung",
+    "modelo": "HT 10 643"
   },
   {
-    "tag": "SA-GU-MAQ-004",
     "descricao": "Lixadeira de fita",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "SA-GU-MAQ-004",
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "SA-GU-MAQ-003",
     "descricao": "Máquina de expandir guidão",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "SA-GU-MAQ-003",
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Furadeira de coluna",
     "tag": "SA-P-MAQ-005",
-    "descricao": "Furadeira de coluna",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "SA-GU-MAQ-002",
     "descricao": "Curvadeira se tubos",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "SA-GU-MAQ-002",
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Prensa de estampagem",
     "tag": "SA-P-MAQ-033",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Prensa de estampagem",
     "tag": "SA-GA16-MAQ-014",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "SAL-P-MAQ-003",
     "descricao": "Máquina de estampar o tubo inferior",
-    "setor": "Preparação aço",
-    "modelo": "Shuz tung",
-    "fornecedor": ""
+    "tag": "SAL-P-MAQ-003",
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": "Shuz tung"
   },
   {
+    "descricao": "Prensa de estampagem",
     "tag": "SA-P-MAQ-029",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Prensa de estampagem",
     "tag": "SA-P-MAQ-025",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Prensa de estampagem",
     "tag": "SA-P-MAQ-027",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "SA-P-MAQ-012",
+    "descricao": "Máquina de estampar reforço",
+    "tag": "SEM-TAG-001",
+    "area": "Preparação aço",
+    "fornecedor": "Shuz tung",
+    "modelo": ""
+  },
+  {
     "descricao": "Máquina de estampar rabeira inferior (BLAZER PO)",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "SA-P-MAQ-012",
+    "area": "Preparação aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "SA-P-MAQ-013",
     "descricao": "Máquina de estampar rabeira superior (BLAZER PV)",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "tag": "SA-P-MAQ-013",
+    "area": "Preparação aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
-    "tag": "SA-P-MAQ-001",
     "descricao": "Conificadora de tubos (automática)",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": "Pedrazolli"
+    "tag": "SA-P-MAQ-001",
+    "area": "Preparação aço",
+    "fornecedor": "Pedrazolli",
+    "modelo": ""
   },
   {
-    "tag": "SA-P-MAQ-018",
     "descricao": "Máquina de preparar o tubo inferior",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "tag": "SA-P-MAQ-018",
+    "area": "Preparação aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
-    "tag": "SA-P-MAQ-019",
     "descricao": "Máquina de preparar o tubo superior",
-    "setor": "Preparação aço",
-    "modelo": "",
-    "fornecedor": "Bike machinery"
+    "tag": "SA-P-MAQ-019",
+    "area": "Preparação aço",
+    "fornecedor": "Bike machinery",
+    "modelo": ""
   },
   {
-    "tag": "SAL-P-MAQ-050",
     "descricao": "Serra de corte ponta da rabeira",
-    "setor": "Preparação alumínio",
-    "modelo": "Cyclomatic 370 PPL",
-    "fornecedor": "OMP"
+    "tag": "SAL-P-MAQ-050",
+    "area": "Preparação alumínio",
+    "fornecedor": "OMP",
+    "modelo": "Cyclomatic 370 PPL"
   },
   {
-    "tag": "SA-P-MAQ-043",
     "descricao": "Serra corte automática (Matic)",
-    "setor": "Preparação alumínio",
-    "modelo": "Matic 315s",
-    "fornecedor": "OMP"
+    "tag": "SA-P-MAQ-043",
+    "area": "Preparação alumínio",
+    "fornecedor": "OMP",
+    "modelo": "Matic 315s"
   },
   {
-    "tag": "SAL-P-MAQ-055",
     "descricao": "Máquina de curvar tubos CNC52BR2",
-    "setor": "Preparação alumínio",
-    "modelo": "CNC 50BR2",
-    "fornecedor": "Shuz Tung"
-  },
-  {
-    "tag": "SA-P-MAQ-006",
-    "descricao": "Furadeira de coluna",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": ""
-  },
-  {
-    "tag": "SAL-P-MAQ-070",
-    "descricao": "Máquina laser de corte de tubos",
-    "setor": "Preparação alumínio",
-    "modelo": "AT 150AL2",
-    "fornecedor": "Shuz Tung"
-  },
-  {
-    "tag": "SAL-P-MAQ-049",
-    "descricao": "Máquina de corte laser (TRUMPF)",
-    "setor": "Preparação alumínio",
-    "modelo": "Trulaser tube 500",
-    "fornecedor": "Trumpf"
-  },
-  {
-    "tag": "SAL-P-MAQ-048",
-    "descricao": "Máquina de gravação de chassi",
-    "setor": "Preparação alumínio",
-    "modelo": "MC 2000T",
-    "fornecedor": ""
-  },
-  {
-    "tag": "SAL-P-MAQ-012",
-    "descricao": "Furadeira de coluna",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": ""
-  },
-  {
-    "tag": "SAL-P-MAQ-033",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": ""
-  },
-  {
-    "tag": "SAL-P-MAQ-030",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": ""
-  },
-  {
-    "tag": "SAL-P-MAQ-004",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": "Silme"
-  },
-  {
-    "tag": "SAL-P-MAQ-026",
-    "descricao": "Prensa de estampagem",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": ""
-  },
-  {
-    "tag": "SA-P-MAQ-045",
-    "descricao": "Máquina de calibrar/furar o cabeçote",
-    "setor": "Preparação alumínio",
-    "modelo": "HT 10 632",
-    "fornecedor": "Shuz Tung"
-  },
-  {
-    "tag": "SAL-P-MAQ-052",
-    "descricao": "Blazy PO/PV",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
-  },
-  {
-    "tag": "SAL-P-MAQ-051",
-    "descricao": "BLAZY PO",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
-  },
-  {
-    "tag": "SAL-P-MAQ-059",
-    "descricao": "Conificadora de tubos (Manual)",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
-  },
-  {
-    "tag": "SAL-P-MAQ-056",
-    "descricao": "Prensa hidráulica HT 10 30S",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": "Shuz Tung"
-  },
-  {
     "tag": "SAL-P-MAQ-055",
-    "descricao": "Prensa hidráulica",
-    "setor": "Preparação alumínio",
-    "modelo": "HT 1030S",
-    "fornecedor": "Shuz Tung"
+    "area": "Preparação alumínio",
+    "fornecedor": "Shuz Tung",
+    "modelo": "CNC 50BR2"
   },
   {
-    "tag": "SAL-P-MAQ-040",
+    "descricao": "Furadeira de coluna",
+    "tag": "SA-P-MAQ-006",
+    "area": "Preparação alumínio",
+    "fornecedor": "",
+    "modelo": ""
+  },
+  {
+    "descricao": "Máquina laser de corte de tubos",
+    "tag": "SAL-P-MAQ-070",
+    "area": "Preparação alumínio",
+    "fornecedor": "Shuz Tung",
+    "modelo": "AT 150AL2"
+  },
+  {
+    "descricao": "Máquina de corte laser (TRUMPF)",
+    "tag": "SAL-P-MAQ-049",
+    "area": "Preparação alumínio",
+    "fornecedor": "Trumpf",
+    "modelo": "Trulaser tube 500"
+  },
+  {
+    "descricao": "Máquina de gravação de chassi",
+    "tag": "SAL-P-MAQ-048",
+    "area": "Preparação alumínio",
+    "fornecedor": "",
+    "modelo": "MC 2000T"
+  },
+  {
+    "descricao": "Máquina de rebitar",
+    "tag": "SEM-TAG-002",
+    "area": "Preparação alumínio",
+    "fornecedor": "Caloi",
+    "modelo": ""
+  },
+  {
+    "descricao": "Furadeira de coluna",
+    "tag": "SAL-P-MAQ-012",
+    "area": "Preparação alumínio",
+    "fornecedor": "",
+    "modelo": ""
+  },
+  {
     "descricao": "Prensa de estampagem",
-    "setor": "Preparação alumínio",
-    "modelo": "",
-    "fornecedor": "Silme"
+    "tag": "SAL-P-MAQ-033",
+    "area": "Preparação alumínio",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Prensa de estampagem",
+    "tag": "SAL-P-MAQ-030",
+    "area": "Preparação alumínio",
+    "fornecedor": "",
+    "modelo": ""
+  },
+  {
+    "descricao": "Prensa de estampagem",
+    "tag": "SAL-P-MAQ-004",
+    "area": "Preparação alumínio",
+    "fornecedor": "Silme",
+    "modelo": ""
+  },
+  {
+    "descricao": "Prensa de estampagem",
+    "tag": "SAL-P-MAQ-026",
+    "area": "Preparação alumínio",
+    "fornecedor": "",
+    "modelo": ""
+  },
+  {
+    "descricao": "Máquina de calibrar/furar o cabeçote",
+    "tag": "SA-P-MAQ-045",
+    "area": "Preparação alumínio",
+    "fornecedor": "Shuz Tung",
+    "modelo": "HT 10 632"
+  },
+  {
+    "descricao": "Blazy PO/PV",
+    "tag": "SAL-P-MAQ-052",
+    "area": "Preparação alumínio",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
+  },
+  {
+    "descricao": "BLAZY PO",
+    "tag": "SAL-P-MAQ-051",
+    "area": "Preparação alumínio",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
+  },
+  {
+    "descricao": "Conificadora de tubos (Manual)",
+    "tag": "SAL-P-MAQ-059",
+    "area": "Preparação alumínio",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
+  },
+  {
+    "descricao": "Prensa hidráulica HT 10 30S",
+    "tag": "SAL-P-MAQ-056",
+    "area": "Preparação alumínio",
+    "fornecedor": "Shuz Tung",
+    "modelo": ""
+  },
+  {
+    "descricao": "Prensa hidráulica",
+    "tag": "SAL-P-MAQ-055-B",
+    "area": "Preparação alumínio",
+    "fornecedor": "Shuz Tung",
+    "modelo": "HT 1030S"
+  },
+  {
+    "descricao": "Prensa de estampagem",
+    "tag": "SAL-P-MAQ-040",
+    "area": "Preparação alumínio",
+    "fornecedor": "Silme",
+    "modelo": ""
+  },
+  {
+    "descricao": "Maquina de solda MIG",
     "tag": "SA-MIG-MAQ-071",
-    "descricao": "Maquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
+    "area": "Solda aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD-350RX"
   },
   {
-    "tag": "SA-MIG-MAQ-066",
     "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
+    "tag": "SA-MIG-MAQ-066",
+    "area": "Solda aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD-350RX"
   },
   {
-    "tag": "SA-MIG-MAQ-018",
     "descricao": "Maquina de solda",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "ESAB"
+    "tag": "SA-MIG-MAQ-018",
+    "area": "Solda aço",
+    "fornecedor": "ESAB",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-038",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "ESAB"
+    "area": "Solda aço",
+    "fornecedor": "ESAB",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de soldar pivot",
     "tag": "SA-GA16-MAQ-012",
-    "descricao": "Máquina de soldar pivot",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "area": "Solda aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-064",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Esab"
+    "area": "Solda aço",
+    "fornecedor": "Esab",
+    "modelo": ""
   },
   {
-    "tag": "SA-G-MAQ-012",
     "descricao": "Máquina de solda pivot",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "tag": "SA-G-MAQ-012",
+    "area": "Solda aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-015",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Esab"
+    "area": "Solda aço",
+    "fornecedor": "Esab",
+    "modelo": ""
   },
   {
-    "tag": "SA-G-MAQ-007",
     "descricao": "Maquina de soldar garfo Principal",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "tag": "SA-G-MAQ-007",
+    "area": "Solda aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
-    "tag": "SA-GA16-MAQ-011",
     "descricao": "Máquina de soldar garfo",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "tag": "SA-GA16-MAQ-011",
+    "area": "Solda aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
-    "tag": "SA-G-MAQ-010",
     "descricao": "Máquina de soldar garfo principal",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "tag": "SA-G-MAQ-010",
+    "area": "Solda aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-083",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
+    "area": "Solda aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD-350RX"
   },
   {
-    "tag": "SA-MIG-MAQ-066",
     "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
-  },
-  {
     "tag": "SA-MIG-MAQ-081",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
+    "area": "Solda aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD-350RX"
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-014",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Esab"
+    "area": "Solda aço",
+    "fornecedor": "Esab",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-085",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
+    "area": "Solda aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD-350RX"
   },
   {
-    "tag": "SA-L2-MAQ-002",
     "descricao": "Máquina de soldar pivot",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "tag": "SA-L2-MAQ-002",
+    "area": "Solda aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-067",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
+    "area": "Solda aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD-350RX"
   },
   {
-    "tag": "SA-P-MAQ-011",
     "descricao": "Máquina de estampar rabeira",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Shuz Tung"
+    "tag": "SA-P-MAQ-011",
+    "area": "Solda aço",
+    "fornecedor": "Shuz Tung",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-072",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
+    "area": "Solda aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD-350RX"
   },
   {
-    "tag": "SA-L1-MAQ-004",
     "descricao": "Máquina de soldar quadro",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "SA-L1-MAQ-004",
+    "area": "Solda aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "SA-L1-MAQ-003",
     "descricao": "Máquina de solda quadro",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Bikemachinery"
+    "tag": "SA-L1-MAQ-003",
+    "area": "Solda aço",
+    "fornecedor": "Bikemachinery",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SAL-MIG-MAQ-002",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Fronius"
+    "area": "Solda aço",
+    "fornecedor": "Fronius",
+    "modelo": ""
   },
   {
-    "tag": "SA-MIG-MAQ-080",
     "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
-  },
-  {
     "tag": "SA-MIG-MAQ-070",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
+    "area": "Solda aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD-350RX"
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-082",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "YD-350RX",
-    "fornecedor": "Panasonic"
+    "area": "Solda aço",
+    "fornecedor": "Panasonic",
+    "modelo": "YD-350RX"
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SAL-MIG-MAQ-014",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Fronius"
+    "area": "Solda aço",
+    "fornecedor": "Fronius",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-002",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Esab"
+    "area": "Solda aço",
+    "fornecedor": "Esab",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SAL-MIG-MAQ-006",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Fronius"
+    "area": "Solda aço",
+    "fornecedor": "Fronius",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SAL-MIG-MAQ-009",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Fronius"
+    "area": "Solda aço",
+    "fornecedor": "Fronius",
+    "modelo": ""
   },
   {
-    "tag": "SAL-TT-MAQ-005",
     "descricao": "Rosqueadeira",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "SAL-TT-MAQ-005",
+    "area": "Solda aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de solda MIG",
     "tag": "SA-MIG-MAQ-029",
-    "descricao": "Máquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Esab"
+    "area": "Solda aço",
+    "fornecedor": "Esab",
+    "modelo": ""
   },
   {
-    "tag": "SA-L1-MAQ-010",
     "descricao": "Máquina de Usinar tubo do Selim",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "SA-L1-MAQ-010",
+    "area": "Solda aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Mesa de Calibragem",
     "tag": "SA-L1-MAQ-006",
-    "descricao": "Mesa de Calibragem",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Solda aço",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "SA-MIG-MAQ-006",
     "descricao": "Maquina de solda MIG",
-    "setor": "Solda aço",
-    "modelo": "",
-    "fornecedor": "Esab"
+    "tag": "SA-MIG-MAQ-006",
+    "area": "Solda aço",
+    "fornecedor": "Esab",
+    "modelo": ""
   },
   {
-    "tag": "SAL-TR-MAQ-001",
     "descricao": "Torre de resfriamento 2",
-    "setor": "Solda alumínio",
-    "modelo": "25/3 SGC I ASP",
-    "fornecedor": "Alpina"
+    "tag": "SAL-TR-MAQ-001",
+    "area": "Solda alumínio",
+    "fornecedor": "Alpina",
+    "modelo": "25/3 SGC I ASP"
   },
   {
-    "tag": "SAL-TT-MAQ-007",
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-003",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "PRECISION 375 TIG"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-004",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "PRECISION 375 TIG"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-005",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "PRECISION 375 TIG"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-006",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "PRECISION 375 TIG"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-007",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "ASPECT 375"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-008",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "ASPECT 375"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-009",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "ASPECT 375"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-010",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "ASPECT 375"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-011",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "ASPECT 375"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-012",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "PRECISION 375 TIG"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-013",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "PRECISION 375 TIG"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-014",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "PRECISION 375 TIG"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-015",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "ASPECT 375"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-016",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "ASPECT 375"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-017",
+    "area": "Solda alumínio",
+    "fornecedor": "Miller",
+    "modelo": ""
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-018",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "ASPECT 375"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-019",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "ASPECT 375"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-020",
+    "area": "Solda alumínio",
+    "fornecedor": "LINCON",
+    "modelo": "ASPECT 375"
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-021",
+    "area": "Solda alumínio",
+    "fornecedor": "Miller",
+    "modelo": ""
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-022",
+    "area": "Solda alumínio",
+    "fornecedor": "Miller",
+    "modelo": ""
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-023",
+    "area": "Solda alumínio",
+    "fornecedor": "Miller",
+    "modelo": ""
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-024",
+    "area": "Solda alumínio",
+    "fornecedor": "Miller",
+    "modelo": ""
+  },
+  {
+    "descricao": "Máquina de Solda TIG",
+    "tag": "SEM-TAG-025",
+    "area": "Solda alumínio",
+    "fornecedor": "Miller",
+    "modelo": ""
+  },
+  {
     "descricao": "Máquina de fresar ponteira",
-    "setor": "Pintura",
-    "modelo": "ht-50-831",
-    "fornecedor": "Shuz tung"
+    "tag": "SAL-TT-MAQ-007",
+    "area": "Pintura",
+    "fornecedor": "Shuz tung",
+    "modelo": "ht-50-831"
   },
   {
+    "descricao": "Estufa de cura",
     "tag": "PT-CC-MAQ-010",
-    "descricao": "Estufa de cura",
-    "setor": "Pintura",
-    "modelo": "180/90/2400",
-    "fornecedor": "Erzinger"
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": "180/90/2400"
   },
   {
+    "descricao": "Estufa de cura",
     "tag": "PT-F2-MAQ-012",
-    "descricao": "Estufa de cura",
-    "setor": "Pintura",
-    "modelo": "",
-    "fornecedor": "Erzinger"
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": ""
   },
   {
+    "descricao": "Estufa de cura",
     "tag": "PT-F1-MAQ-011",
-    "descricao": "Estufa de cura",
-    "setor": "Pintura",
-    "modelo": "180/90/2400",
-    "fornecedor": "Erzinger"
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": "180/90/2400"
   },
   {
+    "descricao": "Ciclone (separador de tinta)",
     "tag": "PT-F1-MAQ-014",
-    "descricao": "Ciclone (separador de tinta)",
-    "setor": "Pintura",
-    "modelo": "CPPE AC DUPLA",
-    "fornecedor": "Erzinger"
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": "CPPE AC DUPLA"
   },
   {
+    "descricao": "Cabine de pintura",
     "tag": "PT-F1-MAQ-007",
-    "descricao": "Cabine de pintura",
-    "setor": "Pintura",
-    "modelo": "",
-    "fornecedor": "Erzinger"
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": ""
   },
   {
+    "descricao": "Ciclone (Separador de tinta)",
     "tag": "PT-F1-MAQ-013",
-    "descricao": "Ciclone (Separador de tinta)",
-    "setor": "Pintura",
-    "modelo": "CPPE AC DUPLA",
-    "fornecedor": "Erzinger"
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": "CPPE AC DUPLA"
   },
   {
+    "descricao": "Cabine de pintura",
     "tag": "PT-F1-MAQ-006",
-    "descricao": "Cabine de pintura",
-    "setor": "Pintura",
-    "modelo": "",
-    "fornecedor": "Erzinger"
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": ""
   },
   {
-    "tag": "PT-F2-MAQ-016",
     "descricao": "Ciclone (Separador de tinta)",
-    "setor": "Pintura",
-    "modelo": "",
-    "fornecedor": "Erzinger"
+    "tag": "PT-F2-MAQ-016",
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": ""
   },
   {
+    "descricao": "Cabine de pintura",
     "tag": "PT-F2-MAQ-009",
-    "descricao": "Cabine de pintura",
-    "setor": "Pintura",
-    "modelo": "",
-    "fornecedor": "Erzinger"
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": ""
   },
   {
-    "tag": "PT-F2-MAQ-015",
     "descricao": "Ciclone (separador de tinta)",
-    "setor": "Pintura",
-    "modelo": "",
-    "fornecedor": "Erzinger"
+    "tag": "PT-F2-MAQ-015",
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": ""
   },
   {
+    "descricao": "Cabine de pintura",
     "tag": "PT-F2-MAQ-008",
-    "descricao": "Cabine de pintura",
-    "setor": "Pintura",
-    "modelo": "",
-    "fornecedor": "Erzinger"
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": ""
   },
   {
+    "descricao": "Cabine de pintura",
     "tag": "PT-CC-MAQ-005",
-    "descricao": "Cabine de pintura",
-    "setor": "Pintura",
-    "modelo": "",
-    "fornecedor": "Erzinger"
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": ""
   },
   {
-    "tag": "PT-BN-MAQ-018",
     "descricao": "Pre tratamento spray fosfato de ferro",
-    "setor": "Pintura",
-    "modelo": "",
-    "fornecedor": "Erzinger"
+    "tag": "PT-BN-MAQ-018",
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": ""
   },
   {
-    "tag": "SEM TAG",
     "descricao": "Linha de Pintura líquida",
-    "setor": "Pintura",
-    "modelo": "",
-    "fornecedor": "Erzinger"
+    "tag": "SEM-TAG-026",
+    "area": "Pintura",
+    "fornecedor": "Erzinger",
+    "modelo": ""
   },
   {
-    "tag": "SEM TAG",
     "descricao": "Splitão 1",
-    "setor": "Pintura",
-    "modelo": "RTC300CNP",
-    "fornecedor": "Hitachi"
+    "tag": "SEM-TAG-027",
+    "area": "Pintura",
+    "fornecedor": "Hitachi",
+    "modelo": "RTC300CNP"
   },
   {
-    "tag": "SEM TAG",
     "descricao": "Splitão 2",
-    "setor": "Pintura",
-    "modelo": "RTC250DNK",
-    "fornecedor": "Hitachi"
+    "tag": "SEM-TAG-028",
+    "area": "Pintura",
+    "fornecedor": "Hitachi",
+    "modelo": "RTC250DNK"
   },
   {
-    "tag": "SEM TAG",
     "descricao": "Splitão 3",
-    "setor": "Pintura",
-    "modelo": "RTC200CNP",
-    "fornecedor": "Hitachi"
+    "tag": "SEM-TAG-029",
+    "area": "Pintura",
+    "fornecedor": "Hitachi",
+    "modelo": "RTC200CNP"
   },
   {
-    "tag": "SAL-TT-MAQ-009",
     "descricao": "Máquina de post mounth",
-    "setor": "Tratamento",
-    "modelo": "HT-50-82B",
-    "fornecedor": "Shuz Tung"
+    "tag": "SAL-TT-MAQ-009",
+    "area": "Tratamento",
+    "fornecedor": "Shuz Tung",
+    "modelo": "HT-50-82B"
   },
   {
-    "tag": "SAL-TT-MAQ-006",
     "descricao": "Máquina de usinagem do pivô da FS",
-    "setor": "Tratamento",
-    "modelo": "Nadir c SUs",
-    "fornecedor": "Bike machinery"
+    "tag": "SAL-TT-MAQ-006",
+    "area": "Tratamento",
+    "fornecedor": "Bike machinery",
+    "modelo": "Nadir c SUs"
   },
   {
-    "tag": "SAL-TT-MAQ-008",
     "descricao": "Máquina de Rosquear LMC",
-    "setor": "Tratamento",
-    "modelo": "HT-15022L",
-    "fornecedor": "Shuz Tung"
+    "tag": "SAL-TT-MAQ-008",
+    "area": "Tratamento",
+    "fornecedor": "Shuz Tung",
+    "modelo": "HT-15022L"
   },
   {
-    "tag": "SA-L2-MAQ-010",
     "descricao": "Máquina de usinar tubo do selim",
-    "setor": "Tratamento",
-    "modelo": "HT-50-2002",
-    "fornecedor": "Shuz Tung"
+    "tag": "SA-L2-MAQ-010",
+    "area": "Tratamento",
+    "fornecedor": "Shuz Tung",
+    "modelo": "HT-50-2002"
   },
   {
-    "tag": "SAL-TT-MAQ-003",
     "descricao": "Estufa de Envelhecimento 02",
-    "setor": "Tratamento",
-    "modelo": "FET T6",
-    "fornecedor": "DJ Fornos"
+    "tag": "SAL-TT-MAQ-003",
+    "area": "Tratamento",
+    "fornecedor": "DJ Fornos",
+    "modelo": "FET T6"
   },
   {
-    "tag": "SAL-TT-MAQ-002",
     "descricao": "Estufa de Envelhecimento 01",
-    "setor": "Tratamento",
-    "modelo": "FET T6",
-    "fornecedor": "DJ Fornos"
+    "tag": "SAL-TT-MAQ-002",
+    "area": "Tratamento",
+    "fornecedor": "DJ Fornos",
+    "modelo": "FET T6"
   },
   {
+    "descricao": "Mesa de Calibragem",
     "tag": "SAL-P-MAQ-021",
-    "descricao": "Mesa de Calibragem",
-    "setor": "Tratamento",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Tratamento",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Mesa de Calibragem",
     "tag": "SAL-TT-MAQ-010",
-    "descricao": "Mesa de Calibragem",
-    "setor": "Tratamento",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Tratamento",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "SAL-TT-MAQ-001",
     "descricao": "Forno de tratamento térmico",
-    "setor": "Tratamento",
-    "modelo": "",
-    "fornecedor": "DJ Fornos"
+    "tag": "SAL-TT-MAQ-001",
+    "area": "Tratamento",
+    "fornecedor": "DJ Fornos",
+    "modelo": ""
   },
   {
-    "tag": "SEM TAG - QUE ESTÁ EM USO",
     "descricao": "Forno se solubilização",
-    "setor": "Tratamento",
-    "modelo": "",
-    "fornecedor": "DJ forno"
+    "tag": "SEM TAG - QUE ESTÁ EM USO",
+    "area": "Tratamento",
+    "fornecedor": "DJ forno",
+    "modelo": ""
   },
   {
-    "tag": "RD-P-MAQ-058",
     "descricao": "Máquina de furar aro parede dupla",
-    "setor": "Tratamento",
-    "modelo": "Holland",
-    "fornecedor": "Holland"
+    "tag": "RD-P-MAQ-058",
+    "area": "Tratamento",
+    "fornecedor": "Holland",
+    "modelo": "Holland"
   },
   {
+    "descricao": "Máquina de pinar aro",
     "tag": "RD-P-MAQ-010",
-    "descricao": "Máquina de pinar aro",
-    "setor": "Tratamento",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Tratamento",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de serrar aro",
     "tag": "RD-P-MAQ-013",
-    "descricao": "Máquina de serrar aro",
-    "setor": "Tratamento",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Tratamento",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "RD-P-MAQ-002",
     "descricao": "Máquina de Calandrar Aro",
-    "setor": "Tratamento",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "RD-P-MAQ-002",
+    "area": "Tratamento",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Prensa pneumática",
     "tag": "MT-L2-MAQ-007",
-    "descricao": "Prensa pneumática",
-    "setor": "Pre montagem",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Pre montagem",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Prensa pneumática",
     "tag": "MT-L1-MAQ-007",
-    "descricao": "Prensa pneumática",
-    "setor": "Pre montagem",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Pre montagem",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "MT-MAQ-034",
     "descricao": "Máquina de cortar corrente",
-    "setor": "Pre montagem",
-    "modelo": "Mk - A",
-    "fornecedor": "Holland"
+    "tag": "MT-MAQ-034",
+    "area": "Pre montagem",
+    "fornecedor": "Holland",
+    "modelo": "Mk - A"
   },
   {
-    "tag": "MT-MAQ-035",
     "descricao": "Máquina de cortar conduíte",
-    "setor": "Pre montagem",
-    "modelo": "MC - A",
-    "fornecedor": "Holland"
+    "tag": "MT-MAQ-035",
+    "area": "Pre montagem",
+    "fornecedor": "Holland",
+    "modelo": "MC - A"
   },
   {
+    "descricao": "Prensa pneumática",
     "tag": "MT-L3-MAQ-008",
-    "descricao": "Prensa pneumática",
-    "setor": "Pre montagem",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Pre montagem",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "MT-MAQ-028",
+    "descricao": "Serra automática Explorer 4.0",
+    "tag": "SEM-TAG-030",
+    "area": "Pre montagem",
+    "fornecedor": "",
+    "modelo": ""
+  },
+  {
     "descricao": "Prensa da bucha estrela",
-    "setor": "Pre montagem",
-    "modelo": "Cuved spid",
-    "fornecedor": "Bikemachinery"
+    "tag": "MT-MAQ-028",
+    "area": "Pre montagem",
+    "fornecedor": "Bikemachinery",
+    "modelo": "Cuved spid"
   },
   {
-    "tag": "MT-L4-MAQ-016",
     "descricao": "Prensa pneumática",
-    "setor": "Pre montagem",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "MT-L4-MAQ-016",
+    "area": "Pre montagem",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "MT-MKD-MAQ-001",
     "descricao": "Serra de policorte",
-    "setor": "Pre montagem",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "MT-MKD-MAQ-001",
+    "area": "Pre montagem",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Linha de bicicleta elétrica",
     "tag": "MT-L1-MAQ-008",
-    "descricao": "Linha de bicicleta elétrica",
-    "setor": "Montagem",
-    "modelo": "Solidly grounded wye",
-    "fornecedor": "Vandoren Engineers"
+    "area": "Montagem",
+    "fornecedor": "Vandoren Engineers",
+    "modelo": "Solidly grounded wye"
   },
   {
+    "descricao": "Linha de bicicleta elétrica",
     "tag": "MT-L4-MAQ-019",
-    "descricao": "Linha de bicicleta elétrica",
-    "setor": "Montagem",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Montagem",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Linha de bicicleta elétrica",
     "tag": "MT-L3-MAQ-010",
-    "descricao": "Linha de bicicleta elétrica",
-    "setor": "Montagem",
-    "modelo": "Solidly grounded wye",
-    "fornecedor": "Vandorenenineers"
+    "area": "Montagem",
+    "fornecedor": "Vandorenenineers",
+    "modelo": "Solidly grounded wye"
   },
   {
-    "tag": "MT-L1-MAQ-005",
-    "descricao": "Balança",
-    "setor": "Montagem",
-    "modelo": "",
-    "fornecedor": ""
-  },
-  {
-    "tag": "MT-MAQ-033",
-    "descricao": "Máquina de Usinar",
-    "setor": "Rodas",
-    "modelo": "",
-    "fornecedor": ""
-  },
-  {
-    "tag": "RD-P-MAQ-016",
-    "descricao": "Máquina de ilhos",
-    "setor": "Rodas",
-    "modelo": "Eyelet fitting machine",
-    "fornecedor": "Mach1"
-  },
-  {
-    "tag": "RD-L2-MAQ-046",
-    "descricao": "Máquina de montar rodas",
-    "setor": "Rodas",
-    "modelo": "CF-A",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L4-MAQ-044",
-    "descricao": "Máquina de montar rodas",
-    "setor": "Rodas",
-    "modelo": "CF-A",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L2-MAQ-049",
-    "descricao": "Máquina de Centrar Rodas",
-    "setor": "Rodas",
-    "modelo": "Dc- g",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L2-MAQ-048",
-    "descricao": "Máquina de Centrar Rodas",
-    "setor": "Rodas",
-    "modelo": "Dc- g",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L2-MAQ-048",
-    "descricao": "Máquina de montar rodas",
-    "setor": "Rodas",
-    "modelo": "CF-A",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L2-MAQ-042",
-    "descricao": "Máquina de montar rodas",
-    "setor": "Rodas",
-    "modelo": "CF-A",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L1-MAQ-051",
-    "descricao": "Máquina de montar rodas",
-    "setor": "Rodas",
-    "modelo": "CF-A",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L1-MAQ-052",
-    "descricao": "Máquina de montar rodas",
-    "setor": "Rodas",
-    "modelo": "CF-A",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L1-MAQ-055",
-    "descricao": "Máquina de Centrar rodas",
-    "setor": "Rodas",
-    "modelo": "Dc- g",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L1-MAQ-054",
-    "descricao": "Máquina de Centrar rodas",
-    "setor": "Rodas",
-    "modelo": "Dc- g",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L1-MAQ-054",
-    "descricao": "Máquina de montar rodas",
-    "setor": "Rodas",
-    "modelo": "CF-A",
-    "fornecedor": "Holland"
-  },
-  {
-    "tag": "RD-L1-MAQ-053",
-    "descricao": "Máquina de montar rodas",
-    "setor": "Rodas",
-    "modelo": "CF-A",
-    "fornecedor": "Hollans"
-  },
-  {
-    "tag": "MT-L4-MAQ-020",
     "descricao": "Máquina de selar fita",
-    "setor": "Rodas",
-    "modelo": "S06kw",
-    "fornecedor": "Politron"
+    "tag": "SEM-TAG-031",
+    "area": "Montagem",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "RD-L4-MAQ-017",
+    "descricao": "Balança",
+    "tag": "MT-L1-MAQ-005",
+    "area": "Montagem",
+    "fornecedor": "",
+    "modelo": ""
+  },
+  {
+    "descricao": "Máquina de selar",
+    "tag": "SEM-TAG-032",
+    "area": "Montagem",
+    "fornecedor": "Euromax",
+    "modelo": "Conjugada 700x500"
+  },
+  {
+    "descricao": "Máquina de Usinar",
+    "tag": "MT-MAQ-033",
+    "area": "Rodas",
+    "fornecedor": "",
+    "modelo": ""
+  },
+  {
+    "descricao": "Máquina de ilhos",
+    "tag": "RD-P-MAQ-016",
+    "area": "Rodas",
+    "fornecedor": "Mach1",
+    "modelo": "Eyelet fitting machine"
+  },
+  {
+    "descricao": "Máquina de montar rodas",
+    "tag": "RD-L2-MAQ-046",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "CF-A"
+  },
+  {
+    "descricao": "Máquina de montar rodas",
+    "tag": "RD-L4-MAQ-044",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "CF-A"
+  },
+  {
+    "descricao": "Máquina de Centrar Rodas",
+    "tag": "RD-L2-MAQ-049",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "Dc- g"
+  },
+  {
+    "descricao": "Máquina de Centrar Rodas",
+    "tag": "RD-L2-MAQ-048",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "Dc- g"
+  },
+  {
+    "descricao": "Máquina de montar rodas",
+    "tag": "RD-L2-MAQ-048-B",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "CF-A"
+  },
+  {
+    "descricao": "Máquina de montar rodas",
+    "tag": "RD-L2-MAQ-042",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "CF-A"
+  },
+  {
+    "descricao": "Máquina de montar rodas",
+    "tag": "RD-L1-MAQ-051",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "CF-A"
+  },
+  {
+    "descricao": "Máquina de montar rodas",
+    "tag": "RD-L1-MAQ-052",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "CF-A"
+  },
+  {
+    "descricao": "Máquina de Centrar rodas",
+    "tag": "RD-L1-MAQ-055",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "Dc- g"
+  },
+  {
+    "descricao": "Máquina de Centrar rodas",
+    "tag": "RD-L1-MAQ-054",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "Dc- g"
+  },
+  {
+    "descricao": "Máquina de montar rodas",
+    "tag": "RD-L1-MAQ-054-B",
+    "area": "Rodas",
+    "fornecedor": "Holland",
+    "modelo": "CF-A"
+  },
+  {
+    "descricao": "Máquina de montar rodas",
+    "tag": "RD-L1-MAQ-053",
+    "area": "Rodas",
+    "fornecedor": "Hollans",
+    "modelo": "CF-A"
+  },
+  {
+    "descricao": "Máquina de selar fita",
+    "tag": "MT-L4-MAQ-020",
+    "area": "Rodas",
+    "fornecedor": "Politron",
+    "modelo": "S06kw"
+  },
+  {
     "descricao": "Máquina de montar pneu",
-    "setor": "Rodas",
-    "modelo": "",
-    "fornecedor": "Mach1"
+    "tag": "RD-L4-MAQ-017",
+    "area": "Rodas",
+    "fornecedor": "Mach1",
+    "modelo": ""
   },
   {
-    "tag": "RD-P-MAQ-005",
     "descricao": "Máquina de furar Aro",
-    "setor": "Rodas",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "RD-P-MAQ-005",
+    "area": "Rodas",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "RD-P-MAQ-009",
     "descricao": "Máquina de pinar aro",
-    "setor": "Rodas",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "RD-P-MAQ-009",
+    "area": "Rodas",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "RD-P-MAQ-012",
     "descricao": "Máquina de serrar aro",
-    "setor": "Rodas",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "RD-P-MAQ-012",
+    "area": "Rodas",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "RD-P-MAQ-001",
     "descricao": "Calandra de aro",
-    "setor": "Rodas",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "RD-P-MAQ-001",
+    "area": "Rodas",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "RD-P-MAQ-007",
     "descricao": "Máquina de furar aro",
-    "setor": "Rodas",
-    "modelo": "",
-    "fornecedor": "Mach1"
+    "tag": "RD-P-MAQ-007",
+    "area": "Rodas",
+    "fornecedor": "Mach1",
+    "modelo": ""
   },
   {
-    "tag": "QU-LAB-MÁQ- 003",
     "descricao": "MÁQ TESTE DE IMPACTO QUADRO",
-    "setor": "Laboratório",
-    "modelo": "",
-    "fornecedor": "Caloi"
+    "tag": "QU-LAB-MÁQ- 003",
+    "area": "Laboratório",
+    "fornecedor": "Caloi",
+    "modelo": ""
   },
   {
-    "tag": "QU-LAB-MÁQ-004",
     "descricao": "Máquina para teste de vibração do quadro",
-    "setor": "Laboratório",
-    "modelo": "",
-    "fornecedor": "Caloi"
+    "tag": "QU-LAB-MÁQ-004",
+    "area": "Laboratório",
+    "fornecedor": "Caloi",
+    "modelo": ""
   },
   {
-    "tag": "QU-LAB-MÁQ-005",
     "descricao": "Máquina para teste de torção do quadro",
-    "setor": "Laboratório",
-    "modelo": "",
-    "fornecedor": "Caloi"
+    "tag": "QU-LAB-MÁQ-005",
+    "area": "Laboratório",
+    "fornecedor": "Caloi",
+    "modelo": ""
   },
   {
-    "tag": "QU-LAB-MAQ-009",
     "descricao": "Máquina para teste de pedivela",
-    "setor": "Laboratório",
-    "modelo": "",
-    "fornecedor": "Caloi"
+    "tag": "QU-LAB-MAQ-009",
+    "area": "Laboratório",
+    "fornecedor": "Caloi",
+    "modelo": ""
   },
   {
-    "tag": "QU-LAB-MÁQ-008",
     "descricao": "Máquina para teste de guidão",
-    "setor": "Laboratório",
-    "modelo": "",
-    "fornecedor": "Caloi"
+    "tag": "QU-LAB-MÁQ-008",
+    "area": "Laboratório",
+    "fornecedor": "Caloi",
+    "modelo": ""
   },
   {
-    "tag": "QU-LAB-MÁQ-001",
     "descricao": "Máquina dinamômetro",
-    "setor": "Laboratório",
-    "modelo": "",
-    "fornecedor": "Caloi"
+    "tag": "QU-LAB-MÁQ-001",
+    "area": "Laboratório",
+    "fornecedor": "Caloi",
+    "modelo": ""
   },
   {
-    "tag": "QU-LAB-MÁQ-002",
     "descricao": "máquina para teste de fadiga do pedal",
-    "setor": "Laboratório",
-    "modelo": "",
-    "fornecedor": "Caloi"
+    "tag": "QU-LAB-MÁQ-002",
+    "area": "Laboratório",
+    "fornecedor": "Caloi",
+    "modelo": ""
   },
   {
-    "tag": "QU-LAB-MÁQ-006",
     "descricao": "Máquina para teste de pneu",
-    "setor": "Laboratório",
-    "modelo": "",
-    "fornecedor": "Caloi"
+    "tag": "QU-LAB-MÁQ-006",
+    "area": "Laboratório",
+    "fornecedor": "Caloi",
+    "modelo": ""
   },
   {
-    "tag": "QU-LAB-MÁQ-007",
     "descricao": "Máquina de fadiga por impacto de garfo",
-    "setor": "Laboratório",
-    "modelo": "",
-    "fornecedor": "caloi"
+    "tag": "QU-LAB-MÁQ-007",
+    "area": "Laboratório",
+    "fornecedor": "caloi",
+    "modelo": ""
   },
   {
-    "tag": "FER-MAQ-047",
     "descricao": "Maquina Fresa Manual",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "FER-MAQ-047",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "FER-MAQ-061",
     "descricao": "Maquina Furadeira Radial",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "FER-MAQ-061",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "FER-MAQ-054",
     "descricao": "Maquina Furadeira de Bancada",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "FER-MAQ-054",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "FER-MAQ-056",
     "descricao": "Maquina Lixadeira Vestical",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "FER-MAQ-056",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "FER-MAQ-055",
     "descricao": "Maquina de Serra Fita",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "FER-MAQ-055",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "FER-MAQ-059",
     "descricao": "Maquina Balancin",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "FER-MAQ-059",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "FER-MAQ-060",
     "descricao": "Maquina dispositivo",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "FER-MAQ-060",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "MN-MÁQ-012",
+    "descricao": "Maquina Jateadora",
+    "tag": "SEM-TAG-033",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
+  },
+  {
     "descricao": "Maquina de Eletro Erosão",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "MN-MÁQ-012",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "FER-MAQ-048",
     "descricao": "MAQ FRESA_ATLASMAG",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "FER-MAQ-048",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Maquina de Fresar",
     "tag": "FER-MAQ-049",
-    "descricao": "Maquina de Fresar",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Maquina de Fresar",
     "tag": "FER-MAQ-050",
-    "descricao": "Maquina de Fresar",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Maquina de Fresar",
     "tag": "FER-MAQ-051",
-    "descricao": "Maquina de Fresar",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "FER-MAQ-053",
     "descricao": "Furadeira",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "FER-MAQ-053",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "MN-MÁQ-036",
     "descricao": "MÁQ_RETIFICA PLANA",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "MN-MÁQ-036",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "MN-MÁQ-015",
     "descricao": "MÁQ_SERRA DE CORTA FRENHO",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "MN-MÁQ-015",
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de Torno",
     "tag": "MN-MÁQ-004",
-    "descricao": "Máquina de Torno",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de Torno",
     "tag": "MN-MÁQ-016",
-    "descricao": "Máquina de Torno",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de Torno",
     "tag": "MN-MÁQ-006",
-    "descricao": "Máquina de Torno",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
+    "descricao": "Máquina de Torno",
     "tag": "MN-MÁQ-052",
-    "descricao": "Máquina de Torno",
-    "setor": "Ferramentaria",
-    "modelo": "",
-    "fornecedor": ""
+    "area": "Ferramentaria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "MN-MAQ-031",
     "descricao": "Máquina de solda eletrodo",
-    "setor": "Serralheria",
-    "modelo": "",
-    "fornecedor": "ESAB"
+    "tag": "MN-MAQ-031",
+    "area": "Serralheria",
+    "fornecedor": "ESAB",
+    "modelo": ""
   },
   {
-    "tag": "MN-MÁQ-050",
     "descricao": "Esmeril",
-    "setor": "Serralheria",
-    "modelo": "",
-    "fornecedor": ""
+    "tag": "MN-MÁQ-050",
+    "area": "Serralheria",
+    "fornecedor": "",
+    "modelo": ""
   },
   {
-    "tag": "MN-MÁQ-053",
     "descricao": "Máquina de solda mig",
-    "setor": "Manutenção",
-    "modelo": "",
-    "fornecedor": "Miller"
+    "tag": "MN-MÁQ-053",
+    "area": "Manutenção",
+    "fornecedor": "Miller",
+    "modelo": ""
   },
   {
-    "tag": "MN-MAQ-055",
     "descricao": "Gerenciador Sam 4.0",
-    "setor": "Sala de compressores",
-    "modelo": "Sigma Air manager 4.0",
-    "fornecedor": "Kaser"
+    "tag": "MN-MAQ-055",
+    "area": "Sala de compressores",
+    "fornecedor": "Kaser",
+    "modelo": "Sigma Air manager 4.0"
   },
   {
-    "tag": "MN-MAQ-046",
     "descricao": "Compressor 100 HP",
-    "setor": "Sala de compressores",
-    "modelo": "CSD 100S",
-    "fornecedor": "Kaser"
+    "tag": "MN-MAQ-046",
+    "area": "Sala de compressores",
+    "fornecedor": "Kaser",
+    "modelo": "CSD 100S"
   },
   {
+    "descricao": "Compressor 60 HP",
     "tag": "MN-MAQ-044",
-    "descricao": "Compressor 60 HP",
-    "setor": "Sala de compressores",
-    "modelo": "BSD 60",
-    "fornecedor": "Kaser"
+    "area": "Sala de compressores",
+    "fornecedor": "Kaser",
+    "modelo": "BSD 60"
   },
   {
+    "descricao": "Compressor 60 HP",
     "tag": "MN-MAQ-045",
-    "descricao": "Compressor 60 HP",
-    "setor": "Sala de compressores",
-    "modelo": "BSD 60",
-    "fornecedor": "Kaser"
+    "area": "Sala de compressores",
+    "fornecedor": "Kaser",
+    "modelo": "BSD 60"
   },
   {
-    "tag": "MN-MAQ-039",
     "descricao": "Secador de ar",
-    "setor": "Sala de compressores",
-    "modelo": "",
-    "fornecedor": "Kaser"
+    "tag": "MN-MAQ-039",
+    "area": "Sala de compressores",
+    "fornecedor": "Kaser",
+    "modelo": ""
   },
   {
-    "tag": "SA-MIG-MAQ-057",
     "descricao": "Máquina de solda MIG",
-    "setor": "Manutenção",
-    "modelo": "",
-    "fornecedor": "Panasonic"
+    "tag": "SA-MIG-MAQ-057",
+    "area": "Manutenção",
+    "fornecedor": "Panasonic",
+    "modelo": ""
+  },
+  {
+    "descricao": "Estabilizador",
+    "tag": "SEM-TAG-034",
+    "area": "Manutenção",
+    "fornecedor": "",
+    "modelo": ""
   }
 ]
