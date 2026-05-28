@@ -969,6 +969,8 @@ body{margin-left:220px!important;}
    CATÁLOGO DE EQUIPAMENTOS (injetado pelo Flask)
 ------------------------------------------------------- */
 const EQPS = {{ equipamentos | tojson }};
+const EQPS_META = {{ equipamentos_meta | tojson }};
+const TECNICO_LOGADO = {{ tecnico_logado | tojson }};
 
 /* -------------------------------------------------------
    RELÓGIO E DATA
@@ -1001,11 +1003,29 @@ function buscaEqp(cod) {
   const tag = cod.toUpperCase().trim();
   const nome = EQPS[tag];
   if (nome) {
-    document.getElementById('eqp_nome').value = nome;
-    document.getElementById('chip-nome').textContent = nome;
+    const meta = EQPS_META[tag] || {};
+    const descricao = meta.descricao || nome;
+    document.getElementById('eqp_nome').value = descricao;
+    document.getElementById('chip-nome').textContent = descricao;
     document.getElementById('chip-cod').textContent = tag;
     document.getElementById('equip-chip').classList.add('show');
-    status_('&#9989; Equipamento: ' + nome, 'ok');
+    // Preencher setor produtivo automaticamente
+    const area = meta.area || '';
+    if (area) {
+      const selSetor = document.getElementById('setor');
+      let matched = false;
+      for (const opt of selSetor.options) {
+        if (opt.value === area) { selSetor.value = area; matched = true; break; }
+      }
+      if (!matched) {
+        for (const opt of selSetor.options) {
+          if (opt.value.toLowerCase() === area.toLowerCase()) {
+            selSetor.value = opt.value; matched = true; break;
+          }
+        }
+      }
+    }
+    status_('&#9989; Equipamento: ' + descricao, 'ok');
     carregarMateriais(tag);
     carregarHistorico(tag);
   } else {
@@ -1487,6 +1507,16 @@ function adicionarMatCustom() {
 
 // ── Envio do formulário (desktop) via fetch JSON ─────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  // Pré-selecionar técnico logado
+  if (TECNICO_LOGADO) {
+    const selTec = document.getElementById('tecnico');
+    if (selTec) {
+      for (const opt of selTec.options) {
+        if (opt.value === TECNICO_LOGADO) { selTec.value = TECNICO_LOGADO; statusTec(selTec); break; }
+      }
+    }
+  }
+
   const form = document.getElementById('form');
   if (!form) return;
 
