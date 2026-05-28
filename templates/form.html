@@ -274,6 +274,17 @@ body::before {
 }
 
 hr.div { border:none; border-top:1px solid var(--gray2); margin:18px 0; }
+.tag-ac-item {
+  padding:9px 14px; cursor:pointer; font-size:13px;
+  display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--gray2);
+}
+.tag-ac-item:last-child { border-bottom:none; }
+.tag-ac-item:hover, .tag-ac-item.active {
+  background:var(--blue); color:#fff;
+}
+.tag-ac-item .ac-tag { font-weight:700; min-width:80px; }
+.tag-ac-item .ac-desc { opacity:.85; font-size:12px; }
+.tag-ac-item:hover .ac-desc, .tag-ac-item.active .ac-desc { opacity:1; }
 
 /* ============================================================
    SCANNER / ENTRADA DE EQUIPAMENTO
@@ -635,8 +646,18 @@ body{margin-left:220px!important;}
         <div class="g2" style="margin-top:14px">
           <div class="fg">
             <label>&#127991; TAG do Equipamento <span class="req">*</span></label>
-            <input type="text" id="eqp_cod" placeholder="Ex: EQ001 (ou use o scanner no celular)"
-                   oninput="buscaEqp(this.value)" autocomplete="off" style="text-transform:uppercase;">
+            <div style="position:relative;">
+              <input type="text" id="eqp_cod" placeholder="Ex: EQ001 (ou use o scanner no celular)"
+                     oninput="buscaEqp(this.value);tagAutoComplete(this.value)"
+                     onkeydown="tagACKey(event)"
+                     onblur="setTimeout(fecharTagAC,200)"
+                     autocomplete="off" style="text-transform:uppercase;width:100%;">
+              <div id="tag-ac-list" style="
+                display:none;position:absolute;top:100%;left:0;right:0;z-index:999;
+                background:#fff;border:1.5px solid var(--blue2);border-top:none;
+                border-radius:0 0 var(--rs) var(--rs);max-height:220px;overflow-y:auto;
+                box-shadow:0 6px 18px rgba(0,0,0,.15);"></div>
+            </div>
           </div>
           <div class="fg">
             <label>&#128295; Descrição do Equipamento <span class="req">*</span></label>
@@ -1332,6 +1353,72 @@ function limparEqp() {
   document.getElementById('eqp_cod').value = '';
   document.getElementById('eqp_nome').value = '';
   document.getElementById('equip-chip').classList.remove('show');
+  fecharTagAC();
+}
+
+/* -------------------------------------------------------
+   AUTOCOMPLETE DE TAG
+------------------------------------------------------- */
+let _acIdx = -1;
+
+function tagAutoComplete(val) {
+  const list = document.getElementById('tag-ac-list');
+  const q = val.toUpperCase().trim();
+  if (q.length < 1) { fecharTagAC(); return; }
+
+  // Filtrar TAGs que começam com q, depois as que contêm q
+  const tags = Object.keys(EQPS_META);
+  const starts = tags.filter(t => t.startsWith(q));
+  const contains = tags.filter(t => !t.startsWith(q) && t.includes(q));
+  const matches = [...starts, ...contains].slice(0, 12);
+
+  if (matches.length === 0) { fecharTagAC(); return; }
+
+  list.innerHTML = '';
+  _acIdx = -1;
+  matches.forEach((tag, i) => {
+    const meta = EQPS_META[tag] || {};
+    const div = document.createElement('div');
+    div.className = 'tag-ac-item';
+    div.innerHTML = '<span class="ac-tag">' + tag + '</span><span class="ac-desc">' + (meta.descricao || '') + '</span>';
+    div.addEventListener('mousedown', () => selecionarTagAC(tag));
+    list.appendChild(div);
+  });
+  list.style.display = 'block';
+}
+
+function selecionarTagAC(tag) {
+  document.getElementById('eqp_cod').value = tag;
+  fecharTagAC();
+  buscaEqp(tag);
+  buscaEqpImediato(tag);
+}
+
+function fecharTagAC() {
+  const list = document.getElementById('tag-ac-list');
+  if (list) { list.style.display = 'none'; list.innerHTML = ''; }
+  _acIdx = -1;
+}
+
+function tagACKey(e) {
+  const list = document.getElementById('tag-ac-list');
+  const items = list ? list.querySelectorAll('.tag-ac-item') : [];
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _acIdx = Math.min(_acIdx + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('active', i === _acIdx));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _acIdx = Math.max(_acIdx - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('active', i === _acIdx));
+  } else if (e.key === 'Enter' && _acIdx >= 0) {
+    e.preventDefault();
+    const tag = items[_acIdx].querySelector('.ac-tag').textContent;
+    selecionarTagAC(tag);
+  } else if (e.key === 'Escape') {
+    fecharTagAC();
+  }
 }
 
 /* -------------------------------------------------------
