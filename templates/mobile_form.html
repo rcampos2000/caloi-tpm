@@ -298,6 +298,17 @@ input[name="tipo_manutencao"] { display: none; }
   text-align: center; padding: 20px;
   background: #1a1a1a;
 }
+
+.tag-ac-item {
+  padding:12px 14px; cursor:pointer; font-size:14px;
+  display:flex; gap:10px; align-items:center;
+  border-bottom:1px solid #DDE3EF;
+}
+.tag-ac-item:last-child { border-bottom:none; }
+.tag-ac-item.active, .tag-ac-item:active { background:#1B3A6B; color:#fff; }
+.tag-ac-item .ac-tag { font-weight:700; min-width:75px; }
+.tag-ac-item .ac-desc { font-size:12px; opacity:.8; }
+.tag-ac-item.active .ac-desc { opacity:1; }
 </style>
 </head>
 <body>
@@ -353,9 +364,19 @@ input[name="tipo_manutencao"] { display: none; }
 
         <div class="fg" id="fg-eqp-cod">
           <label>🏷️ TAG do Equipamento <span class="req">*</span></label>
-          <input type="text" id="eqp_cod" placeholder="Ex: EQ001"
-                 oninput="buscaEqp(this.value)" autocomplete="off"
-                 autocapitalize="characters" style="text-transform:uppercase;">
+          <div style="position:relative;">
+            <input type="text" id="eqp_cod" placeholder="Ex: EQ001"
+                   oninput="buscaEqp(this.value);tagAutoComplete(this.value)"
+                   onkeydown="tagACKey(event)"
+                   onblur="setTimeout(fecharTagAC,200)"
+                   autocomplete="off"
+                   autocapitalize="characters" style="text-transform:uppercase;width:100%;">
+            <div id="tag-ac-list" style="
+              display:none;position:absolute;top:100%;left:0;right:0;z-index:999;
+              background:#fff;border:1.5px solid #2451A3;border-top:none;
+              border-radius:0 0 8px 8px;max-height:240px;overflow-y:auto;
+              box-shadow:0 6px 18px rgba(0,0,0,.18);"></div>
+          </div>
           <span class="err-msg">Informe a TAG do equipamento</span>
         </div>
 
@@ -600,6 +621,65 @@ function atualizarRelogio() {
 // ── Catálogo de equipamentos (injetado pelo Flask) ──
 const EQPS_META = {{ equipamentos_meta | tojson }};
 const TECNICO_LOGADO = {{ tecnico_logado | tojson }};
+
+/* -- Autocomplete de TAG ------------------------------------------ */
+let _acIdx = -1;
+
+function tagAutoComplete(val) {
+  const list = document.getElementById('tag-ac-list');
+  const q = val.toUpperCase().trim();
+  if (q.length < 1) { fecharTagAC(); return; }
+  const tags = Object.keys(EQPS_META);
+  const starts   = tags.filter(t => t.startsWith(q));
+  const contains = tags.filter(t => !t.startsWith(q) && t.includes(q));
+  const matches  = [...starts, ...contains].slice(0, 12);
+  if (matches.length === 0) { fecharTagAC(); return; }
+  list.innerHTML = '';
+  _acIdx = -1;
+  matches.forEach(tag => {
+    const meta = EQPS_META[tag] || {};
+    const div  = document.createElement('div');
+    div.className = 'tag-ac-item';
+    div.innerHTML = '<span class="ac-tag">' + tag + '</span><span class="ac-desc">' + (meta.descricao || '') + '</span>';
+    div.addEventListener('touchstart', () => selecionarTagAC(tag));
+    div.addEventListener('mousedown',  () => selecionarTagAC(tag));
+    list.appendChild(div);
+  });
+  list.style.display = 'block';
+}
+
+function selecionarTagAC(tag) {
+  document.getElementById('eqp_cod').value = tag;
+  fecharTagAC();
+  clearTimeout(buscaTimer);
+  buscaEqp(tag);
+}
+
+function fecharTagAC() {
+  const list = document.getElementById('tag-ac-list');
+  if (list) { list.style.display = 'none'; list.innerHTML = ''; }
+  _acIdx = -1;
+}
+
+function tagACKey(e) {
+  const list  = document.getElementById('tag-ac-list');
+  const items = list ? list.querySelectorAll('.tag-ac-item') : [];
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _acIdx = Math.min(_acIdx + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('active', i === _acIdx));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _acIdx = Math.max(_acIdx - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('active', i === _acIdx));
+  } else if (e.key === 'Enter' && _acIdx >= 0) {
+    e.preventDefault();
+    selecionarTagAC(items[_acIdx].querySelector('.ac-tag').textContent);
+  } else if (e.key === 'Escape') {
+    fecharTagAC();
+  }
+}
 
 atualizarRelogio();
 setInterval(atualizarRelogio, 30000);
