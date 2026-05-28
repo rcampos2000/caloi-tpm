@@ -451,6 +451,7 @@ body{margin-left:220px!important;}
   <button class="tab-btn" onclick="showTab('producao', this)">&#128230; Produção</button>
   <button class="tab-btn" onclick="showTab('estoque', this)">&#128230; Estoque</button>
   <button class="tab-btn" onclick="showTab('backup', this)">&#128190; Backup</button>
+  <button class="tab-btn" onclick="showTab('importar', this)">&#128229; Importar</button>
 </div>
 
 <!-- CONTEÚDO -->
@@ -991,6 +992,131 @@ body{margin-left:220px!important;}
       </div>
     </div>
   </div>
+
+<div class="tab-pane" id="tab-importar">
+  <div style="padding:32px 28px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1020px;">
+
+      <!-- ── UPLOAD EQUIPAMENTOS ── -->
+      <div style="background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,0.08);padding:28px;border:1.5px solid #E0E5F0;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <span style="font-size:30px;">🏭</span>
+          <div>
+            <div style="font-size:16px;font-weight:800;color:#1B3A6B;">Upload Equipamentos</div>
+            <div style="font-size:12px;color:#888;">Excel · CSV · TXT</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.65;">
+          Importe equipamentos a partir de planilha ou arquivo de texto.<br>
+          Colunas reconhecidas: <strong>Descrição, TAG, Área, Fornecedor</strong>
+        </div>
+        <div style="background:#F0F4FA;border-radius:8px;padding:11px 14px;margin-bottom:16px;font-size:12px;color:#1B3A6B;line-height:1.6;">
+          <strong>Formato esperado:</strong><br>
+          Coluna A: Descrição &nbsp;|&nbsp; B: TAG &nbsp;|&nbsp; C: Área &nbsp;|&nbsp; D: Fornecedor<br>
+          Linhas de cabeçalho são detectadas e ignoradas automaticamente.
+        </div>
+        <label for="file-eqp" id="drop-eqp"
+          style="display:block;border:2px dashed #B0C0DC;border-radius:10px;padding:26px;text-align:center;cursor:pointer;background:#F8FAFD;transition:border-color 0.2s;margin-bottom:14px;"
+          ondragover="event.preventDefault();this.style.borderColor='#1B3A6B'"
+          ondragleave="this.style.borderColor='#B0C0DC'"
+          ondrop="event.preventDefault();this.style.borderColor='#B0C0DC';document.getElementById('file-eqp').files=event.dataTransfer.files;lerArquivoEquipamentos(document.getElementById('file-eqp'))">
+          <div style="font-size:34px;margin-bottom:6px;">📂</div>
+          <div style="font-size:14px;font-weight:700;color:#1B3A6B;">Clique ou arraste o arquivo aqui</div>
+          <div style="font-size:12px;color:#999;margin-top:4px;">.xlsx &nbsp; .xls &nbsp; .csv &nbsp; .txt</div>
+          <input type="file" id="file-eqp" accept=".xlsx,.xls,.csv,.txt"
+            onchange="lerArquivoEquipamentos(this)" style="display:none;">
+        </label>
+        <div id="imp-eqp-status" style="display:none;font-size:13px;padding:10px;background:#FFF8E1;border-radius:7px;color:#7B5800;margin-bottom:10px;"></div>
+        <div id="imp-eqp-preview" style="display:none;">
+          <div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;" id="imp-eqp-count"></div>
+          <div style="max-height:220px;overflow-y:auto;border:1.5px solid #E0E5F0;border-radius:8px;margin-bottom:12px;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead style="background:#F0F4FA;position:sticky;top:0;">
+                <tr>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">Descrição</th>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">TAG</th>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">Área</th>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">Fornecedor</th>
+                </tr>
+              </thead>
+              <tbody id="imp-eqp-tbody"></tbody>
+            </table>
+          </div>
+          <button onclick="confirmarImportacaoEqp()"
+            style="width:100%;padding:11px;background:linear-gradient(135deg,#1B3A6B,#2456A4);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:6px;">
+            ✅ Confirmar Importação
+          </button>
+          <button onclick="cancelarImportacaoEqp()"
+            style="width:100%;padding:9px;background:#f0f0f0;color:#555;border:1.5px solid #ddd;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">
+            ✕ Cancelar
+          </button>
+        </div>
+      </div>
+
+      <!-- ── UPLOAD ESTOQUE ── -->
+      <div style="background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,0.08);padding:28px;border:1.5px solid #E0E5F0;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <span style="font-size:30px;">📦</span>
+          <div>
+            <div style="font-size:16px;font-weight:800;color:#1B3A6B;">Upload Estoque</div>
+            <div style="font-size:12px;color:#888;">Excel · CSV · TXT</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.65;">
+          Importe peças e materiais de estoque a partir de planilha ou arquivo de texto.<br>
+          Cada linha deve conter a <strong>TAG</strong> do equipamento e o <strong>nome da peça</strong>.
+        </div>
+        <div style="background:#F0F4FA;border-radius:8px;padding:11px 14px;margin-bottom:16px;font-size:12px;color:#1B3A6B;line-height:1.6;">
+          <strong>Formato esperado:</strong><br>
+          Coluna A: TAG do Equipamento &nbsp;|&nbsp; Coluna B: Nome da Peça<br>
+          Exemplo: <code>SA-P-MAQ-044 | Correia dentada</code>
+        </div>
+        <label for="file-est" id="drop-est"
+          style="display:block;border:2px dashed #B0C0DC;border-radius:10px;padding:26px;text-align:center;cursor:pointer;background:#F8FAFD;transition:border-color 0.2s;margin-bottom:14px;"
+          ondragover="event.preventDefault();this.style.borderColor='#1B3A6B'"
+          ondragleave="this.style.borderColor='#B0C0DC'"
+          ondrop="event.preventDefault();this.style.borderColor='#B0C0DC';document.getElementById('file-est').files=event.dataTransfer.files;lerArquivoEstoque(document.getElementById('file-est'))">
+          <div style="font-size:34px;margin-bottom:6px;">📂</div>
+          <div style="font-size:14px;font-weight:700;color:#1B3A6B;">Clique ou arraste o arquivo aqui</div>
+          <div style="font-size:12px;color:#999;margin-top:4px;">.xlsx &nbsp; .xls &nbsp; .csv &nbsp; .txt</div>
+          <input type="file" id="file-est" accept=".xlsx,.xls,.csv,.txt"
+            onchange="lerArquivoEstoque(this)" style="display:none;">
+        </label>
+        <div id="imp-est-status" style="display:none;font-size:13px;padding:10px;background:#FFF8E1;border-radius:7px;color:#7B5800;margin-bottom:10px;"></div>
+        <div id="imp-est-preview" style="display:none;">
+          <div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;" id="imp-est-count"></div>
+          <div style="max-height:220px;overflow-y:auto;border:1.5px solid #E0E5F0;border-radius:8px;margin-bottom:12px;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead style="background:#F0F4FA;position:sticky;top:0;">
+                <tr>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">TAG</th>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">Peça / Material</th>
+                </tr>
+              </thead>
+              <tbody id="imp-est-tbody"></tbody>
+            </table>
+          </div>
+          <button onclick="confirmarImportacaoEst()"
+            style="width:100%;padding:11px;background:linear-gradient(135deg,#1B3A6B,#2456A4);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:6px;">
+            ✅ Confirmar Importação
+          </button>
+          <button onclick="cancelarImportacaoEst()"
+            style="width:100%;padding:9px;background:#f0f0f0;color:#555;border:1.5px solid #ddd;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">
+            ✕ Cancelar
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Aviso geral -->
+    <div style="max-width:1020px;margin-top:20px;background:#FFF3CD;border:1.5px solid #FFD54F;border-radius:10px;padding:14px 18px;font-size:13px;color:#7B5800;line-height:1.6;">
+      ⚠️ <strong>Atenção:</strong> A importação <strong>substitui</strong> os dados existentes nessa categoria.
+      Faça um <a href="/admin/backup/download/config" style="color:#1B3A6B;font-weight:700;">backup</a> antes de importar dados novos.
+    </div>
+  </div>
+</div>
+
 
 <div id="toast" class="toast"></div>
 
@@ -1570,6 +1696,339 @@ function imprimirQR() {
     </body></html>`);
   w.document.close();
 }
+// ================================================================
+// IMPORTAÇÃO DE DADOS (SheetJS lazy loader)
+// ================================================================
+let _sheetJsLoaded = false;
+let _sheetJsQueue  = [];
+
+function _carregarSheetJS(cb) {
+  if (_sheetJsLoaded) { cb(); return; }
+  _sheetJsQueue.push(cb);
+  if (_sheetJsQueue.length > 1) return;
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload = () => { _sheetJsLoaded = true; _sheetJsQueue.forEach(fn => fn()); _sheetJsQueue = []; };
+  s.onerror = () => { _sheetJsQueue = []; toast('Erro ao carregar biblioteca de leitura de Excel.', 'error'); };
+  document.head.appendChild(s);
+}
+
+// ──────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────
+function _limparHeader(v) {
+  if (!v) return '';
+  return String(v).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+}
+
+// Detecta se uma linha é cabeçalho (contém palavras como descrição, tag, área…)
+function _isHeader(row) {
+  const joined = row.map(c => _limparHeader(c)).join('|');
+  return /descri|descr|nome|tag|cod|area|setor|peca|pec|mater|forne/.test(joined);
+}
+
+// Mapeia colunas de uma linha de dados para {descricao, tag, area, fornecedor}
+function _mapEquipRow(row, colMap) {
+  const get = (keys) => {
+    for (const k of keys) if (colMap[k] !== undefined && String(row[colMap[k]] || '').trim()) return String(row[colMap[k]]).trim();
+    return '';
+  };
+  return {
+    descricao:   get(['descricao','descri','nome','desc']),
+    tag:         get(['tag','codigo','cod','id']),
+    area:        get(['area','setor','local','linha']),
+    fornecedor:  get(['fornecedor','forn','fabricante','supplier']),
+  };
+}
+
+// Mapeia colunas para {tag, peca}
+function _mapEstRow(row, colMap) {
+  const get = (keys) => {
+    for (const k of keys) if (colMap[k] !== undefined && String(row[colMap[k]] || '').trim()) return String(row[colMap[k]]).trim();
+    return '';
+  };
+  return {
+    tag:  get(['tag','codigo','cod','equipamento']),
+    peca: get(['peca','pec','material','item','descricao','nome','part']),
+  };
+}
+
+// Parseia CSV/TXT linha a linha (separadores: ; | , tab espaços múltiplos)
+function _parseCsv(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  return lines.map(l => l.split(/[;|,\t]/).map(c => c.trim()));
+}
+
+// Converte array de arrays (planilha) em lista de objetos usando primeira linha como header
+function _planilhaParaEquipamentos(rows) {
+  // Encontrar linha de cabeçalho
+  let headerIdx = 0;
+  for (let i = 0; i < Math.min(rows.length, 5); i++) {
+    if (_isHeader(rows[i])) { headerIdx = i; break; }
+  }
+  const header = rows[headerIdx].map(_limparHeader);
+  const colMap = {};
+  header.forEach((h, i) => { colMap[h] = i; });
+
+  // Se não tem colunas reconhecidas, assume posição fixa: descricao, tag, area, fornecedor
+  const temColNomeada = Object.keys(colMap).some(k => /descri|tag|area|forne/.test(k));
+  const eqps = [];
+  for (let i = headerIdx + 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || row.every(c => !String(c||'').trim())) continue;
+    let eq;
+    if (temColNomeada) {
+      eq = _mapEquipRow(row, colMap);
+    } else {
+      eq = {
+        descricao:  String(row[0] || '').trim(),
+        tag:        String(row[1] || '').trim().toUpperCase(),
+        area:       String(row[2] || '').trim(),
+        fornecedor: String(row[3] || '').trim(),
+      };
+    }
+    if (eq.descricao || eq.tag) {
+      eq.tag = eq.tag.toUpperCase();
+      eqps.push(eq);
+    }
+  }
+  return eqps;
+}
+
+function _planilhaParaEstoque(rows) {
+  let headerIdx = 0;
+  for (let i = 0; i < Math.min(rows.length, 5); i++) {
+    if (_isHeader(rows[i])) { headerIdx = i; break; }
+  }
+  const header = rows[headerIdx].map(_limparHeader);
+  const colMap = {};
+  header.forEach((h, i) => { colMap[h] = i; });
+  const temColNomeada = Object.keys(colMap).some(k => /tag|peca|mater|item/.test(k));
+
+  const itens = [];
+  for (let i = headerIdx + 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || row.every(c => !String(c||'').trim())) continue;
+    let item;
+    if (temColNomeada) {
+      item = _mapEstRow(row, colMap);
+    } else {
+      item = {
+        tag:  String(row[0] || '').trim().toUpperCase(),
+        peca: String(row[1] || '').trim(),
+      };
+    }
+    if (item.tag && item.peca) itens.push(item);
+  }
+  return itens;
+}
+
+// ──────────────────────────────────────
+// EQUIPAMENTOS
+// ──────────────────────────────────────
+let _eqpImportData = [];
+
+function lerArquivoEquipamentos(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const status = document.getElementById('imp-eqp-status');
+  status.style.display = 'block';
+  status.textContent = '⏳ Lendo arquivo…';
+  document.getElementById('imp-eqp-preview').style.display = 'none';
+
+  const reader = new FileReader();
+
+  if (ext === 'xlsx' || ext === 'xls') {
+    _carregarSheetJS(() => {
+      reader.onload = (e) => {
+        try {
+          const wb = XLSX.read(e.target.result, { type: 'array' });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          _eqpImportData = _planilhaParaEquipamentos(rows);
+          _mostrarPreviewEqp(status);
+        } catch(err) {
+          status.textContent = '❌ Erro ao ler o arquivo: ' + err.message;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  } else {
+    reader.onload = (e) => {
+      try {
+        const rows = _parseCsv(e.target.result);
+        _eqpImportData = _planilhaParaEquipamentos(rows);
+        _mostrarPreviewEqp(status);
+      } catch(err) {
+        status.textContent = '❌ Erro ao ler o arquivo: ' + err.message;
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+}
+
+function _mostrarPreviewEqp(status) {
+  const data = _eqpImportData;
+  if (data.length === 0) {
+    status.textContent = '⚠️ Nenhum equipamento válido encontrado. Verifique o formato do arquivo.';
+    return;
+  }
+  status.style.display = 'none';
+  const preview = document.getElementById('imp-eqp-preview');
+  document.getElementById('imp-eqp-count').textContent =
+    '📋 ' + data.length + ' equipamento(s) encontrado(s) — confira antes de confirmar:';
+  const tbody = document.getElementById('imp-eqp-tbody');
+  tbody.innerHTML = '';
+  data.slice(0, 100).forEach(eq => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #f0f0f0';
+    tr.innerHTML = `
+      <td style="padding:5px 8px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${eq.descricao}</td>
+      <td style="padding:5px 8px;font-family:monospace;color:#1B3A6B;font-weight:700;">${eq.tag}</td>
+      <td style="padding:5px 8px;">${eq.area}</td>
+      <td style="padding:5px 8px;">${eq.fornecedor}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  if (data.length > 100) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="4" style="padding:6px 8px;text-align:center;color:#888;font-style:italic;">… e mais ${data.length - 100} registro(s)</td>`;
+    tbody.appendChild(tr);
+  }
+  preview.style.display = 'block';
+}
+
+async function confirmarImportacaoEqp() {
+  if (!_eqpImportData.length) return;
+  const r = await api('/admin/equipamentos/salvar', { equipamentos: _eqpImportData });
+  if (r.success) {
+    toast(r.message);
+    sessionStorage.setItem('adminTab', 'importar');
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    toast(r.message || 'Erro ao salvar equipamentos.', 'error');
+  }
+}
+
+function cancelarImportacaoEqp() {
+  _eqpImportData = [];
+  document.getElementById('imp-eqp-preview').style.display = 'none';
+  document.getElementById('imp-eqp-status').style.display = 'none';
+  document.getElementById('file-eqp').value = '';
+}
+
+// ──────────────────────────────────────
+// ESTOQUE
+// ──────────────────────────────────────
+let _estImportData = {};   // { TAG: [peça1, peça2, ...] }
+let _estImportRows = [];   // [{tag, peca}]
+
+function lerArquivoEstoque(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const status = document.getElementById('imp-est-status');
+  status.style.display = 'block';
+  status.textContent = '⏳ Lendo arquivo…';
+  document.getElementById('imp-est-preview').style.display = 'none';
+
+  const reader = new FileReader();
+
+  if (ext === 'xlsx' || ext === 'xls') {
+    _carregarSheetJS(() => {
+      reader.onload = (e) => {
+        try {
+          const wb = XLSX.read(e.target.result, { type: 'array' });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          _estImportRows = _planilhaParaEstoque(rows);
+          _construirEstoqueObj();
+          _mostrarPreviewEst(status);
+        } catch(err) {
+          status.textContent = '❌ Erro ao ler o arquivo: ' + err.message;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  } else {
+    reader.onload = (e) => {
+      try {
+        const rows = _parseCsv(e.target.result);
+        _estImportRows = _planilhaParaEstoque(rows);
+        _construirEstoqueObj();
+        _mostrarPreviewEst(status);
+      } catch(err) {
+        status.textContent = '❌ Erro ao ler o arquivo: ' + err.message;
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+}
+
+function _construirEstoqueObj() {
+  _estImportData = {};
+  _estImportRows.forEach(({tag, peca}) => {
+    const t = tag.toUpperCase();
+    if (!_estImportData[t]) _estImportData[t] = [];
+    if (peca && !_estImportData[t].includes(peca)) _estImportData[t].push(peca);
+  });
+}
+
+function _mostrarPreviewEst(status) {
+  const rows = _estImportRows;
+  if (rows.length === 0) {
+    status.textContent = '⚠️ Nenhuma peça válida encontrada. Verifique o formato do arquivo.';
+    return;
+  }
+  status.style.display = 'none';
+  const tags = Object.keys(_estImportData).length;
+  document.getElementById('imp-est-count').textContent =
+    '📋 ' + rows.length + ' peça(s) em ' + tags + ' equipamento(s) — confira antes de confirmar:';
+  const tbody = document.getElementById('imp-est-tbody');
+  tbody.innerHTML = '';
+  rows.slice(0, 100).forEach(({tag, peca}) => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #f0f0f0';
+    tr.innerHTML = `
+      <td style="padding:5px 8px;font-family:monospace;color:#1B3A6B;font-weight:700;">${tag}</td>
+      <td style="padding:5px 8px;">${peca}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  if (rows.length > 100) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="2" style="padding:6px 8px;text-align:center;color:#888;font-style:italic;">… e mais ${rows.length - 100} registro(s)</td>`;
+    tbody.appendChild(tr);
+  }
+  document.getElementById('imp-est-preview').style.display = 'block';
+}
+
+async function confirmarImportacaoEst() {
+  if (!Object.keys(_estImportData).length) return;
+  const resp = await fetch('/admin/estoque/salvar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ estoque: _estImportData })
+  });
+  const r = await resp.json();
+  if (r.success) {
+    toast(r.message || 'Estoque importado com sucesso!');
+    sessionStorage.setItem('adminTab', 'importar');
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    toast(r.message || 'Erro ao salvar estoque.', 'error');
+  }
+}
+
+function cancelarImportacaoEst() {
+  _estImportData = {};
+  _estImportRows = [];
+  document.getElementById('imp-est-preview').style.display = 'none';
+  document.getElementById('imp-est-status').style.display = 'none';
+  document.getElementById('file-est').value = '';
+}
+
 </script>
 
 <!-- MODAL QR CODE -->
