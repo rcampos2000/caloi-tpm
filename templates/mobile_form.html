@@ -332,6 +332,28 @@ body::after {
   pointer-events: none;
   z-index: 0;
 }
+
+/* ── Botão de voz ───────────────────────────── */
+.voice-wrap { position: relative; }
+.voice-wrap textarea { padding-right: 50px; }
+.btn-voice {
+  position: absolute; top: 8px; right: 8px;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: none; cursor: pointer;
+  background: #2451A3; color: #fff;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25); z-index: 2;
+  transition: background .2s, transform .1s;
+}
+.btn-voice:active { transform: scale(.93); }
+.btn-voice.recording {
+  background: #c0392b;
+  animation: pulse-rec 1s ease-in-out infinite;
+}
+@keyframes pulse-rec {
+  0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,.5); }
+  50%      { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
+}
 </style>
 </head>
 <body>
@@ -504,7 +526,11 @@ body::after {
 
         <div class="fg">
           <label>📌 Descrição do Problema <span class="req">*</span></label>
-          <textarea id="descricao_problema" placeholder="Descreva o problema encontrado..." required></textarea>
+          <div class="voice-wrap">
+            <textarea id="descricao_problema" placeholder="Descreva o problema encontrado..." required></textarea>
+            <button type="button" class="btn-voice" id="voice-desc"
+                    onclick="toggleVoz('descricao_problema','voice-desc')" title="Falar">🎙️</button>
+          </div>
         </div>
 
         <div class="fg">
@@ -519,7 +545,11 @@ body::after {
 
         <div class="fg">
           <label>💬 Observações</label>
-          <textarea id="observacoes" placeholder="Informações adicionais..."></textarea>
+          <div class="voice-wrap">
+            <textarea id="observacoes" placeholder="Informações adicionais..."></textarea>
+            <button type="button" class="btn-voice" id="voice-obs"
+                    onclick="toggleVoz('observacoes','voice-obs')" title="Falar">🎙️</button>
+          </div>
         </div>
 
         <!-- MATERIAL UTILIZADO -->
@@ -1179,6 +1209,70 @@ function fecharFormulario() {
   }, 200);
 }
 
+
+/* ═══════════════════════════════════════════
+   RECONHECIMENTO DE VOZ  (Web Speech API)
+   Chrome Android, Safari iOS 15+
+═══════════════════════════════════════════ */
+let _vozAtiva = null;
+
+function toggleVoz(targetId, btnId) {
+  if (_vozAtiva && _vozAtiva.targetId === targetId) {
+    _vozAtiva.recognition.stop();
+    return;
+  }
+  if (_vozAtiva) _vozAtiva.recognition.abort();
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert('Reconhecimento de voz não suportado.\nUse Chrome ou Safari atualizado.');
+    return;
+  }
+
+  const rec = new SpeechRecognition();
+  rec.lang = 'pt-BR';
+  rec.continuous = true;
+  rec.interimResults = true;
+
+  const btn      = document.getElementById(btnId);
+  const textarea = document.getElementById(targetId);
+  const textoBase = textarea.value;
+
+  btn.classList.add('recording');
+  btn.title = 'Gravando... toque para parar';
+  btn.textContent = '⏹️';
+  _vozAtiva = { recognition: rec, targetId, btnId };
+
+  rec.onresult = (e) => {
+    let final = '', interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    const base = textoBase + (textoBase && (final || interim) ? ' ' : '');
+    textarea.value = (base + final + (interim ? interim : '')).trim();
+    textarea.scrollTop = textarea.scrollHeight;
+  };
+
+  rec.onerror = (e) => {
+    if (e.error === 'not-allowed')
+      alert('Permissão de microfone negada.\nLibere o microfone nas configurações do navegador.');
+    pararVoz(btnId);
+  };
+
+  rec.onend = () => pararVoz(btnId);
+  rec.start();
+}
+
+function pararVoz(btnId) {
+  _vozAtiva = null;
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    btn.classList.remove('recording');
+    btn.title = 'Falar';
+    btn.textContent = '🎙️';
+  }
+}
 </script>
 </body>
 </html>
