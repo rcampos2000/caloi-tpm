@@ -273,6 +273,29 @@ body::before {
   cursor:default;
 }
 
+
+/* ── Botão de voz ─────────────────────────────────────── */
+.voice-wrap { position: relative; }
+.voice-wrap textarea { padding-right: 46px; }
+.btn-voice {
+  position: absolute; top: 8px; right: 8px;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: none; cursor: pointer;
+  background: var(--blue2); color: #fff;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .1s;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  z-index: 2;
+}
+.btn-voice:hover { background: var(--blue); transform: scale(1.08); }
+.btn-voice.recording {
+  background: #c0392b;
+  animation: pulse-rec 1s ease-in-out infinite;
+}
+@keyframes pulse-rec {
+  0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,.5); }
+  50%      { box-shadow: 0 0 0 8px rgba(192,57,43,0); }
+}
 hr.div { border:none; border-top:1px solid var(--gray2); margin:18px 0; }
 .tag-ac-item {
   padding:9px 14px; cursor:pointer; font-size:13px;
@@ -803,8 +826,12 @@ body{margin-left:220px!important;}
 
           <div class="fg s2">
             <label>&#128221; Observações Complementares</label>
-            <textarea id="obs"
-              placeholder="Descreva detalhes adicionais: peças substituídas, medidas tomadas, próximas ações previstas..."></textarea>
+            <div class="voice-wrap">
+              <textarea id="obs"
+                placeholder="Descreva detalhes adicionais: peças substituídas, medidas tomadas, próximas ações previstas..."></textarea>
+              <button type="button" class="btn-voice" id="voice-obs"
+                      onclick="toggleVoz('obs','voice-obs')" title="Clique para falar">🎙️</button>
+            </div>
           </div>
 
           <!-- MATERIAL UTILIZADO -->
@@ -901,8 +928,12 @@ body{margin-left:220px!important;}
         <div class="g2">
           <div class="fg">
             <label>&#128269; Outros Problemas Encontrados</label>
-            <textarea id="outros_problemas" class="plano-textarea"
-              placeholder="Descreva outros problemas identificados durante a manutenção que ainda precisam ser resolvidos..."></textarea>
+            <div class="voice-wrap">
+              <textarea id="outros_problemas" class="plano-textarea"
+                placeholder="Descreva outros problemas identificados durante a manutenção que ainda precisam ser resolvidos..."></textarea>
+              <button type="button" class="btn-voice" id="voice-outros"
+                      onclick="toggleVoz('outros_problemas','voice-outros')" title="Clique para falar">🎙️</button>
+            </div>
           </div>
           <div class="fg">
             <label>&#128295; Pe&#231;as Necess&#225;rias</label>
