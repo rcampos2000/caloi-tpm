@@ -560,25 +560,12 @@ body{margin-left:220px!important;}
     <button class="btn-fechar-aba" onclick="fecharAba()" title="Fechar formulário">&#10005;</button>
 
     <div class="logo">
-      <!-- Roda de bicicleta — SVG embutido, sem internet -->
-      <svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="32" cy="40" r="25" fill="none" stroke="#D62B2B" stroke-width="3.5"/>
-        <circle cx="32" cy="40" r="8"  fill="none" stroke="#D62B2B" stroke-width="3"/>
-        <line x1="32" y1="15" x2="32" y2="65" stroke="#D62B2B" stroke-width="2.2"/>
-        <line x1="7"  y1="40" x2="57" y2="40" stroke="#D62B2B" stroke-width="2.2"/>
-        <line x1="14" y1="22" x2="50" y2="58" stroke="#D62B2B" stroke-width="1.8"/>
-        <line x1="14" y1="58" x2="50" y2="22" stroke="#D62B2B" stroke-width="1.8"/>
-        <!-- guidão -->
-        <path d="M52 30 Q68 22 88 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
-        <line x1="88" y1="16" x2="88" y2="30" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
-        <!-- quadro -->
-        <path d="M52 40 L72 22 L92 40 Z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/>
-        <circle cx="92" cy="40" r="4" fill="#fff"/>
-        <circle cx="52" cy="40" r="3" fill="#fff"/>
-      </svg>
+      <img src="/static/img/logo_caloi_sm.png"
+           alt="Caloi" style="height:54px;width:auto;border-radius:6px;
+           box-shadow:0 2px 8px rgba(0,0,0,.35);filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));">
       <div class="logo-txt">
-        <span class="logo-name">CAL<em>OI</em></span>
-        <span class="logo-sub">Desde 1898</span>
+        <span class="logo-sub" style="margin-top:4px;font-size:8px;letter-spacing:2px;">MANUTENÇÃO INDUSTRIAL</span>
+        <span class="logo-sub" style="font-size:8px;letter-spacing:1.5px;opacity:.7;">Sistema TPM v2.1</span>
       </div>
     </div>
 
@@ -604,6 +591,18 @@ body{margin-left:220px!important;}
      FORMULÁRIO
 ===================================================== -->
 <div class="wrap">
+  <!-- Marca d'água Caloi -->
+  <div aria-hidden="true" style="
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-14deg);
+    width:560px;height:186px;
+    background:url('/static/img/logo_caloi.png') center/contain no-repeat;
+    opacity:0.055;pointer-events:none;z-index:0;"></div>
+  <div aria-hidden="true" style="
+    position:fixed;bottom:12px;right:14px;
+    width:180px;height:60px;
+    background:url('/static/img/logo_caloi_sm.png') center/contain no-repeat;
+    opacity:0.08;pointer-events:none;z-index:0;"></div>
 
   <div id="sb"></div>
 
