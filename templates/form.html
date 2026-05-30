@@ -937,8 +937,12 @@ body{margin-left:220px!important;}
           </div>
           <div class="fg">
             <label>&#128295; Pe&#231;as Necess&#225;rias</label>
-            <textarea id="pecas_necessarias" class="plano-textarea"
-              placeholder="Liste as pe&#231;as, componentes ou materiais necess&#225;rios para resolver os problemas pendentes..."></textarea>
+            <div class="voice-wrap">
+              <textarea id="pecas_necessarias" class="plano-textarea"
+                placeholder="Liste as pe&#231;as, componentes ou materiais necess&#225;rios para resolver os problemas pendentes..."></textarea>
+              <button type="button" class="btn-voice" id="voice-pecas"
+                      onclick="toggleVoz('pecas_necessarias','voice-pecas')" title="Clique para falar">🎙️</button>
+            </div>
           </div>
         </div>
       </div>
