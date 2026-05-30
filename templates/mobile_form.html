@@ -590,12 +590,20 @@ body::after {
 
         <div class="fg">
           <label>⚠️ Outros Problemas Encontrados</label>
-          <textarea id="outros_problemas" placeholder="Problemas que precisam de ação futura..."></textarea>
+          <div class="voice-wrap">
+            <textarea id="outros_problemas" placeholder="Problemas que precisam de ação futura..."></textarea>
+            <button type="button" class="btn-voice" id="voice-outros"
+                    onclick="toggleVoz('outros_problemas','voice-outros')" title="Falar">🎙️</button>
+          </div>
         </div>
 
         <div class="fg">
           <label>🔩 Peças/Materiais Necessários</label>
-          <textarea id="pecas_necessarias" placeholder="Peças ou materiais a requisitar..."></textarea>
+          <div class="voice-wrap">
+            <textarea id="pecas_necessarias" placeholder="Peças ou materiais a requisitar..."></textarea>
+            <button type="button" class="btn-voice" id="voice-pecas"
+                    onclick="toggleVoz('pecas_necessarias','voice-pecas')" title="Falar">🎙️</button>
+          </div>
         </div>
 
         <div class="fg">
