@@ -49,7 +49,7 @@ html, body { height: 100%; background: var(--gray); font-family: Arial, Helvetic
   box-shadow: 0 2px 12px rgba(0,0,0,.3);
 }
 .hdr-logo { display: flex; align-items: center; gap: 10px; }
-.hdr-logo svg { width: 44px; height: 28px; }
+.hdr-logo img { height: 40px; width: auto; }
 .hdr-logo-txt { line-height: 1.2; }
 .hdr-logo-txt strong { font-size: 16px; letter-spacing: 1px; }
 .hdr-logo-txt span { font-size: 9px; opacity: .7; display: block; }
@@ -309,6 +309,29 @@ input[name="tipo_manutencao"] { display: none; }
 .tag-ac-item .ac-tag { font-weight:700; min-width:75px; }
 .tag-ac-item .ac-desc { font-size:12px; opacity:.8; }
 .tag-ac-item.active .ac-desc { opacity:1; }
+
+/* Marca d'água Caloi */
+body::before {
+  content: '';
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  width: 90vw; max-width: 480px; height: 160px;
+  background: url('/static/img/logo_caloi.png') center/contain no-repeat;
+  opacity: 0.045;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 10px; right: 10px;
+  width: 120px; height: 40px;
+  background: url('/static/img/logo_caloi_sm.png') center/contain no-repeat;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+}
 </style>
 </head>
 <body>
@@ -316,19 +339,9 @@ input[name="tipo_manutencao"] { display: none; }
 <!-- HEADER -->
 <header class="hdr">
   <div class="hdr-logo">
-    <svg viewBox="0 0 120 70" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="32" cy="40" r="25" fill="none" stroke="#D62B2B" stroke-width="3.5"/>
-      <circle cx="32" cy="40" r="8"  fill="none" stroke="#D62B2B" stroke-width="3"/>
-      <line x1="32" y1="15" x2="32" y2="65" stroke="#D62B2B" stroke-width="2.2"/>
-      <line x1="7"  y1="40" x2="57" y2="40" stroke="#D62B2B" stroke-width="2.2"/>
-      <line x1="14" y1="22" x2="50" y2="58" stroke="#D62B2B" stroke-width="1.8"/>
-      <line x1="14" y1="58" x2="50" y2="22" stroke="#D62B2B" stroke-width="1.8"/>
-      <path d="M52 30 Q68 22 88 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
-      <line x1="88" y1="16" x2="88" y2="30" stroke="#fff" stroke-width="2.8" stroke-linecap="round"/>
-      <path d="M52 40 L72 22 L92 40 Z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/>
-      <circle cx="92" cy="40" r="4" fill="#fff"/>
-      <circle cx="52" cy="40" r="3" fill="#fff"/>
-    </svg>
+    <img src="/static/img/logo_caloi_sm.png" alt="Caloi"
+         style="height:40px;width:auto;border-radius:5px;
+         box-shadow:0 2px 8px rgba(0,0,0,.4);filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));">
     <div class="hdr-logo-txt">
       <strong>CALOI TPM</strong>
       <span>Registro de Ocorrência</span>
