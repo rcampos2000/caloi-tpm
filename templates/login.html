@@ -185,6 +185,7 @@
   {% endif %}
 
   <form method="POST" action="/login">
+    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
     <div class="form-group">
       <label for="username">Usuário</label>
       <input type="text" id="username" name="username" placeholder="Digite seu usuário"
