@@ -312,7 +312,7 @@ def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if not usuario_logado():
-            return redirect(url_for('login'))
+            return redirect(url_for('login', next=request.path))
         return f(*args, **kwargs)
     return decorated
 
@@ -625,6 +625,16 @@ def login():
                 session['username'] = u['username']
                 session['nome'] = u['nome']
                 session['perfil'] = u['perfil']
+                # Redireciona para a página que o usuário tentou acessar
+                next_page = request.form.get('next') or request.args.get('next', '')
+                # Segurança: só aceitar caminhos internos
+                if next_page and next_page.startswith('/') and not next_page.startswith('//'):
+                    return redirect(next_page)
+                # Detectar mobile pelo User-Agent para redirecionar automaticamente
+                ua = request.headers.get('User-Agent', '').lower()
+                is_mobile = any(x in ua for x in ['android', 'iphone', 'ipad', 'mobile', 'phone'])
+                if is_mobile:
+                    return redirect(url_for('mobile_form'))
                 return redirect(url_for('formulario'))
 
         erro = 'Usuário ou senha incorretos.'
