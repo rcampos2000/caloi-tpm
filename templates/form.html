@@ -234,6 +234,42 @@ body::before {
 }
 .fg label .req { color:var(--red); font-size:13px; }
 
+/* ── Multi-select técnicos ── */
+.multi-tec-wrapper { position:relative; width:100%; }
+.multi-tec-display {
+  width:100%; padding:10px 13px;
+  border:1.5px solid var(--gray2);
+  border-radius:var(--rs);
+  font-size:13px; color:var(--text);
+  background:#FAFBFD;
+  cursor:pointer;
+  display:flex; justify-content:space-between; align-items:center;
+  transition:border-color .2s, box-shadow .2s;
+  user-select:none;
+}
+.multi-tec-wrapper.open .multi-tec-display {
+  border-color:var(--blue2);
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(36,81,163,.12);
+}
+.multi-tec-arrow { font-size:11px; color:var(--muted); }
+.multi-tec-dropdown {
+  display:none; position:absolute; top:calc(100% + 4px); left:0; right:0;
+  background:#fff; border:1.5px solid var(--blue2);
+  border-radius:var(--rs); box-shadow:0 4px 16px rgba(0,0,0,.12);
+  z-index:999; max-height:200px; overflow-y:auto;
+}
+.multi-tec-wrapper.open .multi-tec-dropdown { display:block; }
+.multi-tec-option {
+  display:flex; align-items:center; gap:8px;
+  padding:9px 13px; font-size:13px; color:var(--text);
+  cursor:pointer; transition:background .15s;
+}
+.multi-tec-option:hover { background:#f0f4ff; }
+.multi-tec-option input[type=checkbox] { accent-color:var(--blue2); width:15px; height:15px; cursor:pointer; }
+#tecnico-placeholder { color:var(--muted); font-size:13px; }
+#tecnico-placeholder.has-value { color:var(--text); font-weight:500; }
+
 .fg input,
 .fg select,
 .fg textarea {
@@ -738,11 +774,22 @@ body{margin-left:220px!important;}
 
           <div class="fg">
             <label>&#128119; Técnico Responsável <span class="req">*</span></label>
-            <select id="tecnico" required onchange="statusTec(this)">
-              {% for t in tecnicos %}
-              <option value="{{ t }}" {% if loop.first %}disabled selected{% endif %}>{{ t }}</option>
-              {% endfor %}
-            </select>
+            <div class="multi-tec-wrapper" id="tecnico-wrapper">
+              <div class="multi-tec-display" id="tecnico-display" onclick="toggleTecDropdown(event)">
+                <span id="tecnico-placeholder">Selecione o(s) técnico(s)...</span>
+                <span class="multi-tec-arrow">&#9660;</span>
+              </div>
+              <div class="multi-tec-dropdown" id="tecnico-dropdown">
+                {% for t in tecnicos %}
+                {% if not loop.first %}
+                <label class="multi-tec-option">
+                  <input type="checkbox" class="tec-cb" value="{{ t }}" onchange="updateTecSelection()"> {{ t }}
+                </label>
+                {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+            <input type="hidden" id="tecnico" required>
           </div>
 
           <div class="fg">
@@ -1502,8 +1549,31 @@ function status_(msg, tipo) {
    TÉCNICO
 ------------------------------------------------------- */
 function statusTec(s) {
-  if (s.value && !s.value.includes('Selecione'))
+  if (s && s.value && !s.value.includes('Selecione'))
     status_('&#128119; Técnico: ' + s.value, 'inf');
+}
+
+function toggleTecDropdown(e) {
+  e.stopPropagation();
+  const wrapper = document.getElementById('tecnico-wrapper');
+  wrapper.classList.toggle('open');
+}
+
+function updateTecSelection() {
+  const checked = Array.from(document.querySelectorAll('.tec-cb:checked')).map(c => c.value);
+  const hidden  = document.getElementById('tecnico');
+  const placeholder = document.getElementById('tecnico-placeholder');
+  if (checked.length === 0) {
+    hidden.value = '';
+    placeholder.textContent = 'Selecione o(s) técnico(s)...';
+    placeholder.classList.remove('has-value');
+  } else {
+    hidden.value = checked.join(', ');
+    placeholder.textContent = checked.join(', ');
+    placeholder.classList.add('has-value');
+    status_('&#128119; Técnico: ' + checked.join(', '), 'inf');
+  }
+  hidden.style.borderColor = '';
 }
 
 /* -------------------------------------------------------
@@ -1630,13 +1700,15 @@ function adicionarMatCustom() {
 document.addEventListener('DOMContentLoaded', () => {
   // Pré-selecionar técnico logado
   if (TECNICO_LOGADO) {
-    const selTec = document.getElementById('tecnico');
-    if (selTec) {
-      for (const opt of selTec.options) {
-        if (opt.value === TECNICO_LOGADO) { selTec.value = TECNICO_LOGADO; statusTec(selTec); break; }
-      }
-    }
+    const cb = Array.from(document.querySelectorAll('.tec-cb')).find(c => c.value === TECNICO_LOGADO);
+    if (cb) { cb.checked = true; updateTecSelection(); }
   }
+
+  // Fechar dropdown ao clicar fora
+  document.addEventListener('click', (e) => {
+    const wrapper = document.getElementById('tecnico-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) wrapper.classList.remove('open');
+  });
 
   const form = document.getElementById('form');
   if (!form) return;
@@ -1645,7 +1717,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     // Validação básica
-    const req = ['eqp_cod','eqp_nome','tecnico','setor','hr_parada','hr_lib','motivo','solucao'];
+    const req = ['eqp_cod','eqp_nome','setor','hr_parada','hr_lib','motivo','solucao'];
     let ok = true;
     req.forEach(id => {
       const el = document.getElementById(id);
@@ -1657,6 +1729,14 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.borderColor = '';
       }
     });
+    // Validar técnico multi-select
+    const tecHidden = document.getElementById('tecnico');
+    if (!tecHidden || !tecHidden.value) {
+      document.getElementById('tecnico-display').style.borderColor = '#c0392b';
+      ok = false;
+    } else {
+      document.getElementById('tecnico-display').style.borderColor = '';
+    }
     if (!ok) { status_('⚠️ Preencha todos os campos obrigatórios!', 'err'); return; }
 
     const btn  = document.getElementById('btn-sub');

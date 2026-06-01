@@ -461,6 +461,47 @@ def salvar_fotos(fotos_b64, record_id):
     return nomes
 
 
+def salvar_fotos_excel(record_id, fotos_b64):
+    """Salva fotos como base64 na aba 'Fotos' do Excel principal (mesmo arquivo de OS)."""
+    if not fotos_b64:
+        return False
+    max_tentativas = 3
+    for tentativa in range(1, max_tentativas + 1):
+        temp_path = DB_FILE.parent / f"_temp_fotos_{record_id}.xlsx"
+        try:
+            wb = openpyxl.load_workbook(DB_FILE)
+            if "Fotos" not in wb.sheetnames:
+                ws_fotos = wb.create_sheet("Fotos")
+                ws_fotos.append(["ID", "Foto 1 (base64)", "Foto 2 (base64)", "Foto 3 (base64)"])
+                ws_fotos.column_dimensions['A'].width = 8
+                ws_fotos.column_dimensions['B'].width = 30
+                ws_fotos.column_dimensions['C'].width = 30
+                ws_fotos.column_dimensions['D'].width = 30
+            else:
+                ws_fotos = wb["Fotos"]
+            row = [record_id]
+            for b64 in fotos_b64[:3]:
+                if b64 and ',' in b64:
+                    b64 = b64.split(',', 1)[1]
+                row.append(b64 or '')
+            while len(row) < 4:
+                row.append('')
+            ws_fotos.append(row)
+            wb.save(temp_path)
+            wb.close()
+            os.replace(temp_path, DB_FILE)
+            return True
+        except Exception as e:
+            if temp_path.exists():
+                try:
+                    temp_path.unlink()
+                except Exception:
+                    pass
+            if tentativa == max_tentativas:
+                print(f"[ERRO] salvar_fotos_excel: {e}")
+    return False
+
+
 def init_database():
     APP_DIR.mkdir(parents=True, exist_ok=True)
     ASSINATURAS_DIR.mkdir(exist_ok=True)
@@ -964,6 +1005,10 @@ def submit():
         ]
 
         salvar_registro_excel(row_data, next_row, record_id, total_horas)
+
+        # Salvar fotos no mesmo arquivo Excel (aba "Fotos")
+        if fotos_b64:
+            salvar_fotos_excel(record_id, fotos_b64)
 
         # Salvar no Plano de Ação se houver pendências
         if tem_plano_acao:

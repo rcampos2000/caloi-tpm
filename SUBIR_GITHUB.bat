@@ -1,4 +1,5 @@
 @echo off
+setlocal enabledelayedexpansion
 chcp 65001 >nul
 title Caloi TPM - Enviar para o GitHub
 cd /d "%~dp0"
@@ -44,7 +45,7 @@ if errorlevel 1 (
   echo Cole a URL do repositorio GitHub do TPM
   echo  exemplo: https://github.com/rcampos2000/caloi-tpm.git
   set /p REPO=URL:
-  git remote add origin "%REPO%"
+  git remote add origin "!REPO!"
 )
 
 set MSG=Atualizacao TPM %date% %time%
@@ -57,10 +58,18 @@ git commit -m "%MSG%"
 echo.
 echo Enviando para o GitHub (pode abrir o navegador para login)...
 git push -u origin main
+if errorlevel 1 (
+  echo.
+  echo [ATENCAO] O push foi recusado (o GitHub tem um historico diferente).
+  echo Para SOBRESCREVER o GitHub com esta versao local (recomendado neste projeto):
+  set /p FORCAR=Digite FORCAR e Enter para enviar com --force, ou so Enter para cancelar:
+  if /i "!FORCAR!"=="FORCAR" git push -u origin main --force
+)
 
 echo.
 echo ============================================
-echo   Concluido. Se o Railway estiver ligado ao
-echo   repo, o redeploy comeca automaticamente.
+echo   Verifique acima se terminou SEM "rejected".
+echo   Se ok e o Railway estiver ligado ao repo,
+echo   o redeploy comeca automaticamente.
 echo ============================================
 pause

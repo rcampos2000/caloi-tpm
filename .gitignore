@@ -23,3 +23,4 @@ _temp_*.xlsx
 # Token GitHub — NUNCA enviar ao repositório
 github_token.txt
 UPLOAD_GITHUB.py
+CONTEXTO_PROJETO.md
