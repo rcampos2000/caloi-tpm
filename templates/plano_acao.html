@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plano de Ação | Caloi TPM</title>
+  {% include 'nav.html' %}
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',Arial,sans-serif; background:#f0f2f5; }
+
+    .page-wrap { padding:28px 32px; }
+
+    .page-header {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-bottom:24px;
+    }
+    .page-header h1 {
+      font-size:22px; font-weight:800; color:#1B3A6B;
+      display:flex; align-items:center; gap:10px;
+    }
+    .page-header h1 span.sub {
+      font-size:13px; font-weight:400; color:#888; margin-left:4px;
+    }
+
+    /* Stats row */
+    .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px; }
+    .stat-card {
+      background:#fff; border-radius:12px; padding:18px 20px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.06);
+      display:flex; align-items:center; gap:14px;
+    }
+    .stat-icon {
+      width:46px; height:46px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:22px; flex-shrink:0;
+    }
+    .stat-icon.amarelo { background:linear-gradient(135deg,#f39c12,#e67e22); color:#fff; }
+    .stat-icon.azul    { background:linear-gradient(135deg,#1B3A6B,#2456a4); color:#fff; }
+    .stat-icon.verde   { background:linear-gradient(135deg,#27ae60,#2ecc71); color:#fff; }
+    .stat-value { font-size:26px; font-weight:800; color:#1B3A6B; }
+    .stat-label { font-size:12px; color:#888; font-weight:500; margin-top:2px; }
+
+    /* Barra de ação */
+    .toolbar {
+      display:flex; align-items:center; gap:12px; margin-bottom:18px;
+    }
+    .btn {
+      padding:10px 18px; border:none; border-radius:8px;
+      font-size:14px; font-weight:600; cursor:pointer;
+      display:inline-flex; align-items:center; gap:7px;
+      text-decoration:none; transition:opacity 0.18s, transform 0.18s;
+    }
+    .btn:hover { opacity:0.88; transform:translateY(-1px); }
+    .btn-primary { background:linear-gradient(135deg,#1B3A6B,#2456a4); color:#fff; }
+    .btn-success { background:linear-gradient(135deg,#27ae60,#2ecc71); color:#fff; }
+    .search-box {
+      flex:1; padding:10px 14px; border:1.5px solid #dde3f0;
+      border-radius:8px; font-size:14px;
+    }
+    .search-box:focus { outline:none; border-color:#1B3A6B; }
+
+    /* Tabela */
+    .table-card {
+      background:#fff; border-radius:14px;
+      box-shadow:0 2px 12px rgba(0,0,0,0.07); overflow:hidden;
+    }
+    .table-wrap { overflow-x:auto; }
+    table { width:100%; border-collapse:collapse; }
+    thead th {
+      background:#1B3A6B; color:#fff;
+      padding:12px 14px; font-size:13px; font-weight:600;
+      text-align:left; white-space:nowrap;
+    }
+    thead th:first-child { border-radius:0; }
+    tbody tr { border-bottom:1px solid #eef2f8; }
+    tbody tr:last-child { border-bottom:none; }
+    tbody tr:hover { background:#f7f9fd; }
+    tbody td { padding:11px 14px; font-size:13px; color:#333; vertical-align:middle; }
+
+    .badge-pendente {
+      display:inline-flex; align-items:center; gap:5px;
+      background:#fff3cd; color:#856404;
+      border:1px solid #ffc107; border-radius:20px;
+      padding:3px 12px; font-size:12px; font-weight:700;
+    }
+    .badge-pendente::before { content:'⚠'; }
+
+    .col-id       { width:70px; text-align:center; }
+    .col-data     { width:130px; }
+    .col-eq       { width:180px; }
+    .col-cod      { width:90px; text-align:center; }
+    .col-setor    { width:130px; }
+    .col-tec      { width:140px; }
+    .col-status   { width:110px; text-align:center; }
+
+    .empty-state {
+      text-align:center; padding:60px 20px; color:#aaa;
+    }
+    .empty-state .empty-icon { font-size:48px; margin-bottom:12px; }
+    .empty-state p { font-size:15px; }
+
+    .table-footer {
+      padding:14px 20px;
+      border-top:1px solid #eef2f8;
+      display:flex; align-items:center; justify-content:space-between;
+      font-size:12px; color:#888;
+    }
+
+    .caloi-stripe {
+      height:3px;
+      background:linear-gradient(90deg,#1B3A6B 60%,#D62B2B 100%);
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- Cabeçalho -->
+  <div class="page-header">
+    <h1>
+      ⚠ Plano de Ação
+      <span class="sub">Registros com pendências abertas</span>
+    </h1>
+    <div style="display:flex;gap:10px;">
+      <a href="/dashboard" class="btn btn-primary">📊 Dashboard</a>
+      <a href="/download/plano-acao" class="btn btn-success">📥 Exportar Excel</a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  {% set total = registros|length %}
+  {% set equips = registros|map(attribute='Equipamento')|select|list|unique|list %}
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon amarelo">⚠</div>
+      <div>
+        <div class="stat-value">{{ total }}</div>
+        <div class="stat-label">Registros Pendentes</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon azul">🏭</div>
+      <div>
+        <div class="stat-value">{{ equips|length }}</div>
+        <div class="stat-label">Equipamentos Afetados</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon verde">📋</div>
+      <div>
+        <div class="stat-value">
+          {% if registros %}
+            {{ registros[-1].get('Data/Hora', '—')|string|truncate(10, True, '') }}
+          {% else %}—{% endif %}
+        </div>
+        <div class="stat-label">Último Registro</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <input class="search-box" type="text" id="busca"
+           placeholder="🔍  Buscar por equipamento, técnico, setor..."
+           oninput="filtrarTabela()">
+  </div>
+
+  <!-- Tabela -->
+  <div class="table-card">
+    <div class="caloi-stripe"></div>
+    <div class="table-wrap">
+      <table id="tbl-plano">
+        <thead>
+          <tr>
+            <th class="col-id">#</th>
+            <th class="col-data">Data / Hora</th>
+            <th class="col-eq">Equipamento</th>
+            <th class="col-cod">Código</th>
+            <th class="col-setor">Setor</th>
+            <th class="col-tec">Técnico</th>
+            <th>Outros Problemas</th>
+            <th>Peças Necessárias</th>
+            <th class="col-status">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if registros %}
+            {% for r in registros %}
+            <tr>
+              <td class="col-id" style="font-weight:700;color:#1B3A6B;">
+                #{{ '%04d'|format(r.get('ID Registro', loop.index)|int) }}
+              </td>
+              <td class="col-data" style="font-size:12px;color:#555;">
+                {{ r.get('Data/Hora', '—') }}
+              </td>
+              <td class="col-eq" style="font-weight:600;">
+                {{ r.get('Equipamento', '—') }}
+              </td>
+              <td class="col-cod" style="font-family:monospace;font-weight:700;color:#2456a4;">
+                {{ r.get('Código', '—') }}
+              </td>
+              <td class="col-setor">{{ r.get('Setor', '—') }}</td>
+              <td class="col-tec">{{ r.get('Técnico', '—') }}</td>
+              <td style="max-width:220px;white-space:pre-wrap;font-size:12px;">
+                {{ r.get('Outros Problemas Encontrados', '—') or '—' }}
+              </td>
+              <td style="max-width:200px;white-space:pre-wrap;font-size:12px;">
+                {{ r.get('Peças Necessárias', '—') or '—' }}
+              </td>
+              <td class="col-status">
+                <span class="badge-pendente">Pendente</span>
+              </td>
+            </tr>
+            {% endfor %}
+          {% else %}
+            <tr>
+              <td colspan="9">
+                <div class="empty-state">
+                  <div class="empty-icon">✅</div>
+                  <p>Nenhum registro pendente. Tudo em ordem!</p>
+                </div>
+              </td>
+            </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+    <div class="table-footer">
+      <span id="contador">{{ total }} registro(s) pendente(s)</span>
+      <span>Plano de Ação — Caloi TPM v2.0</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function filtrarTabela() {
+  const termo = document.getElementById('busca').value.toLowerCase();
+  const linhas = document.querySelectorAll('#tbl-plano tbody tr');
+  let visiveis = 0;
+  linhas.forEach(tr => {
+    const texto = tr.textContent.toLowerCase();
+    const mostrar = texto.includes(termo);
+    tr.style.display = mostrar ? '' : 'none';
+    if (mostrar) visiveis++;
+  });
+  document.getElementById('contador').textContent = visiveis + ' registro(s) exibido(s)';
+}
+</script>
+</body>
+</html>

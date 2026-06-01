@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+
+  <!-- ── PWA / Instalação como App ── -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1B3A6B">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Caloi TPM">
+
+  <!-- iOS Safari -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Caloi TPM">
+  <link rel="apple-touch-icon" href="/static/icons/apple-touch-icon.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <title>TPM Mobile | Caloi</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:  #1B3A6B;
+  --blue2: #2451A3;
+  --red:   #D62B2B;
+  --gray:  #F2F5FB;
+  --gray2: #DDE3EF;
+  --text:  #2C3E50;
+  --muted: #6B7A8D;
+  --green: #1E8449;
+  --r: 12px;
+}
+
+html, body { height: 100%; background: var(--gray); font-family: Arial, Helvetica, sans-serif; color: var(--text); }
+
+/* ── HEADER ── */
+.hdr {
+  background: linear-gradient(135deg, #162D55 0%, #1B3A6B 60%, #2451A3 100%);
+  color: #fff;
+  padding: 14px 16px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,.3);
+}
+.hdr-logo { display: flex; align-items: center; gap: 10px; }
+.hdr-logo img { height: 40px; width: auto; }
+.hdr-logo-txt { line-height: 1.2; }
+.hdr-logo-txt strong { font-size: 16px; letter-spacing: 1px; }
+.hdr-logo-txt span { font-size: 9px; opacity: .7; display: block; }
+.hdr-right { text-align: right; font-size: 11px; opacity: .85; line-height: 1.6; }
+.hdr-right strong { font-size: 13px; display: block; }
+
+/* ── CONTEÚDO ── */
+.page { padding: 12px 12px 80px; max-width: 480px; margin: 0 auto; }
+
+/* ── CARD ── */
+.card {
+  background: #fff;
+  border-radius: var(--r);
+  box-shadow: 0 2px 8px rgba(27,58,107,.10);
+  margin-bottom: 12px;
+  overflow: hidden;
+}
+.card-hdr {
+  background: linear-gradient(90deg, var(--blue) 0%, var(--blue2) 100%);
+  color: #fff;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: bold;
+  letter-spacing: .3px;
+}
+.card-hdr .ico { font-size: 16px; }
+.card-hdr .step { margin-left: auto; font-size: 10px; opacity: .75; font-weight: normal; }
+.card-body { padding: 14px 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+
+/* ── CAMPO ── */
+.fg { display: flex; flex-direction: column; gap: 5px; }
+.fg label {
+  font-size: 12px; font-weight: bold; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .4px;
+}
+.fg .req { color: var(--red); }
+.fg input, .fg select, .fg textarea {
+  width: 100%;
+  padding: 13px 14px;
+  font-size: 16px; /* 16px evita zoom automático no iOS */
+  border: 1.5px solid var(--gray2);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  -webkit-appearance: none;
+  transition: border-color .2s;
+}
+.fg input:focus, .fg select:focus, .fg textarea:focus {
+  outline: none;
+  border-color: var(--blue2);
+  box-shadow: 0 0 0 3px rgba(36,81,163,.12);
+}
+.fg textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
+.fg select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%236B7A8D'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
+
+.g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── CHIP EQUIPAMENTO ── */
+.equip-chip {
+  display: none;
+  background: #E8F5E9;
+  border: 1.5px solid #81C784;
+  border-radius: 8px;
+  padding: 10px 14px;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.equip-chip.show { display: flex; }
+.equip-chip strong { display: block; color: var(--green); font-size: 14px; }
+.equip-chip span { color: var(--muted); font-size: 11px; }
+.equip-chip button {
+  margin-left: auto; background: none; border: none;
+  font-size: 18px; cursor: pointer; color: var(--muted);
+  padding: 4px; line-height: 1;
+}
+
+/* ── TIPO MANUTENÇÃO ── */
+.tipo-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.tipo-btn {
+  padding: 14px 8px;
+  border: 2px solid var(--gray2);
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  text-align: center;
+  font-size: 13px;
+  font-weight: bold;
+  color: var(--muted);
+  transition: all .2s;
+  -webkit-tap-highlight-color: transparent;
+}
+.tipo-btn .ico { font-size: 22px; display: block; margin-bottom: 4px; }
+.tipo-btn.sel-corretiva { border-color: var(--red); background: #FFF5F5; color: var(--red); }
+.tipo-btn.sel-preventiva { border-color: var(--green); background: #F0FFF4; color: var(--green); }
+.tipo-btn.sel-preditiva  { border-color: #7B3F00; background: #FFF8F0; color: #7B3F00; }
+.tipo-btn.sel-melhoria   { border-color: var(--blue2); background: #EEF3FF; color: var(--blue2); }
+input[name="tipo_manutencao"] { display: none; }
+
+/* ── BOTÃO ENVIAR ── */
+.btn-submit {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: .5px;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .1s, box-shadow .2s;
+  box-shadow: 0 4px 16px rgba(27,58,107,.3);
+}
+.btn-submit:active { transform: scale(.98); }
+.btn-submit:disabled { opacity: .6; }
+
+.spin {
+  width: 20px; height: 20px;
+  border: 3px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: rot .7s linear infinite;
+  display: none;
+}
+@keyframes rot { to { transform: rotate(360deg); } }
+
+/* ── AVISO DE CAMPO OBRIGATÓRIO ── */
+.fg.err input, .fg.err select, .fg.err textarea { border-color: var(--red); }
+.fg .err-msg { display: none; font-size: 11px; color: var(--red); }
+.fg.err .err-msg { display: block; }
+
+/* ── MODAL DE SUCESSO ── */
+.modal-bg {
+  display: none; position: fixed; inset: 0;
+  background: rgba(22,45,85,.7);
+  z-index: 999; align-items: center; justify-content: center;
+}
+.modal-bg.show { display: flex; }
+.modal {
+  background: #fff; border-radius: var(--r);
+  padding: 32px 24px; max-width: 340px; width: 90%;
+  text-align: center;
+  animation: pop .3s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes pop { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+.modal-ico { font-size: 54px; margin-bottom: 10px; display: block; }
+.modal h3 { font-size: 18px; font-weight: bold; color: var(--blue); margin-bottom: 6px; }
+.modal p { font-size: 13px; color: var(--muted); margin-bottom: 16px; line-height: 1.6; }
+.modal-id {
+  background: var(--gray); border-radius: 8px;
+  padding: 12px; margin-bottom: 16px;
+  font-size: 13px; line-height: 2; text-align: left;
+}
+.modal-id strong { color: var(--blue); }
+.modal-btns { display: flex; flex-direction: column; gap: 8px; }
+.btn-novo {
+  padding: 14px; border-radius: 8px; border: none;
+  font-size: 15px; font-weight: bold; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn-novo.prim { background: var(--blue); color: #fff; }
+.btn-novo.sec  { background: var(--gray); color: var(--text); }
+
+/* ── SCANNER DE CÓDIGO DE BARRAS ── */
+.btn-scan {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 13px 14px;
+  background: linear-gradient(135deg, #1B3A6B 0%, #2451A3 100%);
+  color: #fff; border: none; border-radius: 8px;
+  font-size: 15px; font-weight: bold; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  margin-top: 6px; letter-spacing: .2px;
+  box-shadow: 0 2px 8px rgba(27,58,107,.25);
+  transition: opacity .15s;
+}
+.btn-scan:active { opacity: .82; }
+
+.scanner-modal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 1000; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px 16px;
+}
+.scanner-modal.show { display: flex; }
+
+.scanner-box {
+  width: min(380px, 95vw);
+  background: #111;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,.7);
+}
+.scanner-hdr {
+  background: linear-gradient(90deg, #1B3A6B, #2451A3);
+  color: #fff; padding: 14px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: bold; font-size: 15px;
+}
+.scanner-hdr-info { display: flex; align-items: center; gap: 8px; }
+.scanner-hdr button {
+  background: rgba(255,255,255,.18); border: none; color: #fff;
+  font-size: 17px; cursor: pointer; padding: 4px 8px;
+  border-radius: 6px; line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#scanner-view {
+  width: 100%; background: #000;
+  min-height: 260px; position: relative;
+}
+/* Linha de scan animada */
+#scanner-view::after {
+  content: '';
+  position: absolute; left: 10%; right: 10%;
+  top: 50%; height: 2px;
+  background: linear-gradient(90deg, transparent, #00FF88, transparent);
+  border-radius: 2px;
+  animation: scanline 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes scanline {
+  0%   { top: 25%; opacity: .6; }
+  50%  { top: 75%; opacity: 1;  }
+  100% { top: 25%; opacity: .6; }
+}
+
+.scanner-tip {
+  color: #aaa; font-size: 12px; text-align: center;
+  padding: 10px 16px 14px; line-height: 1.6; background: #1a1a1a;
+}
+.scanner-result {
+  display: none;
+  background: #1E8449; color: #fff;
+  padding: 12px 16px; text-align: center;
+  font-size: 14px; font-weight: bold; letter-spacing: .3px;
+}
+.scanner-loading {
+  display: none; color: #aaa; font-size: 13px;
+  text-align: center; padding: 20px;
+  background: #1a1a1a;
+}
+
+.tag-ac-item {
+  padding:12px 14px; cursor:pointer; font-size:14px;
+  display:flex; gap:10px; align-items:center;
+  border-bottom:1px solid #DDE3EF;
+}
+.tag-ac-item:last-child { border-bottom:none; }
+.tag-ac-item.active, .tag-ac-item:active { background:#1B3A6B; color:#fff; }
+.tag-ac-item .ac-tag { font-weight:700; min-width:75px; }
+.tag-ac-item .ac-desc { font-size:12px; opacity:.8; }
+.tag-ac-item.active .ac-desc { opacity:1; }
+
+/* Marca d'água Caloi */
+body::before {
+  content: '';
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%) rotate(-12deg);
+  width: 90vw; max-width: 480px; height: 160px;
+  background: url('/static/img/logo_caloi.png') center/contain no-repeat;
+  opacity: 0.045;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  bottom: 10px; right: 10px;
+  width: 120px; height: 40px;
+  background: url('/static/img/logo_caloi_sm.png') center/contain no-repeat;
+  opacity: 0.07;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Botão de voz ───────────────────────────── */
+.voice-wrap { position: relative; }
+.voice-wrap textarea { padding-right: 50px; }
+.btn-voice {
+  position: absolute; top: 8px; right: 8px;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: none; cursor: pointer;
+  background: #2451A3; color: #fff;
+  font-size: 18px; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25); z-index: 2;
+  transition: background .2s, transform .1s;
+}
+.btn-voice:active { transform: scale(.93); }
+.btn-voice.recording {
+  background: #c0392b;
+  animation: pulse-rec 1s ease-in-out infinite;
+}
+@keyframes pulse-rec {
+  0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,.5); }
+  50%      { box-shadow: 0 0 0 10px rgba(192,57,43,0); }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-logo">
+    <img src="/static/img/logo_caloi_sm.png" alt="Caloi"
+         style="height:40px;width:auto;border-radius:5px;
+         box-shadow:0 2px 8px rgba(0,0,0,.4);filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));">
+    <div class="hdr-logo-txt">
+      <strong>CALOI TPM</strong>
+      <span>Registro de Ocorrência</span>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <strong id="relogio">--:--</strong>
+    <span id="data-hdr"></span>
+    <span style="font-size:9px;opacity:.6">{{ session_user }}</span>
+  </div>
+</header>
+
+<!-- FORMULÁRIO -->
+<div class="page">
+  <form id="form" novalidate>
+
+    <!-- SEÇÃO 1: EQUIPAMENTO -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="ico">⚙️</span> Equipamento
+        <span class="step">1 / 5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="equip-chip" id="equip-chip">
+          <span style="font-size:22px">✅</span>
+          <div>
+            <strong id="chip-nome">—</strong>
+            <span>TAG: <span id="chip-cod">—</span></span>
+          </div>
+          <button type="button" onclick="limparEqp()">✕</button>
+        </div>
+
+        <div class="fg" id="fg-eqp-cod">
+          <label>🏷️ TAG do Equipamento <span class="req">*</span></label>
+          <div style="position:relative;">
+            <input type="text" id="eqp_cod" placeholder="Ex: EQ001"
+                   oninput="buscaEqp(this.value);tagAutoComplete(this.value)"
+                   onkeydown="tagACKey(event)"
+                   onblur="setTimeout(fecharTagAC,200)"
+                   autocomplete="off"
+                   autocapitalize="characters" style="text-transform:uppercase;width:100%;">
+            <div id="tag-ac-list" style="
+              display:none;position:absolute;top:100%;left:0;right:0;z-index:999;
+              background:#fff;border:1.5px solid #2451A3;border-top:none;
+              border-radius:0 0 8px 8px;max-height:240px;overflow-y:auto;
+              box-shadow:0 6px 18px rgba(0,0,0,.18);"></div>
+          </div>
+          <span class="err-msg">Informe a TAG do equipamento</span>
+        </div>
+
+        <button type="button" class="btn-scan" onclick="abrirScanner()">
+          📷 Escanear Código de Barras
+        </button>
+
+        <div class="fg" id="fg-eqp-nome">
+          <label>🔧 Descrição do Equipamento <span class="req">*</span></label>
+          <input type="text" id="eqp_nome" placeholder="Nome / descrição" required>
+          <span class="err-msg">Informe a descrição do equipamento</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEÇÃO 2: DADOS DA OCORRÊNCIA -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="ico">📋</span> Dados da Ocorrência
+        <span class="step">2 / 5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="fg" id="fg-tecnico">
+          <label>👷 Técnico Responsável <span class="req">*</span></label>
+          <select id="tecnico" required>
+            {% for t in tecnicos %}
+            <option value="{{ t }}" {% if loop.first %}disabled selected{% endif %}>{{ t }}</option>
+            {% endfor %}
+          </select>
+          <span class="err-msg">Selecione o técnico responsável</span>
+        </div>
+
+        <div class="fg" id="fg-setor">
+          <label>🏭 Setor Produtivo <span class="req">*</span></label>
+          <select id="setor" required>
+            <option value="" disabled selected>Selecione o setor...</option>
+            {% for s in setores %}
+            <option value="{{ s }}">{{ s }}</option>
+            {% endfor %}
+          </select>
+          <span class="err-msg">Selecione o setor produtivo</span>
+        </div>
+
+        <div class="fg">
+          <label>📅 Data da Ocorrência</label>
+          <input type="text" id="data_ocorrencia" value="{{ data_hoje }}" placeholder="DD/MM/AAAA">
+        </div>
+
+        <div class="g2">
+          <div class="fg">
+            <label>🕐 Início da Parada</label>
+            <input type="time" id="horario_parada" value="{{ hora_atual }}">
+          </div>
+          <div class="fg">
+            <label>🕐 Liberação</label>
+            <input type="time" id="horario_liberacao">
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEÇÃO 3: TIPO E MOTIVO -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="ico">🔍</span> Tipo e Motivo
+        <span class="step">3 / 5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="fg">
+          <label>Tipo de Manutenção <span class="req">*</span></label>
+          <div class="tipo-btns">
+            <button type="button" class="tipo-btn" data-tipo="Corretiva" onclick="selecionarTipo(this)">
+              <span class="ico">🔴</span> Corretiva
+            </button>
+            <button type="button" class="tipo-btn" data-tipo="Preventiva" onclick="selecionarTipo(this)">
+              <span class="ico">🟢</span> Preventiva
+            </button>
+            <button type="button" class="tipo-btn" data-tipo="Preditiva" onclick="selecionarTipo(this)">
+              <span class="ico">🟡</span> Preditiva
+            </button>
+            <button type="button" class="tipo-btn" data-tipo="Melhoria" onclick="selecionarTipo(this)">
+              <span class="ico">🔵</span> Melhoria
+            </button>
+          </div>
+          <input type="hidden" id="tipo_manutencao" name="tipo_manutencao">
+        </div>
+
+        <div class="fg" id="fg-motivo">
+          <label>❓ Motivo da Parada <span class="req">*</span></label>
+          <select id="motivo_parada" required>
+            {% for m in motivos %}
+            <option value="{{ m }}" {% if loop.first %}disabled selected{% endif %}>{{ m }}</option>
+            {% endfor %}
+          </select>
+          <span class="err-msg">Selecione o motivo da parada</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEÇÃO 4: DESCRIÇÃO E SOLUÇÃO -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="ico">📝</span> Descrição e Solução
+        <span class="step">4 / 5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="fg">
+          <label>📌 Descrição do Problema <span class="req">*</span></label>
+          <div class="voice-wrap">
+            <textarea id="descricao_problema" placeholder="Descreva o problema encontrado..." required></textarea>
+            <button type="button" class="btn-voice" id="voice-desc"
+                    onclick="toggleVoz('descricao_problema','voice-desc')" title="Falar">🎙️</button>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>✅ Solução Aplicada</label>
+          <select id="solucao_problema">
+            <option value="">Selecione a solução...</option>
+            {% for s in solucoes %}
+            <option value="{{ s }}">{{ s }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="fg">
+          <label>💬 Observações</label>
+          <div class="voice-wrap">
+            <textarea id="observacoes" placeholder="Informações adicionais..."></textarea>
+            <button type="button" class="btn-voice" id="voice-obs"
+                    onclick="toggleVoz('observacoes','voice-obs')" title="Falar">🎙️</button>
+          </div>
+        </div>
+
+        <!-- MATERIAL UTILIZADO -->
+        <div class="fg">
+          <label>🔩 Material Utilizado</label>
+          <div id="materiais-container"
+            style="border:1.5px solid var(--gray2);border-radius:8px;padding:12px;background:#fff;min-height:46px;">
+            <span id="materiais-empty" style="color:var(--muted);font-size:13px;">
+              Selecione a TAG do equipamento para ver as peças disponíveis.
+            </span>
+            <div id="materiais-lista" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+        </div>
+
+        <!-- FOTOS -->
+        <div class="fg">
+          <label>📷 Fotos da Ocorrência <span style="font-size:11px;font-weight:normal;color:var(--muted);">(máx. 3)</span></label>
+          <div id="fotos-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
+          <label id="fotos-btn"
+            style="display:inline-flex;align-items:center;gap:6px;padding:13px 18px;background:var(--blue);color:#fff;border-radius:8px;cursor:pointer;font-size:15px;font-weight:bold;width:100%;justify-content:center;">
+            📷 Tirar / Selecionar Fotos
+            <input type="file" id="fotos-input" accept="image/*" multiple style="display:none"
+                   onchange="processarFotos(this)">
+          </label>
+          <span id="fotos-count" style="text-align:center;display:block;margin-top:6px;font-size:12px;color:var(--muted);">0/3 fotos</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SEÇÃO 5: PLANO DE AÇÃO -->
+    <div class="card">
+      <div class="card-hdr">
+        <span class="ico">📋</span> Plano de Ação (Opcional)
+        <span class="step">5 / 5</span>
+      </div>
+      <div class="card-body">
+
+        <div class="fg">
+          <label>⚠️ Outros Problemas Encontrados</label>
+          <div class="voice-wrap">
+            <textarea id="outros_problemas" placeholder="Problemas que precisam de ação futura..."></textarea>
+            <button type="button" class="btn-voice" id="voice-outros"
+                    onclick="toggleVoz('outros_problemas','voice-outros')" title="Falar">🎙️</button>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>🔩 Peças/Materiais Necessários</label>
+          <div class="voice-wrap">
+            <textarea id="pecas_necessarias" placeholder="Peças ou materiais a requisitar..."></textarea>
+            <button type="button" class="btn-voice" id="voice-pecas"
+                    onclick="toggleVoz('pecas_necessarias','voice-pecas')" title="Falar">🎙️</button>
+          </div>
+        </div>
+
+        <div class="fg">
+          <label>👤 Nome do Solicitante</label>
+          <input type="text" id="nome_solicitante" placeholder="Nome de quem solicitou o atendimento">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BOTÃO ENVIAR -->
+    <button type="button" class="btn-submit" id="btn-submit" onclick="enviarForm()">
+      <span id="btn-txt">💾 Registrar Ocorrência</span>
+      <div class="spin" id="spin"></div>
+    </button>
+
+  </form>
+</div>
+
+<!-- MODAL SCANNER -->
+<div class="scanner-modal" id="scanner-modal">
+  <div class="scanner-box">
+    <div class="scanner-hdr">
+      <div class="scanner-hdr-info">
+        <span>📷</span> Escanear TAG do Equipamento
+      </div>
+      <button type="button" onclick="fecharScanner()" title="Fechar">✕</button>
+    </div>
+    <div id="scanner-view"></div>
+    <div class="scanner-loading" id="scanner-loading">
+      ⏳ Iniciando câmera…
+    </div>
+    <div class="scanner-result" id="scanner-result"></div>
+    <div class="scanner-tip">
+      Aponte a câmera para o <strong style="color:#fff">código de barras</strong> da etiqueta do equipamento.<br>
+      O campo TAG e a descrição serão preenchidos automaticamente.
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SUCESSO -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal">
+    <span class="modal-ico">✅</span>
+    <h3>Registrado!</h3>
+    <p>Ocorrência salva com sucesso no sistema.</p>
+    <div class="modal-id" id="modal-info"></div>
+    <div class="modal-btns">
+      <button class="btn-novo prim" onclick="novoRegistro()">📝 Nova Ocorrência</button>
+      <button class="btn-novo sec" onclick="fecharFormulario()">✕ Fechar Formulário</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Relógio ──
+function atualizarRelogio() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2,'0');
+  const m = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('relogio').textContent = h + ':' + m;
+  const dias = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  document.getElementById('data-hdr').textContent = dias[now.getDay()] + ', ' + now.getDate() + ' ' + meses[now.getMonth()];
+}
+// ── Catálogo de equipamentos (injetado pelo Flask) ──
+const EQPS_META = {{ equipamentos_meta | tojson }};
+const TECNICO_LOGADO = {{ tecnico_logado | tojson }};
+
+/* -- Autocomplete de TAG ------------------------------------------ */
+let _acIdx = -1;
+
+function tagAutoComplete(val) {
+  const list = document.getElementById('tag-ac-list');
+  const q = val.toUpperCase().trim();
+  if (q.length < 1) { fecharTagAC(); return; }
+  const tags = Object.keys(EQPS_META);
+  const starts   = tags.filter(t => t.startsWith(q));
+  const contains = tags.filter(t => !t.startsWith(q) && t.includes(q));
+  const matches  = [...starts, ...contains].slice(0, 12);
+  if (matches.length === 0) { fecharTagAC(); return; }
+  list.innerHTML = '';
+  _acIdx = -1;
+  matches.forEach(tag => {
+    const meta = EQPS_META[tag] || {};
+    const div  = document.createElement('div');
+    div.className = 'tag-ac-item';
+    div.innerHTML = '<span class="ac-tag">' + tag + '</span><span class="ac-desc">' + (meta.descricao || '') + '</span>';
+    div.addEventListener('touchstart', () => selecionarTagAC(tag));
+    div.addEventListener('mousedown',  () => selecionarTagAC(tag));
+    list.appendChild(div);
+  });
+  list.style.display = 'block';
+}
+
+function selecionarTagAC(tag) {
+  document.getElementById('eqp_cod').value = tag;
+  fecharTagAC();
+  clearTimeout(buscaTimer);
+  buscaEqp(tag);
+}
+
+function fecharTagAC() {
+  const list = document.getElementById('tag-ac-list');
+  if (list) { list.style.display = 'none'; list.innerHTML = ''; }
+  _acIdx = -1;
+}
+
+function tagACKey(e) {
+  const list  = document.getElementById('tag-ac-list');
+  const items = list ? list.querySelectorAll('.tag-ac-item') : [];
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _acIdx = Math.min(_acIdx + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('active', i === _acIdx));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _acIdx = Math.max(_acIdx - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('active', i === _acIdx));
+  } else if (e.key === 'Enter' && _acIdx >= 0) {
+    e.preventDefault();
+    selecionarTagAC(items[_acIdx].querySelector('.ac-tag').textContent);
+  } else if (e.key === 'Escape') {
+    fecharTagAC();
+  }
+}
+
+atualizarRelogio();
+setInterval(atualizarRelogio, 30000);
+
+// Pré-selecionar técnico logado
+if (TECNICO_LOGADO) {
+  const selTec = document.getElementById('tecnico');
+  if (selTec) {
+    for (const opt of selTec.options) {
+      if (opt.value === TECNICO_LOGADO) { selTec.value = TECNICO_LOGADO; break; }
+    }
+  }
+}
+
+// ── Busca equipamento ──
+let buscaTimer = null;
+let fotosB64 = [];
+
+function buscaEqp(val) {
+  clearTimeout(buscaTimer);
+  if (val.length < 2) return;
+  buscaTimer = setTimeout(() => {
+    const tag = val.trim().toUpperCase();
+    const meta = EQPS_META[tag];
+    if (meta) {
+      // Preenche a partir do catálogo local (sem fetch)
+      const descricao = meta.descricao || tag;
+      document.getElementById('eqp_nome').value = descricao;
+      document.getElementById('chip-nome').textContent = descricao;
+      document.getElementById('chip-cod').textContent = tag;
+      document.getElementById('equip-chip').classList.add('show');
+      // Preencher setor automaticamente
+      if (meta.area) {
+        const selSetor = document.getElementById('setor');
+        for (const opt of selSetor.options) {
+          if (opt.value === meta.area || opt.value.toLowerCase() === meta.area.toLowerCase()) {
+            selSetor.value = opt.value; break;
+          }
+        }
+      }
+      carregarMateriais(tag);
+    } else {
+      // Fallback via API para TAGs não listadas localmente
+      fetch('/api/equipamento/' + encodeURIComponent(tag))
+        .then(r => r.json())
+        .then(d => {
+          if (d.found) {
+            const descricao = d.descricao || d.nome;
+            document.getElementById('eqp_nome').value = descricao;
+            document.getElementById('chip-nome').textContent = descricao;
+            document.getElementById('chip-cod').textContent = d.codigo;
+            document.getElementById('equip-chip').classList.add('show');
+            // Preencher setor
+            const area = d.area || d.setor || '';
+            if (area) {
+              const selSetor = document.getElementById('setor');
+              for (const opt of selSetor.options) {
+                if (opt.value === area || opt.value.toLowerCase() === area.toLowerCase()) {
+                  selSetor.value = opt.value; break;
+                }
+              }
+            }
+            carregarMateriais(tag);
+          }
+        }).catch(() => {});
+    }
+  }, 500);
+}
+
+function carregarMateriais(tag) {
+  fetch('/api/estoque/' + encodeURIComponent(tag))
+    .then(r => r.json())
+    .then(d => {
+      const lista  = document.getElementById('materiais-lista');
+      const empty  = document.getElementById('materiais-empty');
+      lista.innerHTML = '';
+
+      if (!d.pecas || d.pecas.length === 0) {
+        empty.textContent = 'Nenhuma peça cadastrada no estoque para este equipamento.';
+        empty.style.display = 'block';
+      } else {
+        empty.style.display = 'none';
+        d.pecas.forEach(peca => {
+          const label = document.createElement('label');
+          label.style.cssText = 'display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray);border:1.5px solid var(--gray2);border-radius:8px;cursor:pointer;font-size:15px;user-select:none;';
+          label.innerHTML = `<input type="checkbox" name="mat_estoque" value="${peca}" style="width:20px;height:20px;accent-color:var(--blue2);flex-shrink:0;"> ${peca}`;
+          lista.appendChild(label);
+        });
+      }
+
+      // ── Separador + campo livre ──────────────────────────────
+      const sep = document.createElement('div');
+      sep.style.cssText = 'width:100%;margin:14px 0 8px;border-top:1px dashed var(--gray2);padding-top:12px;font-size:12px;color:var(--blue2);font-weight:700;letter-spacing:.5px;';
+      sep.textContent = '+ Adicionar peça não listada no estoque';
+      lista.appendChild(sep);
+
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:8px;width:100%;';
+      row.innerHTML = `
+        <input type="text" id="mat-custom-input"
+          placeholder="Ex: Rolamento 6203, Correia A42..."
+          style="flex:1;padding:12px 14px;border:1.5px solid var(--gray2);border-radius:10px;font-size:15px;background:#fff;-webkit-appearance:none;">
+        <button type="button" onclick="adicionarMatCustom()"
+          style="padding:12px 18px;background:var(--blue2);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;white-space:nowrap;">
+          + Adicionar
+        </button>`;
+      lista.appendChild(row);
+
+      // ── Container chips peças personalizadas ─────────────────
+      const chips = document.createElement('div');
+      chips.id = 'mat-custom-chips';
+      chips.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;';
+      lista.appendChild(chips);
+    }).catch(() => {});
+}
+
+// ── Fotos ──
+function processarFotos(input) {
+  const files = Array.from(input.files);
+  const slots = 3 - fotosB64.length;
+  files.slice(0, slots).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      fotosB64.push(e.target.result);
+      atualizarPreviewFotos();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function atualizarPreviewFotos() {
+  const preview = document.getElementById('fotos-preview');
+  const count = document.getElementById('fotos-count');
+  preview.innerHTML = '';
+  fotosB64.forEach((b64, i) => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;';
+    wrap.innerHTML = `
+      <img src="${b64}" style="width:90px;height:90px;object-fit:cover;border-radius:8px;border:2px solid var(--gray2);">
+      <button type="button" onclick="removerFoto(${i})"
+        style="position:absolute;top:-6px;right:-6px;background:#c0392b;color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;">✕</button>
+    `;
+    preview.appendChild(wrap);
+  });
+  count.textContent = fotosB64.length + '/3 fotos';
+  document.getElementById('fotos-btn').style.display = fotosB64.length >= 3 ? 'none' : 'flex';
+}
+
+function removerFoto(i) {
+  fotosB64.splice(i, 1);
+  atualizarPreviewFotos();
+}
+
+function limparEqp() {
+  document.getElementById('eqp_cod').value = '';
+  document.getElementById('eqp_nome').value = '';
+  document.getElementById('equip-chip').classList.remove('show');
+}
+
+// ── Tipo de manutenção ──
+function selecionarTipo(btn) {
+  document.querySelectorAll('.tipo-btn').forEach(b => {
+    b.className = 'tipo-btn';
+  });
+  const tipo = btn.dataset.tipo;
+  btn.classList.add('sel-' + tipo.toLowerCase());
+  document.getElementById('tipo_manutencao').value = tipo;
+}
+
+// ── Validação ──
+function validar() {
+  let ok = true;
+
+  const campos = [
+    { id: 'eqp_cod',    fg: 'fg-eqp-cod' },
+    { id: 'eqp_nome',   fg: 'fg-eqp-nome' },
+    { id: 'tecnico',    fg: 'fg-tecnico' },
+    { id: 'setor',      fg: 'fg-setor' },
+    { id: 'motivo_parada', fg: 'fg-motivo' },
+  ];
+
+  campos.forEach(c => {
+    const el = document.getElementById(c.id);
+    const fg = document.getElementById(c.fg);
+    if (!el.value || el.value === el.options?.[0]?.value) {
+      fg.classList.add('err'); ok = false;
+    } else {
+      fg.classList.remove('err');
+    }
+  });
+
+  // Descrição do problema
+  const desc = document.getElementById('descricao_problema');
+  if (!desc.value.trim()) {
+    desc.parentElement.classList.add('err'); ok = false;
+  } else {
+    desc.parentElement.classList.remove('err');
+  }
+
+  // Tipo de manutenção
+  if (!document.getElementById('tipo_manutencao').value) {
+    alert('Selecione o Tipo de Manutenção'); ok = false;
+  }
+
+  return ok;
+}
+
+// ── Peça personalizada ──
+function adicionarMatCustom() {
+  const input = document.getElementById('mat-custom-input');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  const chips = document.getElementById('mat-custom-chips');
+  if (!chips) return;
+
+  // Verificar duplicata
+  const existentes = Array.from(chips.querySelectorAll('span[data-val]')).map(s => s.dataset.val.toLowerCase());
+  if (existentes.includes(val.toLowerCase())) { input.value = ''; return; }
+
+  const chip = document.createElement('div');
+  chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#e8f0fa;border:1.5px solid #a0b8d8;border-radius:20px;font-size:13px;';
+  chip.innerHTML = `
+    <span data-val="${val}" style="color:#1B3A6B;font-weight:600;">📦 ${val}</span>
+    <input type="checkbox" name="mat_custom" value="${val}" checked style="display:none;">
+    <button type="button" onclick="this.closest('div').remove()" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;line-height:1;padding:0;">×</button>`;
+  chips.appendChild(chip);
+  input.value = '';
+  input.focus();
+}
+
+// ── Envio ──
+function enviarForm() {
+  if (!validar()) return;
+
+  const btn = document.getElementById('btn-submit');
+  const txt = document.getElementById('btn-txt');
+  const spin = document.getElementById('spin');
+
+  btn.disabled = true;
+  txt.style.display = 'none';
+  spin.style.display = 'block';
+
+  const data = {
+    equipamento_codigo:   document.getElementById('eqp_cod').value.trim().toUpperCase(),
+    equipamento_nome:     document.getElementById('eqp_nome').value.trim(),
+    tecnico:              document.getElementById('tecnico').value,
+    setor:                document.getElementById('setor').value,
+    data_ocorrencia:      document.getElementById('data_ocorrencia').value,
+    horario_parada:       document.getElementById('horario_parada').value,
+    horario_liberacao:    document.getElementById('horario_liberacao').value,
+    tipo_manutencao:      document.getElementById('tipo_manutencao').value,
+    motivo_parada:        document.getElementById('motivo_parada').value,
+    descricao_problema:   document.getElementById('descricao_problema').value.trim(),
+    solucao_problema:     document.getElementById('solucao_problema').value,
+    observacoes:          document.getElementById('observacoes').value.trim(),
+    outros_problemas:     document.getElementById('outros_problemas').value.trim(),
+    pecas_necessarias:    document.getElementById('pecas_necessarias').value.trim(),
+    nome_solicitante:     document.getElementById('nome_solicitante').value.trim(),
+    assinatura_tecnico:   '',
+    assinatura_solicitante: '',
+    materiais_utilizados: Array.from(document.querySelectorAll('#materiais-lista input[type=checkbox]:checked')).map(c => c.value),
+    fotos: fotosB64,
+  };
+
+  fetch('/submit', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+  .then(r => r.json())
+  .then(res => {
+    btn.disabled = false;
+    txt.style.display = 'inline';
+    spin.style.display = 'none';
+
+    if (res.success) {
+      const info = document.getElementById('modal-info');
+      info.innerHTML =
+        '<strong>Registro:</strong> ' + res.message + '<br>' +
+        '<strong>Equipamento:</strong> ' + data.equipamento_nome + '<br>' +
+        '<strong>Técnico:</strong> ' + data.tecnico + '<br>' +
+        '<strong>Tempo de Parada:</strong> ' + (res.total_horas || 'N/A') + '<br>' +
+        '<strong>Status:</strong> ' + (res.status || 'Concluído');
+      document.getElementById('modal-bg').classList.add('show');
+    } else {
+      alert('Erro: ' + res.message);
+    }
+  })
+  .catch(err => {
+    btn.disabled = false;
+    txt.style.display = 'inline';
+    spin.style.display = 'none';
+    alert('Erro de conexão. Verifique a internet e tente novamente.');
+  });
+}
+
+// ── Novo registro ──
+function novoRegistro() {
+  document.getElementById('modal-bg').classList.remove('show');
+  document.getElementById('form').reset();
+  document.querySelectorAll('.tipo-btn').forEach(b => b.className = 'tipo-btn');
+  document.getElementById('tipo_manutencao').value = '';
+  limparEqp();
+  document.querySelectorAll('.fg.err').forEach(f => f.classList.remove('err'));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Fechar modal de sucesso clicando fora
+document.getElementById('modal-bg').addEventListener('click', function(e) {
+  if (e.target === this) novoRegistro();
+});
+
+// ── Scanner de Código de Barras (html5-qrcode via CDN) ─────────────────────
+let _scannerLibLoaded = false;
+let _scannerLibQueue  = [];
+let _qrScanner        = null;
+let _scannerAtivo     = false;
+
+function _carregarScannerLib(cb) {
+  if (_scannerLibLoaded) { cb(); return; }
+  _scannerLibQueue.push(cb);
+  if (_scannerLibQueue.length > 1) return;
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
+  s.onload = () => {
+    _scannerLibLoaded = true;
+    _scannerLibQueue.forEach(fn => fn());
+    _scannerLibQueue = [];
+  };
+  s.onerror = () => {
+    alert('Erro ao carregar o scanner. Verifique a conexão com a internet.');
+    fecharScanner();
+  };
+  document.head.appendChild(s);
+}
+
+function abrirScanner() {
+  document.getElementById('scanner-modal').classList.add('show');
+  document.getElementById('scanner-loading').style.display = 'block';
+  document.getElementById('scanner-result').style.display = 'none';
+  _carregarScannerLib(iniciarCamera);
+}
+
+function iniciarCamera() {
+  if (_scannerAtivo && _qrScanner) {
+    document.getElementById('scanner-loading').style.display = 'none';
+    return;
+  }
+  if (_qrScanner) {
+    try { _qrScanner.clear(); } catch(e) {}
+    _qrScanner = null;
+  }
+
+  _qrScanner = new Html5Qrcode('scanner-view');
+
+  const formatos = [];
+  if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+    const f = Html5QrcodeSupportedFormats;
+    [f.QR_CODE, f.CODE_128, f.CODE_39, f.EAN_13, f.EAN_8, f.UPC_A, f.UPC_E].forEach(v => {
+      if (v !== undefined) formatos.push(v);
+    });
+  }
+
+  const config = {
+    fps: 12,
+    qrbox: { width: Math.min(280, window.innerWidth - 60), height: 110 },
+    aspectRatio: 1.4,
+    ...(formatos.length ? { formatsToSupport: formatos } : {})
+  };
+
+  _qrScanner.start(
+    { facingMode: 'environment' },
+    config,
+    (textoDecodificado) => {
+      const tag = textoDecodificado.trim().toUpperCase();
+
+      const res = document.getElementById('scanner-result');
+      res.textContent = '✅ TAG detectada: ' + tag;
+      res.style.display = 'block';
+
+      if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+
+      document.getElementById('eqp_cod').value = tag;
+      buscaEqpImediato(tag);
+      setTimeout(fecharScanner, 1300);
+    },
+    (_erroFrame) => { /* erros de frame são normais durante rastreamento */ }
+  )
+  .then(() => {
+    _scannerAtivo = true;
+    document.getElementById('scanner-loading').style.display = 'none';
+  })
+  .catch(err => {
+    _scannerAtivo = false;
+    document.getElementById('scanner-loading').style.display = 'none';
+    console.error('Scanner error:', err);
+    alert('Não foi possível acessar a câmera.\n\nVerifique se o navegador tem permissão para usar a câmera e tente novamente.');
+    fecharScanner();
+  });
+}
+
+function fecharScanner() {
+  document.getElementById('scanner-modal').classList.remove('show');
+  document.getElementById('scanner-result').style.display = 'none';
+  document.getElementById('scanner-loading').style.display = 'none';
+
+  if (_qrScanner && _scannerAtivo) {
+    _qrScanner.stop()
+      .then(() => { _qrScanner.clear(); _qrScanner = null; _scannerAtivo = false; })
+      .catch(() => { _qrScanner = null; _scannerAtivo = false; });
+  } else {
+    _qrScanner = null;
+    _scannerAtivo = false;
+  }
+}
+
+// Fechar scanner ao clicar no fundo escuro
+document.getElementById('scanner-modal').addEventListener('click', function(e) {
+  if (e.target === this) fecharScanner();
+});
+
+// ── Busca imediata (sem debounce) ── usada após leitura do scanner ──────────
+function buscaEqpImediato(tag) {
+  if (!tag || tag.length < 1) return;
+  fetch('/api/equipamento/' + encodeURIComponent(tag))
+    .then(r => r.json())
+    .then(d => {
+      if (d.found) {
+        const descricao = d.descricao || d.nome;
+        // TAG exata do cadastro
+        document.getElementById('eqp_cod').value  = d.codigo;
+        // Descrição do equipamento (sem sufixo de área)
+        document.getElementById('eqp_nome').value = descricao;
+        document.getElementById('chip-nome').textContent = descricao;
+        document.getElementById('chip-cod').textContent  = d.codigo;
+        document.getElementById('equip-chip').classList.add('show');
+        // Preencher setor produtivo com a área do cadastro
+        if (d.area || d.setor) {
+          const area = d.setor || d.area;
+          const selSetor = document.getElementById('setor');
+          if (selSetor) {
+            // Tentar match exato, depois case-insensitive
+            let matched = false;
+            for (const opt of selSetor.options) {
+              if (opt.value === area) { selSetor.value = area; matched = true; break; }
+            }
+            if (!matched) {
+              for (const opt of selSetor.options) {
+                if (opt.value.toLowerCase() === area.toLowerCase()) {
+                  selSetor.value = opt.value; matched = true; break;
+                }
+              }
+            }
+          }
+        }
+        carregarMateriais(d.codigo);
+        document.getElementById('fg-eqp-cod').classList.remove('err');
+        document.getElementById('fg-eqp-nome').classList.remove('err');
+      }
+    })
+    .catch(() => {});
+}
+
+// ── Fechar formulário ──────────────────────────────────────────────────────
+function fecharFormulario() {
+  document.getElementById('modal-bg').classList.remove('show');
+  // Tenta fechar a aba nativamente
+  try { window.close(); } catch(e) {}
+  // Fallback: exibe banner "pode fechar esta aba"
+  setTimeout(() => {
+    if (!document.hidden) {
+      novoRegistro();
+      const sb = document.createElement('div');
+      sb.id = 'sb-fechado';
+      sb.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#1E8449;color:#fff;'
+        + 'text-align:center;padding:16px 12px;font-size:15px;font-weight:bold;'
+        + 'z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,.3);letter-spacing:.3px;';
+      sb.innerHTML = '\u2705 Formulário encerrado &nbsp;|&nbsp; '
+        + '<span style="font-size:13px;opacity:.85">Você pode fechar esta aba agora</span>';
+      document.body.appendChild(sb);
+    }
+  }, 200);
+}
+
+
+/* ═══════════════════════════════════════════
+   RECONHECIMENTO DE VOZ  (Web Speech API)
+   Chrome Android, Safari iOS 15+
+═══════════════════════════════════════════ */
+let _vozAtiva = null;
+
+function toggleVoz(targetId, btnId) {
+  if (_vozAtiva && _vozAtiva.targetId === targetId) {
+    _vozAtiva.recognition.stop();
+    return;
+  }
+  if (_vozAtiva) _vozAtiva.recognition.abort();
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert('Reconhecimento de voz não suportado.\nUse Chrome ou Safari atualizado.');
+    return;
+  }
+
+  const rec = new SpeechRecognition();
+  rec.lang = 'pt-BR';
+  rec.continuous = true;
+  rec.interimResults = true;
+
+  const btn      = document.getElementById(btnId);
+  const textarea = document.getElementById(targetId);
+  const textoBase = textarea.value;
+
+  btn.classList.add('recording');
+  btn.title = 'Gravando... toque para parar';
+  btn.textContent = '⏹️';
+  _vozAtiva = { recognition: rec, targetId, btnId };
+
+  rec.onresult = (e) => {
+    let final = '', interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    const base = textoBase + (textoBase && (final || interim) ? ' ' : '');
+    textarea.value = (base + final + (interim ? interim : '')).trim();
+    textarea.scrollTop = textarea.scrollHeight;
+  };
+
+  rec.onerror = (e) => {
+    if (e.error === 'not-allowed')
+      alert('Permissão de microfone negada.\nLibere o microfone nas configurações do navegador.');
+    pararVoz(btnId);
+  };
+
+  rec.onend = () => pararVoz(btnId);
+  rec.start();
+}
+
+function pararVoz(btnId) {
+  _vozAtiva = null;
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    btn.classList.remove('recording');
+    btn.title = 'Falar';
+    btn.textContent = '🎙️';
+  }
+}
+</script>
+</body>
+</html>

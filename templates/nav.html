@@ -1,0 +1,168 @@
+{# Barra lateral — inclua com: include 'nav.html' #}
+<style>
+.sidebar {
+  position: fixed; left:0; top:0; bottom:0; width:220px;
+  background: linear-gradient(180deg,#1B3A6B 0%,#0d1f3c 100%);
+  display:flex; flex-direction:column; z-index:900;
+  box-shadow:3px 0 20px rgba(0,0,0,0.25);
+  user-select:none;
+}
+.sb-logo {
+  padding: 12px 16px 10px;
+  padding:22px 18px 18px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+  display:flex; align-items:center; gap:12px;
+}
+.sb-logo-gear {
+  width:42px; height:42px; flex-shrink:0;
+  background:rgba(255,255,255,0.1);
+  border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px;
+}
+.sb-logo-text { line-height:1.2; }
+.sb-logo-name { color:#fff; font-size:16px; font-weight:800; letter-spacing:0.5px; }
+.sb-logo-sub  { color:rgba(255,255,255,0.5); font-size:11px; margin-top:2px; }
+
+.sb-section-label {
+  color:rgba(255,255,255,0.35);
+  font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px;
+  padding:16px 18px 6px;
+}
+.sb-nav { flex:1; overflow-y:auto; padding:8px 0 4px; }
+.sb-item {
+  display:flex; align-items:center; gap:11px;
+  padding:11px 18px;
+  color:rgba(255,255,255,0.7);
+  text-decoration:none;
+  font-size:14px; font-weight:500;
+  border-left:3px solid transparent;
+  transition:all 0.18s;
+  cursor:pointer;
+  position:relative;
+}
+.sb-item:hover { background:rgba(255,255,255,0.08); color:#fff; }
+.sb-item.active {
+  background:rgba(255,255,255,0.13);
+  color:#fff; font-weight:700;
+  border-left-color:#D62B2B;
+}
+.sb-item .sb-icon { font-size:18px; width:22px; text-align:center; flex-shrink:0; }
+.sb-item .sb-badge {
+  margin-left:auto;
+  background:#D62B2B; color:#fff;
+  font-size:10px; font-weight:700;
+  padding:1px 7px; border-radius:10px;
+}
+.sb-divider { height:1px; background:rgba(255,255,255,0.08); margin:8px 18px; }
+.sb-user {
+  padding:14px 18px;
+  border-top:1px solid rgba(255,255,255,0.1);
+  background:rgba(0,0,0,0.2);
+}
+.sb-user-info { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.sb-avatar {
+  width:36px; height:36px; border-radius:50%;
+  background:linear-gradient(135deg,#2456a4,#D62B2B);
+  display:flex; align-items:center; justify-content:center;
+  color:#fff; font-size:15px; font-weight:700; flex-shrink:0;
+}
+.sb-user-name  { color:#fff; font-size:13px; font-weight:600; line-height:1.2; }
+.sb-user-role  {
+  color:rgba(255,255,255,0.5); font-size:11px;
+  display:inline-block; margin-top:2px;
+}
+.sb-badge-admin   { color:#ffd700; }
+.sb-badge-tecnico { color:#7ec8e3; }
+.sb-logout {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  width:100%; padding:8px;
+  background:rgba(214,43,43,0.2);
+  border:1px solid rgba(214,43,43,0.35);
+  border-radius:8px;
+  color:rgba(255,255,255,0.8);
+  text-decoration:none; font-size:13px; font-weight:600;
+  transition:background 0.2s;
+}
+.sb-logout:hover { background:rgba(214,43,43,0.45); color:#fff; }
+/* Ajuste geral do body para ceder espaço à sidebar */
+body { margin-left:220px; }
+/* Impede herança desnecessária */
+.sidebar * { box-sizing:border-box; }
+</style>
+
+<div class="sidebar">
+  <!-- Logo -->
+  <div class="sb-logo">
+    <img src="/static/img/logo_caloi_sm.png" alt="Caloi"
+         style="width:100%;max-width:160px;border-radius:7px;margin:0 auto;display:block;
+         box-shadow:0 3px 10px rgba(0,0,0,.45);">
+    <div class="sb-logo-text" style="margin-top:8px;text-align:center;">
+      <div class="sb-logo-sub">Manutenção Industrial · TPM v2.1</div>
+    </div>
+  </div>
+
+  <!-- Menu -->
+  <div class="sb-nav">
+    <div class="sb-section-label">Menu Principal</div>
+
+    <a href="/inicio" class="sb-item {% if request.endpoint == 'inicio' %}active{% endif %}">
+      <span class="sb-icon">🏠</span>
+      <span>Início</span>
+    </a>
+
+    <a href="/formulario" class="sb-item {% if request.endpoint == 'formulario' %}active{% endif %}">
+      <span class="sb-icon">📋</span>
+      <span>Formulário</span>
+    </a>
+
+    <a href="/dashboard" class="sb-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+      <span class="sb-icon">📊</span>
+      <span>Dashboard</span>
+    </a>
+
+    <a href="/plano-acao" class="sb-item {% if request.endpoint == 'plano_acao' %}active{% endif %}">
+      <span class="sb-icon">⚠</span>
+      <span>Plano de Ação</span>
+    </a>
+
+    <a href="/historico" class="sb-item {% if request.endpoint == 'historico' %}active{% endif %}">
+      <span class="sb-icon">🔍</span>
+      <span>Histórico Equip.</span>
+    </a>
+
+    <a href="/download" class="sb-item">
+      <span class="sb-icon">📥</span>
+      <span>Exportar Excel</span>
+    </a>
+
+    <div class="sb-divider"></div>
+    <div class="sb-section-label">Sistema</div>
+
+    {% if usuario and usuario.perfil == 'admin' %}
+    <a href="/admin" class="sb-item {% if request.endpoint == 'admin' %}active{% endif %}">
+      <span class="sb-icon">⚙</span>
+      <span>Configurações</span>
+    </a>
+    {% endif %}
+
+    <a href="/ajuda" class="sb-item {% if request.endpoint == 'ajuda' %}active{% endif %}">
+      <span class="sb-icon">❓</span>
+      <span>Ajuda</span>
+    </a>
+  </div>
+
+  <!-- Usuário logado -->
+  <div class="sb-user">
+    <div class="sb-user-info">
+      <div class="sb-avatar">{{ usuario.nome[0]|upper if usuario else '?' }}</div>
+      <div>
+        <div class="sb-user-name">{{ usuario.nome if usuario else 'Usuário' }}</div>
+        <span class="sb-user-role {% if usuario and usuario.perfil == 'admin' %}sb-badge-admin{% else %}sb-badge-tecnico{% endif %}">
+          {% if usuario and usuario.perfil == 'admin' %}&#9733; Administrador{% else %}&#128295; Tecnico{% endif %}
+        </span>
+      </div>
+    </div>
+    <a href="/logout" class="sb-logout">&#9211; Sair do Sistema</a>
+  </div>
+</div>

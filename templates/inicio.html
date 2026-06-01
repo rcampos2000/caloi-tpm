@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Início - Caloi TPM</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f0f3f8;color:#222;min-height:100vh;}
+/* Topbar da página */
+.page-topbar{
+  height:56px;background:#fff;border-bottom:1px solid #e3e8f0;
+  display:flex;align-items:center;padding:0 28px;
+  justify-content:space-between;
+  box-shadow:0 1px 6px rgba(0,0,0,0.06);
+  position:sticky;top:0;z-index:100;
+}
+.page-title{font-size:18px;font-weight:700;color:#1B3A6B;display:flex;align-items:center;gap:8px;}
+.page-date{font-size:13px;color:#888;}
+/* Conteúdo */
+.content{padding:28px 32px;}
+/* Boas-vindas */
+.welcome-card{
+  background:linear-gradient(135deg,#1B3A6B 0%,#2456a4 60%,#D62B2B 100%);
+  border-radius:16px;padding:32px 36px;color:#fff;
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:28px;
+  box-shadow:0 8px 32px rgba(27,58,107,0.25);
+  position:relative;overflow:hidden;
+}
+.welcome-card::before{
+  content:'⚙';position:absolute;right:40px;top:50%;transform:translateY(-50%);
+  font-size:120px;opacity:0.08;
+}
+.welcome-title{font-size:26px;font-weight:800;margin-bottom:6px;}
+.welcome-sub{font-size:14px;opacity:0.8;margin-bottom:20px;}
+.welcome-btn{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#fff;color:#1B3A6B;
+  padding:11px 22px;border-radius:10px;
+  text-decoration:none;font-weight:700;font-size:14px;
+  transition:transform 0.15s,box-shadow 0.15s;
+  box-shadow:0 4px 14px rgba(0,0,0,0.15);
+}
+.welcome-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.2);}
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.stat-card{
+  background:#fff;border-radius:14px;padding:22px 20px;
+  display:flex;align-items:center;gap:16px;
+  box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  transition:transform 0.15s;
+}
+.stat-card:hover{transform:translateY(-2px);}
+.stat-icon{
+  width:52px;height:52px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0;
+}
+.st-blue {background:#e8f0fc;}
+.st-green{background:#e8f7ef;}
+.st-red  {background:#ffeaea;}
+.st-yel  {background:#fff8e1;}
+.stat-val{font-size:28px;font-weight:800;color:#1B3A6B;line-height:1;}
+.stat-lbl{font-size:12px;color:#888;font-weight:600;text-transform:uppercase;margin-top:4px;}
+/* Menu rápido */
+.quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:28px;}
+.quick-card{
+  background:#fff;border-radius:14px;padding:24px;
+  display:flex;gap:18px;align-items:flex-start;
+  box-shadow:0 2px 10px rgba(0,0,0,0.06);
+  text-decoration:none;color:#222;
+  transition:transform 0.15s,box-shadow 0.15s;
+  border:2px solid transparent;
+}
+.quick-card:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(27,58,107,0.12);border-color:#1B3A6B;}
+.quick-icon{
+  width:56px;height:56px;border-radius:14px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;flex-shrink:0;
+}
+.qi-form   {background:#e8f0fc;}
+.qi-dash   {background:#e8f7ef;}
+.qi-admin  {background:#fff3e0;}
+.qi-help   {background:#f3e5f5;}
+.quick-title{font-size:16px;font-weight:700;color:#1B3A6B;margin-bottom:5px;}
+.quick-desc {font-size:13px;color:#888;line-height:1.5;}
+/* Info box */
+.info-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.info-card{background:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+.info-title{font-size:14px;font-weight:700;color:#1B3A6B;margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.info-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f0f4f9;font-size:13px;}
+.info-item:last-child{border-bottom:none;}
+.info-key{color:#888;}
+.info-val{font-weight:600;color:#222;}
+.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;}
+.dot-green{background:#27ae60;}
+</style>
+</head>
+<body>
+{% include 'nav.html' %}
+
+<div class="page-topbar">
+  <div class="page-title">🏠 Início</div>
+  <div class="page-date">{{ hoje }}</div>
+</div>
+
+<div class="content">
+
+  <!-- Boas-vindas -->
+  <div class="welcome-card">
+    <div>
+      <div class="welcome-title">Olá, {{ usuario.nome.split()[0] }}! 👋</div>
+      <div class="welcome-sub">Bem-vindo ao Sistema de Controle de Manutenção TPM da Caloi.</div>
+      <a href="/formulario" class="welcome-btn">📋 Novo Registro de Manutenção</a>
+    </div>
+  </div>
+
+  <!-- Estatísticas -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-icon st-blue">📋</div>
+      <div>
+        <div class="stat-val">{{ total_registros }}</div>
+        <div class="stat-lbl">Total Registros</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon st-red">⏱</div>
+      <div>
+        <div class="stat-val">{{ total_horas }}</div>
+        <div class="stat-lbl">Horas de Parada</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon st-green">👥</div>
+      <div>
+        <div class="stat-val">{{ total_tecnicos }}</div>
+        <div class="stat-lbl">Técnicos Ativos</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon st-yel">🏭</div>
+      <div>
+        <div class="stat-val">{{ total_setores }}</div>
+        <div class="stat-lbl">Setores</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Acesso Rápido -->
+  <div class="quick-grid">
+    <a href="/formulario" class="quick-card">
+      <div class="quick-icon qi-form">📋</div>
+      <div>
+        <div class="quick-title">Formulário de Manutenção</div>
+        <div class="quick-desc">Registre ocorrências de parada, falhas e intervenções corretivas e preventivas.</div>
+      </div>
+    </a>
+    <a href="/dashboard" class="quick-card">
+      <div class="quick-icon qi-dash">📊</div>
+      <div>
+        <div class="quick-title">Dashboard e Relatórios</div>
+        <div class="quick-desc">Visualize gráficos, indicadores e o histórico completo de registros.</div>
+      </div>
+    </a>
+    {% if usuario and usuario.perfil == 'admin' %}
+    <a href="/admin" class="quick-card">
+      <div class="quick-icon qi-admin">⚙</div>
+      <div>
+        <div class="quick-title">Configurações do Sistema</div>
+        <div class="quick-desc">Gerencie usuários, técnicos, setores e demais configurações da aplicação.</div>
+      </div>
+    </a>
+    {% endif %}
+    <a href="/ajuda" class="quick-card">
+      <div class="quick-icon qi-help">❓</div>
+      <div>
+        <div class="quick-title">Ajuda e Guia de Uso</div>
+        <div class="quick-desc">Veja como utilizar o sistema, passo a passo e respostas para dúvidas frequentes.</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Info do sistema -->
+  <div class="info-row">
+    <div class="info-card">
+      <div class="info-title">📌 Informações do Sistema</div>
+      <div class="info-item"><span class="info-key">Versão</span><span class="info-val">Caloi TPM v2.0</span></div>
+      <div class="info-item"><span class="info-key">Banco de dados</span><span class="info-val">Manutencao_TPM.xlsx</span></div>
+      <div class="info-item"><span class="info-key">Status</span><span class="info-val"><span class="status-dot dot-green"></span>Online</span></div>
+      <div class="info-item"><span class="info-key">Seu perfil</span><span class="info-val">{{ '★ Administrador' if usuario.perfil == 'admin' else '🔧 Técnico' }}</span></div>
+    </div>
+    <div class="info-card">
+      <div class="info-title">📁 Estrutura de Arquivos</div>
+      <div class="info-item"><span class="info-key">Planilha</span><span class="info-val">Manutencao_TPM/</span></div>
+      <div class="info-item"><span class="info-key">Assinaturas</span><span class="info-val">assinaturas/</span></div>
+      <div class="info-item"><span class="info-key">Backups</span><span class="info-val">backups/</span></div>
+      <div class="info-item"><span class="info-key">Configurações</span><span class="info-val">config/</span></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

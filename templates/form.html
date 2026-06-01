@@ -1,0 +1,1774 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Manutenção TPM | Caloi</title>
+  <!-- ZERO dependências externas — funciona 100% offline -->
+<style>
+/* ============================================================
+   BASE
+============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --blue:    #1B3A6B;
+  --blue2:   #2451A3;
+  --red:     #D62B2B;
+  --red2:    #B01F1F;
+  --gray:    #F2F5FB;
+  --gray2:   #DDE3EF;
+  --text:    #2C3E50;
+  --muted:   #6B7A8D;
+  --green:   #1E8449;
+  --green2:  #D5F5E3;
+  --warn:    #C0392B;
+  --amber:   #E67E22;
+  --amber2:  #7D4E00;
+  --shadow:  0 2px 10px rgba(27,58,107,.10);
+  --shadowM: 0 6px 24px rgba(27,58,107,.15);
+  --r: 10px;
+  --rs: 7px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  background: var(--gray);
+  color: var(--text);
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ============================================================
+   MARCA D'ÁGUA MECÂNICA (SVG inline — sem internet)
+============================================================ */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cg fill='none' stroke='%231B3A6B' stroke-width='1.3' opacity='.07'%3E%3C!-- Engrenagem grande centro --%3E%3Ccircle cx='250' cy='250' r='70'/%3E%3Ccircle cx='250' cy='250' r='42'/%3E%3Ccircle cx='250' cy='250' r='14'/%3E%3Cpath d='M250 165v-22M250 357v-22M165 250h-22M357 250h-22M188 188l-16-16M312 312l-16-16M188 312l-16 16M312 188l-16 16'/%3E%3Crect x='239' y='125' width='22' height='16' rx='3'/%3E%3Crect x='239' y='359' width='22' height='16' rx='3'/%3E%3Crect x='125' y='239' width='16' height='22' rx='3'/%3E%3Crect x='359' y='239' width='16' height='22' rx='3'/%3E%3Crect x='172' y='164' width='16' height='16' rx='2' transform='rotate(45 180 172)'/%3E%3Crect x='308' y='300' width='16' height='16' rx='2' transform='rotate(45 316 308)'/%3E%3Crect x='172' y='300' width='16' height='16' rx='2' transform='rotate(-45 180 308)'/%3E%3Crect x='308' y='164' width='16' height='16' rx='2' transform='rotate(-45 316 172)'/%3E%3C!-- Chave de boca canto sup esq --%3E%3Cellipse cx='60' cy='55' rx='20' ry='13'/%3E%3Crect x='58' y='68' width='4' height='70' rx='2'/%3E%3Cellipse cx='60' cy='138' rx='14' ry='9'/%3E%3C!-- Parafuso canto sup dir --%3E%3Ccircle cx='430' cy='65' r='20'/%3E%3Cline x1='410' y1='65' x2='450' y2='65'/%3E%3Cline x1='430' y1='45' x2='430' y2='85'/%3E%3Crect x='422' y='85' width='16' height='36' rx='4'/%3E%3C!-- Engrenagem pequena canto inf dir --%3E%3Ccircle cx='420' cy='420' r='42'/%3E%3Ccircle cx='420' cy='420' r='25'/%3E%3Ccircle cx='420' cy='420' r='8'/%3E%3Cpath d='M420 370v-14M420 470v-14M370 420h-14M470 420h-14'/%3E%3Crect x='410' y='348' width='20' height='14' rx='3'/%3E%3Crect x='410' y='438' width='20' height='14' rx='3'/%3E%3Crect x='348' y='410' width='14' height='20' rx='3'/%3E%3Crect x='438' y='410' width='14' height='20' rx='3'/%3E%3C!-- Porca canto inf esq --%3E%3Cpolygon points='70,390 90,380 110,390 110,410 90,420 70,410'/%3E%3Ccircle cx='90' cy='400' r='10'/%3E%3Cline x1='90' y1='420' x2='90' y2='460'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 500px 500px;
+}
+
+/* ============================================================
+   LAYOUT
+============================================================ */
+.wrap {
+  position: relative;
+  z-index: 1;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 14px 56px;
+}
+
+/* ============================================================
+   CABEÇALHO
+============================================================ */
+.hdr {
+  background: linear-gradient(135deg, #162D55 0%, #1B3A6B 45%, #2451A3 100%);
+  color: #fff;
+  border-radius: 0 0 var(--r) var(--r);
+  box-shadow: var(--shadowM);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.hdr-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  position: relative;
+}
+.hdr-top::after {
+  content:'';
+  position:absolute;
+  right:-40px; top:-40px;
+  width:200px; height:200px;
+  background: rgba(255,255,255,.04);
+  border-radius:50%;
+}
+
+/* Logo */
+.logo { display:flex; align-items:center; gap:12px; }
+.logo svg { width:72px; height:46px; }
+.logo-txt { display:flex; flex-direction:column; }
+.logo-name {
+  font-size:26px; font-weight:900;
+  letter-spacing:5px; color:#fff;
+  text-transform:uppercase; line-height:1;
+}
+.logo-name em { color:#D62B2B; font-style:normal; }
+.logo-sub { font-size:9px; letter-spacing:2.5px; color:rgba(255,255,255,.55); margin-top:3px; }
+
+/* Título central */
+.hdr-title { text-align:center; flex:1; padding:0 16px; }
+.hdr-title h1 {
+  font-size:17px; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase;
+  line-height:1.3; color:#fff;
+}
+.hdr-title p { font-size:10px; color:rgba(255,255,255,.55); letter-spacing:2px; margin-top:4px; }
+
+/* Info direita */
+.hdr-info { text-align:right; font-size:11px; color:rgba(255,255,255,.7); line-height:1.9; }
+.hdr-info strong { font-size:24px; color:#fff; display:block; font-weight:700; }
+
+/* Botão fechar aba */
+.btn-fechar-aba {
+  position:absolute; top:14px; right:16px; z-index:200;
+  background:rgba(214,43,43,0.85);
+  border:2px solid rgba(255,255,255,0.3);
+  color:#fff;
+  width:36px; height:36px;
+  border-radius:50%;
+  font-size:18px; font-weight:700;
+  cursor:pointer;
+  display:flex; align-items:center; justify-content:center;
+  line-height:1;
+  transition:background 0.2s, transform 0.15s;
+  box-shadow:0 2px 8px rgba(0,0,0,0.3);
+}
+.btn-fechar-aba:hover { background:#D62B2B; transform:scale(1.1); }
+
+/* Faixa vermelha */
+.hdr-stripe {
+  background: #D62B2B;
+  padding: 7px 28px;
+  display: flex;
+  justify-content: space-between;
+  font-size:10px; color:rgba(255,255,255,.9);
+  letter-spacing:1.5px; text-transform:uppercase;
+}
+
+/* ============================================================
+   ALERTA DE STATUS
+============================================================ */
+#sb {
+  display:none; margin-bottom:16px;
+  padding:12px 18px; border-radius:var(--rs);
+  font-size:13px; font-weight:600;
+  animation: sd .3s ease;
+}
+#sb.ok  { background:#D5F5E3; color:#1E8449; border-left:4px solid #27AE60; }
+#sb.err { background:#FDEDEC; color:#922B21; border-left:4px solid #E74C3C; }
+#sb.inf { background:#EBF5FB; color:#1A5276; border-left:4px solid #2980B9; }
+@keyframes sd { from{opacity:0;transform:translateY(-8px)} to{opacity:1;transform:translateY(0)} }
+
+/* ============================================================
+   CARDS
+============================================================ */
+.card {
+  background:#fff;
+  border-radius:var(--r);
+  box-shadow:var(--shadow);
+  margin-bottom:18px;
+  border:1px solid var(--gray2);
+  overflow:hidden;
+}
+.ch {
+  background:linear-gradient(90deg,#1B3A6B,#2451A3);
+  color:#fff; padding:13px 22px;
+  display:flex; align-items:center; gap:9px;
+}
+.ch h2 { font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; }
+.ch .step {
+  margin-left:auto; background:rgba(255,255,255,.18);
+  padding:2px 9px; border-radius:20px; font-size:10px; letter-spacing:1px;
+}
+.cb { padding:22px; }
+
+/* === PLANO DE AÇÃO === */
+.card-plano { border-left: 4px solid var(--amber); }
+.ch-plano {
+  background: linear-gradient(90deg, #7D4E00, #E67E22) !important;
+  color: #fff;
+}
+.badge-opcional {
+  margin-left:auto; background:rgba(255,255,255,.25);
+  padding:2px 10px; border-radius:20px; font-size:10px;
+  letter-spacing:1px; font-weight:700;
+}
+.plano-aviso {
+  background: #FFF8E1;
+  border: 1.5px solid #F39C12;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #7D4E00;
+  margin-bottom: 16px;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.plano-aviso-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.flag-pendente {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #FFD700; color: #7D4E00;
+  padding: 2px 10px; border-radius: 12px;
+  font-size: 11px; font-weight: 700;
+  border: 1.5px solid #E67E22;
+}
+.fg textarea.plano-textarea { min-height: 100px; border-color: #F39C12; }
+.fg textarea.plano-textarea:focus { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(230,126,34,.15); }
+
+/* ============================================================
+   GRID
+============================================================ */
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+.g1 { display:grid; grid-template-columns:1fr; gap:16px; }
+.s2 { grid-column:span 2; }
+
+/* ============================================================
+   CAMPOS
+============================================================ */
+.fg { display:flex; flex-direction:column; gap:5px; }
+.fg label {
+  font-size:10px; font-weight:700;
+  color:var(--blue); letter-spacing:1.2px;
+  text-transform:uppercase;
+}
+.fg label .req { color:var(--red); font-size:13px; }
+
+.fg input,
+.fg select,
+.fg textarea {
+  width:100%; padding:10px 13px;
+  border:1.5px solid var(--gray2);
+  border-radius:var(--rs);
+  font-family:Arial,sans-serif;
+  font-size:13px; color:var(--text);
+  background:#FAFBFD;
+  outline:none;
+  transition:border-color .2s, box-shadow .2s;
+  -webkit-appearance:none; appearance:none;
+}
+.fg input:focus,
+.fg select:focus,
+.fg textarea:focus {
+  border-color:var(--blue2);
+  background:#fff;
+  box-shadow:0 0 0 3px rgba(36,81,163,.12);
+}
+.fg select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%231B3A6B' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;
+  background-position:right 11px center;
+  padding-right:32px;
+  cursor:pointer;
+}
+.fg textarea { resize:vertical; min-height:82px; }
+
+.calc {
+  background:linear-gradient(90deg,#EBF8F2,#F0FBE8) !important;
+  border-color:#27AE60 !important;
+  color:#1E8449 !important;
+  font-weight:700 !important;
+  font-size:15px !important;
+  text-align:center !important;
+  cursor:default;
+}
+
+
+/* ── Botão de voz ─────────────────────────────────────── */
+.voice-wrap { position: relative; }
+.voice-wrap textarea { padding-right: 46px; }
+.btn-voice {
+  position: absolute; top: 8px; right: 8px;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: none; cursor: pointer;
+  background: var(--blue2); color: #fff;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .1s;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+  z-index: 2;
+}
+.btn-voice:hover { background: var(--blue); transform: scale(1.08); }
+.btn-voice.recording {
+  background: #c0392b;
+  animation: pulse-rec 1s ease-in-out infinite;
+}
+@keyframes pulse-rec {
+  0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,.5); }
+  50%      { box-shadow: 0 0 0 8px rgba(192,57,43,0); }
+}
+hr.div { border:none; border-top:1px solid var(--gray2); margin:18px 0; }
+.tag-ac-item {
+  padding:9px 14px; cursor:pointer; font-size:13px;
+  display:flex; gap:10px; align-items:center; border-bottom:1px solid var(--gray2);
+}
+.tag-ac-item:last-child { border-bottom:none; }
+.tag-ac-item:hover, .tag-ac-item.active {
+  background:var(--blue); color:#fff;
+}
+.tag-ac-item .ac-tag { font-weight:700; min-width:80px; }
+.tag-ac-item .ac-desc { opacity:.85; font-size:12px; }
+.tag-ac-item:hover .ac-desc, .tag-ac-item.active .ac-desc { opacity:1; }
+
+/* ============================================================
+   SCANNER / ENTRADA DE EQUIPAMENTO
+============================================================ */
+.scan-box {
+  border:2px dashed var(--blue2);
+  border-radius:var(--rs);
+  background:#F0F5FC;
+  padding:18px;
+  text-align:center;
+  margin-bottom:14px;
+}
+.scan-box p { font-size:11px; color:var(--muted); margin-top:8px; line-height:1.5; }
+
+.scan-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+.equip-chip {
+  display:none;
+  align-items:center; gap:8px;
+  background:#D5F5E3; border:1px solid #27AE60;
+  border-radius:var(--rs); padding:10px 13px; margin-top:12px;
+}
+.equip-chip.show { display:flex; }
+.equip-chip strong { font-size:13px; color:var(--green); display:block; }
+.equip-chip span   { font-size:11px; color:var(--muted); }
+.equip-chip button { background:none; border:none; color:var(--red); cursor:pointer; font-size:17px; margin-left:auto; }
+
+/* ============================================================
+   HORÁRIOS
+============================================================ */
+.time-row {
+  display:grid;
+  grid-template-columns:1fr 28px 1fr;
+  gap:10px; align-items:end;
+}
+.arr { text-align:center; padding-bottom:10px; font-size:18px; color:var(--muted); }
+
+/* ============================================================
+   PAD DE ASSINATURA
+============================================================ */
+.sig-wrap {
+  border:1.5px solid var(--gray2);
+  border-radius:var(--rs);
+  background:#fff;
+  overflow:hidden;
+  position:relative;
+}
+.sig-placeholder {
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  font-size:11px; color:#CCC;
+  letter-spacing:1px; pointer-events:none; z-index:0;
+  white-space:nowrap;
+}
+.sig-wrap canvas {
+  display:block; width:100%; height:120px;
+  cursor:crosshair; touch-action:none; position:relative; z-index:1;
+}
+.sig-bar {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:7px 11px;
+  background:var(--gray); border-top:1px solid var(--gray2);
+}
+.sig-bar button {
+  background:none; border:1px solid var(--gray2);
+  color:var(--muted); padding:4px 11px;
+  border-radius:20px; font-size:11px; cursor:pointer;
+  transition:all .2s;
+}
+.sig-bar button:hover { border-color:var(--red); color:var(--red); }
+.sig-st { font-size:11px; color:var(--muted); }
+.sig-st.ok { color:var(--green); font-weight:600; }
+
+/* ============================================================
+   BOTÕES GERAIS
+============================================================ */
+.btn {
+  display:inline-flex; align-items:center; gap:7px;
+  border:none; cursor:pointer;
+  font-family:Arial,sans-serif; font-weight:700;
+  letter-spacing:.8px; text-transform:uppercase;
+  transition:all .2s; text-decoration:none;
+}
+.btn-blue {
+  background:var(--blue); color:#fff;
+  padding:9px 18px; border-radius:var(--rs);
+  font-size:12px;
+}
+.btn-blue:hover { background:var(--blue2); transform:translateY(-1px); }
+
+.btn-file {
+  background:#fff; color:var(--blue);
+  border:1.5px solid var(--blue);
+  padding:8px 16px; border-radius:var(--rs);
+  font-size:12px;
+}
+.btn-file:hover { background:var(--gray); }
+
+/* Botões de ação do form */
+.actions {
+  display:flex; gap:12px; justify-content:center;
+  flex-wrap:wrap; margin-top:4px;
+}
+
+.btn-submit {
+  background:linear-gradient(135deg,#162D55,#2451A3);
+  color:#fff; padding:14px 44px;
+  border-radius:50px; font-size:14px; font-weight:700;
+  letter-spacing:1.5px; text-transform:uppercase;
+  box-shadow:0 4px 18px rgba(27,58,107,.35);
+  border:none; cursor:pointer;
+  display:inline-flex; align-items:center; gap:9px;
+  transition:all .25s;
+}
+.btn-submit:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(27,58,107,.45); }
+.btn-submit:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+.btn-sec {
+  background:#fff; color:var(--blue);
+  border:2px solid var(--blue);
+  padding:12px 26px; border-radius:50px;
+  font-size:13px; font-weight:700;
+  letter-spacing:1px; text-transform:uppercase;
+  cursor:pointer; display:inline-flex; align-items:center; gap:7px;
+  transition:all .25s;
+}
+.btn-sec:hover { background:var(--blue); color:#fff; }
+
+.btn-clr {
+  background:#fff; color:var(--red);
+  border:2px solid var(--red);
+  padding:12px 22px; border-radius:50px;
+  font-size:13px; font-weight:700;
+  letter-spacing:1px; text-transform:uppercase;
+  cursor:pointer; display:inline-flex; align-items:center; gap:7px;
+  transition:all .25s;
+}
+.btn-clr:hover { background:var(--red); color:#fff; }
+
+/* ============================================================
+   SPINNER
+============================================================ */
+.spin {
+  display:none; width:18px; height:18px;
+  border:3px solid rgba(255,255,255,.3);
+  border-top-color:#fff; border-radius:50%;
+  animation:rot .7s linear infinite;
+}
+@keyframes rot { to{ transform:rotate(360deg) } }
+
+/* ============================================================
+   MODAL DE SUCESSO
+============================================================ */
+.modal-bg {
+  display:none; position:fixed; inset:0;
+  background:rgba(22,45,85,.65);
+  z-index:999; align-items:center; justify-content:center;
+}
+.modal-bg.show { display:flex; }
+.modal {
+  background:#fff; border-radius:var(--r);
+  padding:36px 30px; max-width:400px; width:90%;
+  text-align:center; box-shadow:var(--shadowM);
+  animation:pi .3s cubic-bezier(.175,.885,.32,1.275);
+}
+@keyframes pi { from{opacity:0;transform:scale(.8)} to{opacity:1;transform:scale(1)} }
+.modal-ico { font-size:56px; display:block; margin-bottom:12px; }
+.modal h3 { font-size:20px; font-weight:700; color:var(--blue); margin-bottom:6px; }
+.modal p  { color:var(--muted); font-size:13px; margin-bottom:18px; line-height:1.6; }
+.modal-info {
+  background:var(--gray); border-radius:var(--rs);
+  padding:13px; margin-bottom:20px;
+  font-size:12px; color:var(--text); text-align:left; line-height:2;
+}
+.modal-info strong { color:var(--blue); }
+.modal-btns { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+
+/* ============================================================
+   FOOTER
+============================================================ */
+.footer {
+  text-align:center; color:var(--muted);
+  font-size:10px; margin-top:28px;
+  padding-top:16px; border-top:1px solid var(--gray2);
+  line-height:2; letter-spacing:.3px;
+}
+.footer a { color:var(--blue2); text-decoration:none; }
+
+/* ============================================================
+   RESPONSIVO
+============================================================ */
+@media(max-width:680px){
+  .hdr-top  { flex-wrap:wrap; gap:10px; }
+  .hdr-info { display:none; }
+  .g2,.g3   { grid-template-columns:1fr; }
+  .s2       { grid-column:span 1; }
+  .time-row { grid-template-columns:1fr 1fr; }
+  .arr      { display:none; }
+}
+/* Sidebar override */
+body{margin-left:220px!important;}
+
+/* ── MODAL SCANNER DE CÓDIGO DE BARRAS ── */
+.scanner-modal {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.88);
+  z-index: 2000; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px 16px;
+}
+.scanner-modal.show { display: flex; }
+.scanner-box-modal {
+  width: min(420px, 95vw);
+  background: #111;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,.7);
+}
+.scanner-mhdr {
+  background: linear-gradient(90deg, #1B3A6B, #2451A3);
+  color: #fff; padding: 14px 18px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-weight: bold; font-size: 15px;
+}
+.scanner-mhdr button {
+  background: rgba(255,255,255,.18); border: none; color: #fff;
+  font-size: 16px; cursor: pointer; padding: 4px 10px;
+  border-radius: 6px; line-height: 1;
+}
+#scanner-view-form {
+  width: 100%; background: #000;
+  min-height: 260px; position: relative;
+}
+#scanner-view-form::after {
+  content: '';
+  position: absolute; left: 10%; right: 10%;
+  top: 50%; height: 2px;
+  background: linear-gradient(90deg, transparent, #00FF88, transparent);
+  border-radius: 2px;
+  animation: scanline-f 1.8s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes scanline-f {
+  0%   { top: 25%; opacity: .6; }
+  50%  { top: 75%; opacity: 1;  }
+  100% { top: 25%; opacity: .6; }
+}
+.scanner-mtip {
+  color: #aaa; font-size: 12px; text-align: center;
+  padding: 10px 16px 14px; line-height: 1.6; background: #1a1a1a;
+}
+.scanner-mresult {
+  display: none;
+  background: #1E8449; color: #fff;
+  padding: 11px 16px; text-align: center;
+  font-size: 14px; font-weight: bold;
+}
+.scanner-mloading {
+  display: none; color: #aaa; font-size: 13px;
+  text-align: center; padding: 18px; background: #1a1a1a;
+}
+</style>
+</head>
+
+<body>
+{% include 'nav.html' %}
+
+<!-- =====================================================
+     CABEÇALHO
+===================================================== -->
+<header class="hdr">
+  <div class="hdr-top">
+    <button class="btn-fechar-aba" onclick="fecharAba()" title="Fechar formulário">&#10005;</button>
+
+    <div class="logo">
+      <img src="/static/img/logo_caloi_sm.png"
+           alt="Caloi" style="height:54px;width:auto;border-radius:6px;
+           box-shadow:0 2px 8px rgba(0,0,0,.35);filter:drop-shadow(0 1px 3px rgba(0,0,0,.5));">
+      <div class="logo-txt">
+        <span class="logo-sub" style="margin-top:4px;font-size:8px;letter-spacing:2px;">MANUTENÇÃO INDUSTRIAL</span>
+        <span class="logo-sub" style="font-size:8px;letter-spacing:1.5px;opacity:.7;">Sistema TPM v2.1</span>
+      </div>
+    </div>
+
+    <div class="hdr-title">
+      <h1>Controle de Manutenção Industrial</h1>
+      <p>Total Productive Maintenance &nbsp;|&nbsp; TPM</p>
+    </div>
+
+    <div class="hdr-info">
+      <strong id="relogio">--:--</strong>
+      <span id="data-hdr"></span>
+      <span style="font-size:9px;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:20px;letter-spacing:1px;">Formulário v2.1</span>
+    </div>
+  </div>
+  <div class="hdr-stripe">
+    <span>&#128295; Sistema TPM Integrado</span>
+    <span>Registro de Paradas e Ocorrências</span>
+    <span>&#128171; Caloi S.A.</span>
+  </div>
+</header>
+
+<!-- =====================================================
+     FORMULÁRIO
+===================================================== -->
+<div class="wrap">
+  <!-- Marca d'água Caloi -->
+  <div aria-hidden="true" style="
+    position:fixed;top:50%;left:50%;
+    transform:translate(-50%,-50%) rotate(-14deg);
+    width:560px;height:186px;
+    background:url('/static/img/logo_caloi.png') center/contain no-repeat;
+    opacity:0.055;pointer-events:none;z-index:0;"></div>
+  <div aria-hidden="true" style="
+    position:fixed;bottom:12px;right:14px;
+    width:180px;height:60px;
+    background:url('/static/img/logo_caloi_sm.png') center/contain no-repeat;
+    opacity:0.08;pointer-events:none;z-index:0;"></div>
+
+  <div id="sb"></div>
+
+  <form id="form" novalidate>
+
+    <!-- === SEÇÃO 1: EQUIPAMENTO === -->
+    <div class="card">
+      <div class="ch">
+        <span>&#9881;</span>
+        <h2>Identificação do Equipamento</h2>
+        <span class="step">PASSO 1 de 5</span>
+      </div>
+      <div class="cb">
+
+        <div class="scan-box">
+          <div class="scan-btns">
+            <button type="button" class="btn btn-blue" onclick="abrirScanner()">
+              &#128247; Escanear Código de Barras
+            </button>
+            <button type="button" class="btn btn-file" onclick="limparEqp()">
+              &#10060; Limpar
+            </button>
+          </div>
+          <p>
+            &#128204; <strong>No celular / tablet:</strong> clique em "Escanear" e aponte para o código de barras — TAG e descrição preenchidos automaticamente.<br>
+            &#128204; <strong>No computador:</strong> informe a TAG manualmente no campo abaixo.
+          </p>
+        </div>
+
+        <!-- Chip de equipamento encontrado -->
+        <div class="equip-chip" id="equip-chip">
+          <span style="font-size:22px">&#9989;</span>
+          <div>
+            <strong id="chip-nome">—</strong>
+            <span>TAG: <span id="chip-cod">—</span></span>
+          </div>
+          <button type="button" onclick="limparEqp()">&#10005;</button>
+        </div>
+
+        <div class="g2" style="margin-top:14px">
+          <div class="fg">
+            <label>&#127991; TAG do Equipamento <span class="req">*</span></label>
+            <div style="position:relative;">
+              <input type="text" id="eqp_cod" placeholder="Ex: EQ001 (ou use o scanner no celular)"
+                     oninput="buscaEqp(this.value);tagAutoComplete(this.value)"
+                     onkeydown="tagACKey(event)"
+                     onblur="setTimeout(fecharTagAC,200)"
+                     autocomplete="off" style="text-transform:uppercase;width:100%;">
+              <div id="tag-ac-list" style="
+                display:none;position:absolute;top:100%;left:0;right:0;z-index:999;
+                background:#fff;border:1.5px solid var(--blue2);border-top:none;
+                border-radius:0 0 var(--rs) var(--rs);max-height:220px;overflow-y:auto;
+                box-shadow:0 6px 18px rgba(0,0,0,.15);"></div>
+            </div>
+          </div>
+          <div class="fg">
+            <label>&#128295; Descrição do Equipamento <span class="req">*</span></label>
+            <input type="text" id="eqp_nome" placeholder="Nome / descrição do equipamento" required>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── PAINEL HISTÓRICO INLINE ── -->
+      <div id="hist-panel" style="display:none;margin-top:14px;border:1.5px solid #AED6F1;border-radius:10px;overflow:hidden;background:#F0F7FF;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 16px;background:#1B3A6B;color:#fff;">
+          <span style="font-size:16px;">📋</span>
+          <strong id="hist-panel-title" style="font-size:13px;">Histórico do Equipamento</strong>
+          <span id="hist-panel-count" style="font-size:11px;color:rgba(255,255,255,0.6);margin-left:4px;"></span>
+          <a id="hist-panel-link" href="#" target="_blank"
+             style="margin-left:auto;font-size:11px;color:#AED6F1;text-decoration:none;font-weight:600;">
+            Ver completo →
+          </a>
+        </div>
+        <div id="hist-panel-body" style="padding:12px 16px;">
+          <div id="hist-loading" style="text-align:center;color:#6B7A8D;padding:12px;font-size:12px;">⏳ Carregando histórico…</div>
+          <div id="hist-rows"></div>
+        </div>
+        <div id="hist-panel-kpis" style="display:flex;gap:0;border-top:1px solid #D6EAF8;"></div>
+      </div>
+      <style>
+        .hist-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid #D6EAF8; font-size:12px; }
+        .hist-row:last-child { border-bottom:none; }
+        .hist-id   { font-weight:800; color:#1B3A6B; min-width:46px; }
+        .hist-data { color:#6B7A8D; min-width:90px; font-size:11px; }
+        .hist-tec  { min-width:110px; font-weight:600; }
+        .hist-motivo { flex:1; color:#2C3E50; font-size:11px; }
+        .hist-h    { min-width:44px; text-align:right; font-weight:700; }
+        .hist-h.alto { color:#D62B2B; }
+        .hist-h.ok   { color:#27AE60; }
+        .hist-badge { padding:2px 7px; border-radius:10px; font-size:10px; font-weight:700; }
+        .hb-ok  { background:#D5F5E3; color:#1E8449; }
+        .hb-pend{ background:#FFF3CD; color:#856404; }
+        .hist-kpi-item { flex:1; text-align:center; padding:8px 4px; }
+        .hist-kpi-val  { font-size:18px; font-weight:800; color:#1B3A6B; }
+        .hist-kpi-lbl  { font-size:10px; color:#6B7A8D; text-transform:uppercase; }
+      </style>
+
+    </div>
+
+    <!-- === SEÇÃO 2: DADOS DA OCORRÊNCIA === -->
+    <div class="card">
+      <div class="ch">
+        <span>&#128203;</span>
+        <h2>Dados da Ocorrência</h2>
+        <span class="step">PASSO 2 de 5</span>
+      </div>
+      <div class="cb">
+        <div class="g3">
+
+          <div class="fg">
+            <label>&#128119; Técnico Responsável <span class="req">*</span></label>
+            <select id="tecnico" required onchange="statusTec(this)">
+              {% for t in tecnicos %}
+              <option value="{{ t }}" {% if loop.first %}disabled selected{% endif %}>{{ t }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="fg">
+            <label>&#127981; Setor Produtivo <span class="req">*</span></label>
+            <select id="setor" required>
+              <option value="" disabled selected>Selecione o setor...</option>
+              {% for s in setores %}
+              <option value="{{ s }}">{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="fg">
+            <label>&#128197; Data da Ocorrência <span class="req">*</span></label>
+            <input type="date" id="data_ocorr" required>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- === SEÇÃO 3: HORÁRIOS === -->
+    <div class="card">
+      <div class="ch">
+        <span>&#9201;</span>
+        <h2>Registro de Horários</h2>
+        <span class="step">PASSO 3 de 5</span>
+      </div>
+      <div class="cb">
+
+        <div class="time-row">
+          <div class="fg">
+            <label>&#128308; Horário de Parada <span class="req">*</span></label>
+            <input type="time" id="hr_parada" required onchange="calcH()">
+          </div>
+          <div class="arr">&#8594;</div>
+          <div class="fg">
+            <label>&#128994; Horário de Liberação <span class="req">*</span></label>
+            <input type="time" id="hr_lib" required onchange="calcH()">
+          </div>
+        </div>
+
+        <hr class="div">
+
+        <div class="fg">
+          <label>&#9203; Total de Horas Paradas (calculado automaticamente)</label>
+          <input type="text" id="total_disp" class="calc" placeholder="Preencha os horários acima..." readonly>
+          <input type="hidden" id="total_h">
+        </div>
+
+      </div>
+    </div>
+
+    <!-- === SEÇÃO 4: DIAGNÓSTICO === -->
+    <div class="card">
+      <div class="ch">
+        <span>&#128269;</span>
+        <h2>Diagnóstico e Solução</h2>
+        <span class="step">PASSO 4 de 5</span>
+      </div>
+      <div class="cb">
+        <div class="g2">
+
+          <div class="fg">
+            <label>&#9888; Motivo da Parada <span class="req">*</span></label>
+            <select id="motivo" required>
+              {% for m in motivos %}
+              <option value="{{ m }}" {% if loop.first %}disabled selected{% endif %}>{{ m }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="fg">
+            <label>&#9989; Solução do Problema <span class="req">*</span></label>
+            <select id="solucao" required>
+              {% for s in solucoes %}
+              <option value="{{ s }}" {% if loop.first %}disabled selected{% endif %}>{{ s }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="fg s2">
+            <label>&#128221; Observações Complementares</label>
+            <div class="voice-wrap">
+              <textarea id="obs"
+                placeholder="Descreva detalhes adicionais: peças substituídas, medidas tomadas, próximas ações previstas..."></textarea>
+              <button type="button" class="btn-voice" id="voice-obs"
+                      onclick="toggleVoz('obs','voice-obs')" title="Clique para falar">🎙️</button>
+            </div>
+          </div>
+
+          <!-- MATERIAL UTILIZADO -->
+          <div class="fg s2" id="fg-materiais">
+            <label>&#128230; Material Utilizado</label>
+            <div id="materiais-container"
+              style="border:1.5px solid var(--gray2);border-radius:var(--rs);padding:12px 14px;background:#fff;min-height:50px;">
+              <span id="materiais-empty" style="color:var(--muted);font-size:13px;">
+                ℹ️ Selecione a TAG do equipamento para carregar as peças disponíveis.
+              </span>
+              <div id="materiais-lista" style="display:flex;flex-wrap:wrap;gap:10px;"></div>
+            </div>
+          </div>
+
+          <!-- FOTOS -->
+          <div class="fg s2">
+            <label>&#128247; Fotos da Ocorrência <span style="font-size:11px;font-weight:normal;color:var(--muted);">(máx. 3 fotos)</span></label>
+            <div id="fotos-area"
+              style="border:2px dashed var(--gray2);border-radius:var(--rs);padding:16px;background:#fafbff;">
+              <div id="fotos-preview" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;"></div>
+              <label id="fotos-btn"
+                style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:var(--blue);color:#fff;border-radius:var(--rs);cursor:pointer;font-size:13px;font-weight:600;">
+                &#128247; Selecionar Fotos
+                <input type="file" id="fotos-input" accept="image/*" multiple style="display:none"
+                       onchange="processarFotos(this)">
+              </label>
+              <span id="fotos-count" style="margin-left:10px;font-size:12px;color:var(--muted);">0/3 fotos</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- === SEÇÃO 5: ASSINATURAS === -->
+    <div class="card">
+      <div class="ch">
+        <span>&#9997;</span>
+        <h2>Assinaturas e Liberação</h2>
+        <span class="step">PASSO 5 de 5</span>
+      </div>
+      <div class="cb">
+        <div class="g2">
+
+          <!-- Assinatura Técnico -->
+          <div class="fg">
+            <label>&#128119; Assinatura do Técnico <span class="req">*</span></label>
+            <div class="sig-wrap">
+              <span class="sig-placeholder">ASSINE AQUI COM O DEDO OU MOUSE</span>
+              <canvas id="sig-tec"></canvas>
+              <div class="sig-bar">
+                <button type="button" onclick="limparSig('tec')">&#128465; Limpar</button>
+                <span class="sig-st" id="st-tec">&#9998; Aguardando...</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assinatura Solicitante -->
+          <div class="fg">
+            <label>&#128100; Liberação do Solicitante / Supervisor</label>
+            <div class="fg" style="margin-bottom:8px">
+              <input type="text" id="nome_sol" placeholder="Nome do solicitante ou supervisor">
+            </div>
+            <div class="sig-wrap">
+              <span class="sig-placeholder">ASSINE AQUI COM O DEDO OU MOUSE</span>
+              <canvas id="sig-sol"></canvas>
+              <div class="sig-bar">
+                <button type="button" onclick="limparSig('sol')">&#128465; Limpar</button>
+                <span class="sig-st" id="st-sol">&#9998; Aguardando...</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- === PLANO DE AÇÃO (OPCIONAL) === -->
+    <div class="card card-plano">
+      <div class="ch ch-plano">
+        <span>&#9888;</span>
+        <h2>Plano de Ação</h2>
+        <span class="badge-opcional">&#128504; OPCIONAL</span>
+      </div>
+      <div class="cb">
+        <div class="plano-aviso">
+          <span class="plano-aviso-icon">&#128276;</span>
+          <div>
+            Se estes campos forem preenchidos, o registro será marcado como
+            <span class="flag-pendente">&#9888; Pendente</span>
+            e salvo automaticamente no arquivo <strong>Plano_de_Acao.xlsx</strong> para acompanhamento das pendências.
+          </div>
+        </div>
+        <div class="g2">
+          <div class="fg">
+            <label>&#128269; Outros Problemas Encontrados</label>
+            <div class="voice-wrap">
+              <textarea id="outros_problemas" class="plano-textarea"
+                placeholder="Descreva outros problemas identificados durante a manutenção que ainda precisam ser resolvidos..."></textarea>
+              <button type="button" class="btn-voice" id="voice-outros"
+                      onclick="toggleVoz('outros_problemas','voice-outros')" title="Clique para falar">🎙️</button>
+            </div>
+          </div>
+          <div class="fg">
+            <label>&#128295; Pe&#231;as Necess&#225;rias</label>
+            <div class="voice-wrap">
+              <textarea id="pecas_necessarias" class="plano-textarea"
+                placeholder="Liste as pe&#231;as, componentes ou materiais necess&#225;rios para resolver os problemas pendentes..."></textarea>
+              <button type="button" class="btn-voice" id="voice-pecas"
+                      onclick="toggleVoz('pecas_necessarias','voice-pecas')" title="Clique para falar">🎙️</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- === AÇÕES === -->
+    <div class="card">
+      <div class="cb">
+        <div class="actions">
+          <button type="button" class="btn-clr" onclick="limparForm()">&#128465; Limpar Tudo</button>
+          <a href="/dashboard" target="_blank" class="btn-sec" style="padding:12px 26px;border-radius:50px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:2px solid var(--blue);color:var(--blue);background:#fff;display:inline-flex;align-items:center;gap:7px;text-decoration:none;">&#128202; Ver Registros</a>
+          <button type="submit" id="btn-sub" class="btn-submit">
+            <span class="spin" id="spin"></span>
+            <span id="btn-txt">&#128190; Registrar Manutenção</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+  <div class="footer">
+    <strong>CALOI S.A.</strong> &nbsp;|&nbsp; Sistema de Controle de Manutenção TPM &nbsp;|&nbsp; Uso Interno<br>
+    Registros salvos em: <em>Banco de dados Manutenção</em> (Desktop do usuário)<br>
+    <a href="/download">&#11015; Exportar banco de dados Excel</a>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- =====================================================
+     MODAL DE SUCESSO
+===================================================== -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <span class="modal-ico">&#9989;</span>
+    <h3>Registro Salvo!</h3>
+    <p>A ocorrência foi registrada com sucesso no banco de dados.</p>
+    <div class="modal-info" id="modal-det"></div>
+    <div class="modal-btns">
+      <button class="btn-sec" style="padding:10px 18px;font-size:12px"
+              onclick="fecharModal(); window.open('/dashboard','_blank')">
+        &#128202; Ver Registros
+      </button>
+      <button class="btn-submit" style="padding:10px 24px;font-size:12px"
+              onclick="fecharModal(); limparForm()">
+        &#10133; Novo Registro
+      </button>
+      <button class="btn-sec" style="padding:10px 18px;font-size:12px;background:#c0392b;color:#fff;border-color:#c0392b;"
+              onclick="fecharAba()">
+        &#10005; Fechar Aba
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- MODAL SCANNER DE CÓDIGO DE BARRAS -->
+<div class="scanner-modal" id="scanner-modal-form">
+  <div class="scanner-box-modal">
+    <div class="scanner-mhdr">
+      <span>&#128247; Escanear TAG do Equipamento</span>
+      <button type="button" onclick="fecharScanner()" title="Fechar">&#10005;</button>
+    </div>
+    <div id="scanner-view-form"></div>
+    <div class="scanner-mloading" id="scanner-mloading">&#9203; Iniciando câmera…</div>
+    <div class="scanner-mresult" id="scanner-mresult"></div>
+    <div class="scanner-mtip">
+      Aponte a câmera para o <strong style="color:#fff">código de barras</strong> da etiqueta.<br>
+      A TAG e descrição serão preenchidas automaticamente.
+    </div>
+  </div>
+</div>
+
+<!-- =====================================================
+     JAVASCRIPT — 100% LOCAL, SEM CDN
+===================================================== -->
+<script>
+/* -------------------------------------------------------
+   CATÁLOGO DE EQUIPAMENTOS (injetado pelo Flask)
+------------------------------------------------------- */
+const EQPS = {{ equipamentos | tojson }};
+const EQPS_META = {{ equipamentos_meta | tojson }};
+const TECNICO_LOGADO = {{ tecnico_logado | tojson }};
+
+/* -------------------------------------------------------
+   RELÓGIO E DATA
+------------------------------------------------------- */
+function tick() {
+  const n = new Date();
+  document.getElementById('relogio').textContent =
+    n.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+}
+tick(); setInterval(tick, 1000);
+document.getElementById('data-hdr').textContent =
+  new Date().toLocaleDateString('pt-BR');
+
+/* -------------------------------------------------------
+   DATA PADRÃO = HOJE
+------------------------------------------------------- */
+(function(){
+  const d = new Date();
+  const v = d.getFullYear()+'-'+
+    String(d.getMonth()+1).padStart(2,'0')+'-'+
+    String(d.getDate()).padStart(2,'0');
+  document.getElementById('data_ocorr').value = v;
+})();
+
+/* -------------------------------------------------------
+   EQUIPAMENTO / SCANNER
+------------------------------------------------------- */
+function buscaEqp(cod) {
+  if (!cod || cod.length < 2) { fecharHistPanel(); return; }
+  const tag = cod.toUpperCase().trim();
+  const nome = EQPS[tag];
+  if (nome) {
+    const meta = EQPS_META[tag] || {};
+    const descricao = meta.descricao || nome;
+    document.getElementById('eqp_nome').value = descricao;
+    document.getElementById('chip-nome').textContent = descricao;
+    document.getElementById('chip-cod').textContent = tag;
+    document.getElementById('equip-chip').classList.add('show');
+    // Preencher setor produtivo automaticamente
+    const area = meta.area || '';
+    if (area) {
+      const selSetor = document.getElementById('setor');
+      let matched = false;
+      for (const opt of selSetor.options) {
+        if (opt.value === area) { selSetor.value = area; matched = true; break; }
+      }
+      if (!matched) {
+        for (const opt of selSetor.options) {
+          if (opt.value.toLowerCase() === area.toLowerCase()) {
+            selSetor.value = opt.value; matched = true; break;
+          }
+        }
+      }
+    }
+    status_('&#9989; Equipamento: ' + descricao, 'ok');
+    carregarMateriais(tag);
+    carregarHistorico(tag);
+  } else {
+    fecharHistPanel();
+  }
+}
+
+/* ── Histórico inline ── */
+let _histTag = null;
+function carregarHistorico(tag) {
+  if (_histTag === tag) return;
+  _histTag = tag;
+  const panel = document.getElementById('hist-panel');
+  const rows  = document.getElementById('hist-rows');
+  const load  = document.getElementById('hist-loading');
+  const kpis  = document.getElementById('hist-panel-kpis');
+  panel.style.display = '';
+  rows.innerHTML = '';
+  kpis.innerHTML = '';
+  load.style.display = '';
+  document.getElementById('hist-panel-title').textContent = 'Histórico: ' + tag;
+  document.getElementById('hist-panel-link').href = '/historico?tag=' + encodeURIComponent(tag);
+
+  fetch('/api/historico/' + encodeURIComponent(tag))
+    .then(r => r.json())
+    .then(d => {
+      load.style.display = 'none';
+      document.getElementById('hist-panel-count').textContent =
+        d.total ? '(' + d.total + ' OS registradas)' : '(sem registros)';
+
+      // KPIs
+      kpis.innerHTML = `
+        <div class="hist-kpi-item"><div class="hist-kpi-val">${d.total}</div><div class="hist-kpi-lbl">Total OS</div></div>
+        <div class="hist-kpi-item"><div class="hist-kpi-val" style="color:#27AE60;">${d.total_horas}h</div><div class="hist-kpi-lbl">Total Horas</div></div>`;
+
+      if (!d.registros || d.registros.length === 0) {
+        rows.innerHTML = '<div style="text-align:center;color:#6B7A8D;padding:10px;font-size:12px;">✅ Nenhuma ocorrência registrada ainda.</div>';
+        return;
+      }
+
+      rows.innerHTML = d.registros.map(r => {
+        const h    = Number(r.horas || 0);
+        const hCls = h > 4 ? 'alto' : 'ok';
+        const hTxt = h ? h + 'h' : '—';
+        const bCls = r.status === 'Pendente' ? 'hb-pend' : 'hb-ok';
+        const bTxt = r.status === 'Pendente' ? '⚠ Pendente' : '✓ OK';
+        const mot  = (r.motivo || '—').split(' - ')[0].slice(0, 45);
+        return `<div class="hist-row">
+          <span class="hist-id">#${String(r.id||0).padStart(4,'0')}</span>
+          <span class="hist-data">${r.data ? r.data.slice(0,16) : '—'}</span>
+          <span class="hist-tec">👷 ${r.tecnico || '—'}</span>
+          <span class="hist-motivo">${mot}</span>
+          <span class="hist-h ${hCls}">⏱ ${hTxt}</span>
+          <span class="hist-badge ${bCls}">${bTxt}</span>
+        </div>`;
+      }).join('');
+    })
+    .catch(() => {
+      load.textContent = '⚠ Erro ao carregar histórico.';
+    });
+}
+
+function fecharHistPanel() {
+  _histTag = null;
+  document.getElementById('hist-panel').style.display = 'none';
+}
+
+// ── Materiais por equipamento ──
+let fotosB64 = [];
+
+function carregarMateriais(tag) {
+  fetch('/api/estoque/' + encodeURIComponent(tag))
+    .then(r => r.json())
+    .then(d => {
+      const lista = document.getElementById('materiais-lista');
+      const empty = document.getElementById('materiais-empty');
+      lista.innerHTML = '';
+
+      if (!d.pecas || d.pecas.length === 0) {
+        empty.textContent = 'Nenhuma peça cadastrada no estoque para este equipamento.';
+        empty.style.display = 'block';
+      } else {
+        empty.style.display = 'none';
+        d.pecas.forEach(peca => {
+          const label = document.createElement('label');
+          label.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--gray);border:1.5px solid var(--gray2);border-radius:6px;cursor:pointer;font-size:13px;user-select:none;';
+          label.innerHTML = `<input type="checkbox" name="mat_estoque" value="${peca}" style="width:15px;height:15px;accent-color:var(--blue2);"> ${peca}`;
+          lista.appendChild(label);
+        });
+      }
+
+      // ── Separador + campo livre ──────────────────────────────
+      const sep = document.createElement('div');
+      sep.style.cssText = 'width:100%;margin:12px 0 6px;border-top:1px dashed var(--gray2);padding-top:10px;font-size:12px;color:var(--blue2);font-weight:700;letter-spacing:.5px;';
+      sep.textContent = '+ Adicionar peça não listada no estoque';
+      lista.appendChild(sep);
+
+      const row = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:8px;width:100%;';
+      row.innerHTML = `
+        <input type="text" id="mat-custom-input"
+          placeholder="Ex: Rolamento 6203, Correia A42..."
+          style="flex:1;padding:8px 12px;border:1.5px solid var(--gray2);border-radius:6px;font-size:13px;">
+        <button type="button" onclick="adicionarMatCustom()"
+          style="padding:8px 16px;background:var(--blue2);color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;">
+          + Adicionar
+        </button>`;
+      lista.appendChild(row);
+
+      const chips = document.createElement('div');
+      chips.id = 'mat-custom-chips';
+      chips.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;';
+      lista.appendChild(chips);
+    }).catch(() => {});
+}
+
+// ── Fotos ──
+function processarFotos(input) {
+  const files = Array.from(input.files);
+  const slots = 3 - fotosB64.length;
+  const novos = files.slice(0, slots);
+  novos.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      fotosB64.push(e.target.result);
+      atualizarPreviewFotos();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function atualizarPreviewFotos() {
+  const preview = document.getElementById('fotos-preview');
+  const count = document.getElementById('fotos-count');
+  preview.innerHTML = '';
+  fotosB64.forEach((b64, i) => {
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;display:inline-block;';
+    wrap.innerHTML = `
+      <img src="${b64}" style="width:80px;height:80px;object-fit:cover;border-radius:6px;border:2px solid var(--gray2);">
+      <button type="button" onclick="removerFoto(${i})"
+        style="position:absolute;top:-6px;right:-6px;background:#c0392b;color:#fff;border:none;border-radius:50%;width:20px;height:20px;font-size:11px;cursor:pointer;line-height:20px;text-align:center;">✕</button>
+    `;
+    preview.appendChild(wrap);
+  });
+  count.textContent = fotosB64.length + '/3 fotos';
+  document.getElementById('fotos-btn').style.display = fotosB64.length >= 3 ? 'none' : 'inline-flex';
+}
+
+function removerFoto(i) {
+  fotosB64.splice(i, 1);
+  atualizarPreviewFotos();
+}
+
+// ── Scanner de Código de Barras (html5-qrcode via CDN) ─────────────────────
+let _scannerLibLoaded = false;
+let _scannerLibQueue  = [];
+let _qrScanner        = null;
+let _scannerAtivo     = false;
+
+function _carregarScannerLib(cb) {
+  if (_scannerLibLoaded) { cb(); return; }
+  _scannerLibQueue.push(cb);
+  if (_scannerLibQueue.length > 1) return;
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js';
+  s.onload = () => {
+    _scannerLibLoaded = true;
+    _scannerLibQueue.forEach(fn => fn());
+    _scannerLibQueue = [];
+  };
+  s.onerror = () => {
+    alert('Erro ao carregar o scanner. Verifique a conexão com a internet.');
+    fecharScanner();
+  };
+  document.head.appendChild(s);
+}
+
+function abrirScanner() {
+  document.getElementById('scanner-modal-form').classList.add('show');
+  document.getElementById('scanner-mloading').style.display = 'block';
+  document.getElementById('scanner-mresult').style.display = 'none';
+  _carregarScannerLib(iniciarCamera);
+}
+
+function iniciarCamera() {
+  if (_scannerAtivo && _qrScanner) {
+    document.getElementById('scanner-mloading').style.display = 'none';
+    return;
+  }
+  if (_qrScanner) {
+    try { _qrScanner.clear(); } catch(e) {}
+    _qrScanner = null;
+  }
+
+  _qrScanner = new Html5Qrcode('scanner-view-form');
+
+  const formatos = [];
+  if (typeof Html5QrcodeSupportedFormats !== 'undefined') {
+    const f = Html5QrcodeSupportedFormats;
+    [f.QR_CODE, f.CODE_128, f.CODE_39, f.EAN_13, f.EAN_8, f.UPC_A, f.UPC_E].forEach(v => {
+      if (v !== undefined) formatos.push(v);
+    });
+  }
+
+  const config = {
+    fps: 12,
+    qrbox: { width: Math.min(300, window.innerWidth - 80), height: 110 },
+    aspectRatio: 1.5,
+    ...(formatos.length ? { formatsToSupport: formatos } : {})
+  };
+
+  _qrScanner.start(
+    { facingMode: 'environment' },
+    config,
+    (textoDecodificado) => {
+      const tag = textoDecodificado.trim().toUpperCase();
+      const res = document.getElementById('scanner-mresult');
+      res.textContent = '✅ TAG detectada: ' + tag;
+      res.style.display = 'block';
+      if (navigator.vibrate) navigator.vibrate([80, 40, 80]);
+      document.getElementById('eqp_cod').value = tag;
+      buscaEqpImediato(tag);
+      setTimeout(fecharScanner, 1300);
+    },
+    (_erroFrame) => { /* erros de frame são normais — ignorar */ }
+  )
+  .then(() => {
+    _scannerAtivo = true;
+    document.getElementById('scanner-mloading').style.display = 'none';
+  })
+  .catch(err => {
+    _scannerAtivo = false;
+    document.getElementById('scanner-mloading').style.display = 'none';
+    console.error('Scanner error:', err);
+    alert('Não foi possível acessar a câmera.\n\nVerifique se o navegador tem permissão para usar a câmera e tente novamente.');
+    fecharScanner();
+  });
+}
+
+function fecharScanner() {
+  document.getElementById('scanner-modal-form').classList.remove('show');
+  document.getElementById('scanner-mresult').style.display = 'none';
+  document.getElementById('scanner-mloading').style.display = 'none';
+  if (_qrScanner && _scannerAtivo) {
+    _qrScanner.stop()
+      .then(() => { _qrScanner.clear(); _qrScanner = null; _scannerAtivo = false; })
+      .catch(() => { _qrScanner = null; _scannerAtivo = false; });
+  } else {
+    _qrScanner = null;
+    _scannerAtivo = false;
+  }
+}
+
+// Fechar ao clicar no fundo escuro
+document.getElementById('scanner-modal-form').addEventListener('click', function(e) {
+  if (e.target === this) fecharScanner();
+});
+
+// ── Busca imediata de equipamento (sem debounce) ── usada após scan ─────────
+function buscaEqpImediato(tag) {
+  if (!tag) return;
+  fetch('/api/equipamento/' + encodeURIComponent(tag))
+    .then(r => r.json())
+    .then(d => {
+      if (d.found) {
+        const descricao = d.descricao || d.nome;
+        // TAG exata do cadastro
+        document.getElementById('eqp_cod').value  = d.codigo;
+        // Descrição do equipamento (sem sufixo de área)
+        document.getElementById('eqp_nome').value = descricao;
+        document.getElementById('chip-nome').textContent = descricao;
+        document.getElementById('chip-cod').textContent  = d.codigo;
+        document.getElementById('equip-chip').classList.add('show');
+        // Preencher setor produtivo com a área do cadastro
+        if (d.area || d.setor) {
+          const area = d.setor || d.area;
+          const selSetor = document.getElementById('setor');
+          if (selSetor) {
+            let matched = false;
+            for (const opt of selSetor.options) {
+              if (opt.value === area) { selSetor.value = area; matched = true; break; }
+            }
+            if (!matched) {
+              for (const opt of selSetor.options) {
+                if (opt.value.toLowerCase() === area.toLowerCase()) {
+                  selSetor.value = opt.value; matched = true; break;
+                }
+              }
+            }
+          }
+        }
+        carregarMateriais(d.codigo);
+        status_('&#9989; Equipamento identificado: ' + descricao, 'ok');
+      } else {
+        status_('&#128204; TAG não encontrada no cadastro. Preencha a descrição manualmente.', 'inf');
+      }
+    })
+    .catch(() => {});
+}
+
+function limparEqp() {
+  document.getElementById('eqp_cod').value = '';
+  document.getElementById('eqp_nome').value = '';
+  document.getElementById('equip-chip').classList.remove('show');
+  fecharTagAC();
+}
+
+/* -------------------------------------------------------
+   AUTOCOMPLETE DE TAG
+------------------------------------------------------- */
+let _acIdx = -1;
+
+function tagAutoComplete(val) {
+  const list = document.getElementById('tag-ac-list');
+  const q = val.toUpperCase().trim();
+  if (q.length < 1) { fecharTagAC(); return; }
+
+  // Filtrar TAGs que começam com q, depois as que contêm q
+  const tags = Object.keys(EQPS_META);
+  const starts = tags.filter(t => t.startsWith(q));
+  const contains = tags.filter(t => !t.startsWith(q) && t.includes(q));
+  const matches = [...starts, ...contains].slice(0, 12);
+
+  if (matches.length === 0) { fecharTagAC(); return; }
+
+  list.innerHTML = '';
+  _acIdx = -1;
+  matches.forEach((tag, i) => {
+    const meta = EQPS_META[tag] || {};
+    const div = document.createElement('div');
+    div.className = 'tag-ac-item';
+    div.innerHTML = '<span class="ac-tag">' + tag + '</span><span class="ac-desc">' + (meta.descricao || '') + '</span>';
+    div.addEventListener('mousedown', () => selecionarTagAC(tag));
+    list.appendChild(div);
+  });
+  list.style.display = 'block';
+}
+
+function selecionarTagAC(tag) {
+  document.getElementById('eqp_cod').value = tag;
+  fecharTagAC();
+  buscaEqp(tag);
+  buscaEqpImediato(tag);
+}
+
+function fecharTagAC() {
+  const list = document.getElementById('tag-ac-list');
+  if (list) { list.style.display = 'none'; list.innerHTML = ''; }
+  _acIdx = -1;
+}
+
+function tagACKey(e) {
+  const list = document.getElementById('tag-ac-list');
+  const items = list ? list.querySelectorAll('.tag-ac-item') : [];
+  if (!items.length) return;
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    _acIdx = Math.min(_acIdx + 1, items.length - 1);
+    items.forEach((el, i) => el.classList.toggle('active', i === _acIdx));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    _acIdx = Math.max(_acIdx - 1, 0);
+    items.forEach((el, i) => el.classList.toggle('active', i === _acIdx));
+  } else if (e.key === 'Enter' && _acIdx >= 0) {
+    e.preventDefault();
+    const tag = items[_acIdx].querySelector('.ac-tag').textContent;
+    selecionarTagAC(tag);
+  } else if (e.key === 'Escape') {
+    fecharTagAC();
+  }
+}
+
+/* -------------------------------------------------------
+   CÁLCULO DE HORAS
+------------------------------------------------------- */
+function calcH() {
+  const p = document.getElementById('hr_parada').value;
+  const l = document.getElementById('hr_lib').value;
+  if (!p || !l) return;
+
+  const [h1,m1] = p.split(':').map(Number);
+  const [h2,m2] = l.split(':').map(Number);
+  let min = (h2*60+m2) - (h1*60+m1);
+  if (min < 0) min += 1440;
+
+  const hh  = Math.floor(min/60);
+  const mm  = min % 60;
+  const dec = (min/60).toFixed(2);
+
+  document.getElementById('total_disp').value =
+    `${hh}h ${String(mm).padStart(2,'0')}min   (${dec}h)`;
+  document.getElementById('total_h').value = dec;
+
+  const el = document.getElementById('total_disp');
+  if (min > 240) {
+    el.style.color = '#C0392B';
+    status_('&#9888; Parada crítica: mais de 4 horas!','err');
+  } else {
+    el.style.color = '#1E8449';
+  }
+}
+
+/* -------------------------------------------------------
+   STATUS BAR
+------------------------------------------------------- */
+let _stTmr;
+function status_(msg, tipo) {
+  const el = document.getElementById('sb');
+  el.innerHTML = msg;
+  el.className = tipo;
+  el.style.display = 'block';
+  clearTimeout(_stTmr);
+  _stTmr = setTimeout(()=>{ el.style.display='none'; }, 4500);
+}
+
+/* -------------------------------------------------------
+   TÉCNICO
+------------------------------------------------------- */
+function statusTec(s) {
+  if (s.value && !s.value.includes('Selecione'))
+    status_('&#128119; Técnico: ' + s.value, 'inf');
+}
+
+/* -------------------------------------------------------
+   PAD DE ASSINATURA — implementação local (sem CDN)
+------------------------------------------------------- */
+const PADS = {};
+
+function initPads() {
+  ['tec','sol'].forEach(id => {
+    const canvas = document.getElementById('sig-'+id);
+    const ctx    = canvas.getContext('2d');
+    let draw = false, last = {x:0, y:0};
+
+    // Ajustar DPI
+    function resize() {
+      const r   = window.devicePixelRatio || 1;
+      const w   = canvas.offsetWidth;
+      const h   = canvas.offsetHeight;
+      const old = canvas.toDataURL();
+      canvas.width  = w * r;
+      canvas.height = h * r;
+      ctx.scale(r, r);
+      if (old !== 'data:,') {
+        const img = new Image();
+        img.onload = ()=> ctx.drawImage(img, 0, 0, w, h);
+        img.src = old;
+      }
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function getXY(e) {
+      const rect = canvas.getBoundingClientRect();
+      const src  = e.touches ? e.touches[0] : e;
+      return {
+        x: (src.clientX - rect.left) * (canvas.width  / rect.width  / (window.devicePixelRatio||1)),
+        y: (src.clientY - rect.top)  * (canvas.height / rect.height / (window.devicePixelRatio||1))
+      };
+    }
+
+    function startDraw(e) {
+      e.preventDefault();
+      draw = true;
+      last = getXY(e);
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      // Esconder placeholder
+      canvas.parentElement.querySelector('.sig-placeholder').style.display = 'none';
+    }
+    function doDraw(e) {
+      if (!draw) return;
+      e.preventDefault();
+      const p = getXY(e);
+      ctx.lineTo(p.x, p.y);
+      ctx.strokeStyle = '#1B3A6B';
+      ctx.lineWidth   = 2;
+      ctx.lineCap     = 'round';
+      ctx.lineJoin    = 'round';
+      ctx.stroke();
+      last = p;
+    }
+    function endDraw() {
+      if (!draw) return;
+      draw = false;
+      ctx.beginPath();
+      const st = document.getElementById('st-'+id);
+      st.textContent = '&#10003; Assinatura registrada';
+      st.innerHTML   = '&#9989; Assinatura registrada';
+      st.className   = 'sig-st ok';
+      PADS[id]       = true;
+    }
+
+    canvas.addEventListener('mousedown',  startDraw);
+    canvas.addEventListener('mousemove',  doDraw);
+    canvas.addEventListener('mouseup',    endDraw);
+    canvas.addEventListener('mouseleave', endDraw);
+    canvas.addEventListener('touchstart', startDraw, {passive:false});
+    canvas.addEventListener('touchmove',  doDraw,    {passive:false});
+    canvas.addEventListener('touchend',   endDraw);
+  });
+}
+
+function limparSig(id) {
+  const canvas = document.getElementById('sig-'+id);
+  const ctx    = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  PADS[id] = false;
+  canvas.parentElement.querySelector('.sig-placeholder').style.display = '';
+  const st = document.getElementById('st-'+id);
+  st.textContent = '✏ Aguardando...';
+  st.className   = 'sig-st';
+}
+
+function getSigData(id) {
+  const canvas = document.getElementById('sig-'+id);
+  // Verifica se o canvas está em branco
+  const ctx  = canvas.getContext('2d');
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  return blank ? '' : canvas.toDataURL();
+}
+
+// ── Peça personalizada ──────────────────────────────────────
+function adicionarMatCustom() {
+  const input = document.getElementById('mat-custom-input');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  const chips = document.getElementById('mat-custom-chips');
+  if (!chips) return;
+  const existentes = Array.from(chips.querySelectorAll('span[data-val]')).map(s => s.dataset.val.toLowerCase());
+  if (existentes.includes(val.toLowerCase())) { input.value = ''; return; }
+  const chip = document.createElement('div');
+  chip.style.cssText = 'display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:#e8f0fa;border:1.5px solid #a0b8d8;border-radius:20px;font-size:13px;';
+  chip.innerHTML = `
+    <span data-val="${val}" style="color:var(--blue2);font-weight:600;">📦 ${val}</span>
+    <input type="checkbox" name="mat_custom" value="${val}" checked style="display:none;">
+    <button type="button" onclick="this.closest('div').remove()" style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;line-height:1;padding:0 2px;">×</button>`;
+  chips.appendChild(chip);
+  input.value = '';
+  input.focus();
+}
+
+// ── Envio do formulário (desktop) via fetch JSON ─────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  // Pré-selecionar técnico logado
+  if (TECNICO_LOGADO) {
+    const selTec = document.getElementById('tecnico');
+    if (selTec) {
+      for (const opt of selTec.options) {
+        if (opt.value === TECNICO_LOGADO) { selTec.value = TECNICO_LOGADO; statusTec(selTec); break; }
+      }
+    }
+  }
+
+  const form = document.getElementById('form');
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Validação básica
+    const req = ['eqp_cod','eqp_nome','tecnico','setor','hr_parada','hr_lib','motivo','solucao'];
+    let ok = true;
+    req.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (!el.value || el.value.includes('Selecione')) {
+        el.style.borderColor = '#c0392b';
+        ok = false;
+      } else {
+        el.style.borderColor = '';
+      }
+    });
+    if (!ok) { status_('⚠️ Preencha todos os campos obrigatórios!', 'err'); return; }
+
+    const btn  = document.getElementById('btn-sub');
+    const txt  = document.getElementById('btn-txt');
+    const spin = document.getElementById('spin');
+    btn.disabled = true;
+    if (txt)  txt.style.display  = 'none';
+    if (spin) spin.style.display = 'inline-block';
+
+    // Coletar todos os materiais: checkboxes do estoque + chips personalizados
+    const materiais = Array.from(
+      document.querySelectorAll('#materiais-lista input[type=checkbox]:checked')
+    ).map(c => c.value);
+
+    const data = {
+      equipamento_codigo:    document.getElementById('eqp_cod').value.trim().toUpperCase(),
+      equipamento_nome:      document.getElementById('eqp_nome').value.trim(),
+      tecnico:               document.getElementById('tecnico').value,
+      setor:                 document.getElementById('setor').value,
+      data_ocorrencia:       document.getElementById('data_ocorr').value,
+      horario_parada:        document.getElementById('hr_parada').value,
+      horario_liberacao:     document.getElementById('hr_lib').value,
+      tipo_manutencao:       document.getElementById('tipo_manut') ? document.getElementById('tipo_manut').value : '',
+      motivo_parada:         document.getElementById('motivo').value,
+      descricao_problema:    document.getElementById('desc_prob') ? document.getElementById('desc_prob').value.trim() : '',
+      solucao_problema:      document.getElementById('solucao').value,
+      observacoes:           document.getElementById('obs') ? document.getElementById('obs').value.trim() : '',
+      outros_problemas:      document.getElementById('outros_problemas') ? document.getElementById('outros_problemas').value.trim() : '',
+      pecas_necessarias:     document.getElementById('pecas_necessarias') ? document.getElementById('pecas_necessarias').value.trim() : '',
+      nome_solicitante:      document.getElementById('nome_sol') ? document.getElementById('nome_sol').value.trim() : '',
+      assinatura_tecnico:    getSigData('tec'),
+      assinatura_solicitante: getSigData('sol'),
+      materiais_utilizados:  materiais,
+      fotos:                 fotosB64 || [],
+    };
+
+    try {
+      const resp = await fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      const res = await resp.json();
+
+      btn.disabled = false;
+      if (txt)  txt.style.display  = '';
+      if (spin) spin.style.display = 'none';
+
+      if (res.success) {
+        const det = document.getElementById('modal-det');
+        if (det) det.innerHTML =
+          '<strong>Registro:</strong> ' + res.message + '<br>' +
+          '<strong>Equipamento:</strong> ' + data.equipamento_nome + '<br>' +
+          '<strong>Técnico:</strong> ' + data.tecnico + '<br>' +
+          '<strong>Tempo:</strong> ' + (res.total_horas || 'N/A') + '<br>' +
+          '<strong>Status:</strong> ' + (res.status || 'Concluído');
+        document.getElementById('modal').classList.add('show');
+        status_('✅ Registro salvo com sucesso!', 'ok');
+      } else {
+        status_('❌ Erro: ' + res.message, 'err');
+      }
+    } catch(err) {
+      btn.disabled = false;
+      if (txt)  txt.style.display  = '';
+      if (spin) spin.style.display = 'none';
+      status_('❌ Erro de conexão. Tente novamente.', 'err');
+    }
+  });
+});
+
+/* -------------------------------------------------------
+   INICIALIZAR
+------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  initPads();
+  status_('&#128295; Sistema TPM Caloi — pronto para registro!', 'inf');
+});
+// ── FECHAR ABA ──────────────────────────────────────────────
+function fecharAba() {
+  // Tenta fechar a aba (funciona se foi aberta via window.open)
+  try { window.close(); } catch(e) {}
+  // Se ainda estiver aberta (navegação direta), mostra aviso
+  setTimeout(() => {
+    if (!document.hidden) {
+      const av = document.getElementById('aviso-fechar');
+      if (av) { av.style.display = 'flex'; return; }
+      const div = document.createElement('div');
+      div.id = 'aviso-fechar';
+      div.style.cssText = [
+        'position:fixed;inset:0;z-index:9999;background:rgba(10,20,40,0.85)',
+        'display:flex;align-items:center;justify-content:center;'
+      ].join(';');
+      div.innerHTML = `
+        <div style="background:#fff;border-radius:16px;padding:36px 40px;text-align:center;max-width:360px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+          <div style="font-size:48px;margin-bottom:12px;">✅</div>
+          <div style="font-size:18px;font-weight:800;color:#1B3A6B;margin-bottom:8px;">Registro salvo!</div>
+          <div style="font-size:13px;color:#555;margin-bottom:24px;line-height:1.6;">
+            Para fechar, pressione<br>
+            <strong style="font-size:15px;color:#1B3A6B;">Ctrl + W</strong>
+            &nbsp;ou clique no <strong>X</strong> da aba do navegador.
+          </div>
+          <button onclick="document.getElementById('aviso-fechar').style.display='none'"
+            style="padding:10px 28px;background:#1B3A6B;color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;">
+            Continuar no Formulário
+          </button>
+        </div>`;
+      document.body.appendChild(div);
+    }
+  }, 300);
+}
+
+</script>
+
+</body>
+</html>

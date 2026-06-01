@@ -1,0 +1,2138 @@
+<!DOCTYPE html>
+<!-- Caloi TPM v2.1 — barcode update 26/05/2026 -->
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel de Configuração - Caloi TPM</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; color: #222; }
+
+/* TOPBAR */
+.topbar {
+  background: linear-gradient(90deg, #1B3A6B 0%, #2456a4 100%);
+  color: white;
+  padding: 0 28px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  position: sticky; top: 0; z-index: 100;
+}
+.topbar-left { display: flex; align-items: center; gap: 14px; }
+.topbar-logo { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+.topbar-logo span { color: #D62B2B; }
+.topbar-sub { font-size: 13px; opacity: 0.7; }
+.topbar-right { display: flex; align-items: center; gap: 16px; }
+.user-badge {
+  background: rgba(255,255,255,0.15);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 13px;
+  display: flex; align-items: center; gap: 6px;
+}
+.nav-links a {
+  color: rgba(255,255,255,0.8);
+  text-decoration: none;
+  font-size: 13px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.nav-links a:hover { background: rgba(255,255,255,0.15); color: white; }
+.btn-logout {
+  background: rgba(214,43,43,0.3);
+  border: 1px solid rgba(214,43,43,0.5);
+  color: white;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.btn-logout:hover { background: rgba(214,43,43,0.6); }
+
+/* TABS */
+.tabs-bar {
+  background: white;
+  border-bottom: 2px solid #e0e6f0;
+  display: flex;
+  padding: 0 28px;
+  gap: 4px;
+}
+.tab-btn {
+  padding: 16px 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #777;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+  display: flex; align-items: center; gap: 8px;
+}
+.tab-btn:hover { color: #1B3A6B; }
+.tab-btn.active { color: #1B3A6B; border-bottom-color: #1B3A6B; }
+
+/* CONTENT */
+.content { max-width: 1100px; margin: 0 auto; padding: 28px 20px; }
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* CARDS */
+.card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid #eef2f8;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-size: 16px; font-weight: 700; color: #1B3A6B; display: flex; align-items: center; gap: 8px; }
+.card-body { padding: 24px; }
+
+/* BOTÕES */
+.btn {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-primary { background: #1B3A6B; color: white; }
+.btn-primary:hover { background: #15306a; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(27,58,107,0.3); }
+.btn-danger { background: #D62B2B; color: white; }
+.btn-danger:hover { background: #b52222; }
+.btn-secondary { background: #eef2f8; color: #1B3A6B; border: 1px solid #d0daea; }
+.btn-secondary:hover { background: #dde6f5; }
+.btn-sm { padding: 6px 12px; font-size: 12px; }
+.btn-success { background: #27ae60; color: white; }
+.btn-success:hover { background: #229954; }
+
+/* TABELA */
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left;
+  padding: 11px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  background: #f8fafd;
+  border-bottom: 1px solid #eef2f8;
+}
+tbody td {
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f4f9;
+  font-size: 14px;
+  vertical-align: middle;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: #f8fafd; }
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-admin { background: #e8f0fc; color: #1B3A6B; }
+.badge-tecnico { background: #e8f7ef; color: #1a7a45; }
+.badge-ativo { background: #e8f7ef; color: #1a7a45; }
+.badge-inativo { background: #fff0f0; color: #c0392b; }
+
+/* FORMULÁRIO DO MODAL */
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: #444; margin-bottom: 6px; }
+.form-group input, .form-group select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #dde0e8;
+  border-radius: 9px;
+  font-size: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus, .form-group select:focus {
+  outline: none;
+  border-color: #1B3A6B;
+  box-shadow: 0 0 0 3px rgba(27,58,107,0.1);
+}
+.form-hint { font-size: 12px; color: #999; margin-top: 4px; }
+
+/* MODAL */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: 14px;
+  width: 520px;
+  max-width: 95vw;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  overflow: hidden;
+  animation: modalIn 0.2s ease;
+}
+@keyframes modalIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.modal-header {
+  padding: 20px 24px;
+  background: linear-gradient(90deg, #1B3A6B, #2456a4);
+  color: white;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-header h3 { font-size: 16px; font-weight: 700; }
+.modal-close {
+  background: rgba(255,255,255,0.2);
+  border: none;
+  color: white;
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+}
+.modal-close:hover { background: rgba(255,255,255,0.3); }
+.modal-body { padding: 24px; }
+.modal-footer {
+  padding: 16px 24px;
+  background: #f8fafd;
+  border-top: 1px solid #eef2f8;
+  display: flex; justify-content: flex-end; gap: 10px;
+}
+
+/* LISTAS EDITÁVEIS */
+.lista-editor {
+  border: 1.5px solid #dde0e8;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.lista-item {
+  display: flex; align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f0f4f9;
+  gap: 10px;
+}
+.lista-item:last-child { border-bottom: none; }
+.lista-item:hover { background: #f8fafd; }
+.lista-item input {
+  flex: 1;
+  border: 1px solid #dde0e8;
+  border-radius: 6px;
+  padding: 7px 10px;
+  font-size: 14px;
+}
+.lista-item input:focus { outline: none; border-color: #1B3A6B; }
+.btn-rem {
+  background: #ffeaea;
+  border: 1px solid #f5a0a0;
+  color: #c0392b;
+  width: 30px; height: 30px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.btn-rem:hover { background: #ffd5d5; }
+.btn-qr {
+  background: #EBF5FB; border: 1px solid #AED6F1; color: #1B3A6B;
+  padding: 4px 9px; border-radius: 6px; cursor: pointer; font-size: 12px;
+  font-weight: 700; margin-right: 4px; transition: background 0.15s;
+}
+.btn-qr:hover { background: #D6EAF8; }
+.btn-bc {
+  background: #FEF9E7; border: 1px solid #F9CA24; color: #8B6914;
+  padding: 3px 8px; border-radius: 6px; cursor: pointer; font-size: 11px;
+  font-weight: 700; transition: background 0.15s; margin-top: 3px;
+}
+.btn-bc:hover { background: #FDEBD0; }
+/* BARCODE INLINE */
+.bc-cell { text-align: center; width: 150px; vertical-align: middle; }
+.bc-svg-wrap { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.bc-svg { max-width: 130px; height: 44px; display: block; }
+.bc-empty { font-size: 10px; color: #bbb; font-style: italic; height: 44px; display: flex; align-items: center; justify-content: center; }
+.btn-add-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 14px;
+  background: #f0f7ff;
+  border: none;
+  color: #1B3A6B;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  width: 100%;
+  border-radius: 0 0 8px 8px;
+}
+.btn-add-item:hover { background: #ddeeff; }
+
+/* TABELA EQUIPAMENTOS */
+.eq-table { width: 100%; border-collapse: collapse; }
+.eq-table thead th {
+  background: #1B3A6B; color: white;
+  padding: 10px 12px; font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; text-align: left; white-space: nowrap;
+}
+.eq-table thead th.col-tag    { width: 110px; }
+.eq-table thead th.col-area   { width: 160px; }
+.eq-table thead th.col-forn   { width: 160px; }
+.eq-table thead th.col-acao   { width: 46px; text-align: center; }
+.eq-table tbody tr { border-bottom: 1px solid #eef2f8; transition: background .15s; }
+.eq-table tbody tr:hover { background: #f5f8ff; }
+.eq-table td { padding: 6px 8px; }
+.eq-table td input {
+  width: 100%; padding: 7px 10px;
+  border: 1.5px solid #dde0e8; border-radius: 7px;
+  font-size: 13px; color: #222; background: #fafafa;
+  transition: border-color .2s;
+}
+.eq-table td input:focus { outline: none; border-color: #1B3A6B; background: #fff; }
+.eq-table td input.input-tag { text-transform: uppercase; font-weight: 700; font-family: monospace; font-size: 13px; }
+.eq-table-wrap { border: 1.5px solid #dde0e8; border-radius: 10px; overflow: hidden; max-height: 460px; overflow-y: auto; }
+.eq-add-row {
+  display: flex; align-items: center; gap: 6px;
+  padding: 10px 14px; background: #f0f6ff;
+  border-top: 1.5px dashed #c5d8f5; color: #1B3A6B;
+  font-size: 13px; font-weight: 600; cursor: pointer; width: 100%;
+  border: none; transition: background .2s;
+}
+.eq-add-row:hover { background: #ddeeff; }
+.eq-count { font-size: 12px; color: #888; margin-left: auto; }
+
+/* PRODUCAO / OEE CARDS */
+.prod-card {
+  background: #f8fafd; border: 1.5px solid #dde3f0;
+  border-radius: 12px; padding: 18px 20px; margin-bottom: 16px;
+}
+.prod-card-header {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+}
+.prod-tag {
+  font-family: monospace; font-size: 13px; font-weight: 700; color: #fff;
+  background: #1B3A6B; border-radius: 6px; padding: 4px 10px;
+}
+.prod-desc { font-size: 14px; font-weight: 600; color: #222; flex: 1; }
+.prod-fields {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 16px;
+}
+.prod-field label { display: block; font-size: 12px; font-weight: 600; color: #888; margin-bottom: 4px; }
+.prod-field input {
+  width: 100%; padding: 8px 10px; border: 1.5px solid #dde0e8;
+  border-radius: 8px; font-size: 14px;
+}
+.prod-field input:focus { outline: none; border-color: #1B3A6B; }
+.prod-modelos-wrap { border: 1.5px solid #dde0e8; border-radius: 8px; overflow: hidden; margin-bottom: 8px; }
+.prod-modelos-wrap table { width: 100%; border-collapse: collapse; }
+.prod-modelos-wrap thead th {
+  background: #1B3A6B; color: #fff; padding: 8px 12px; font-size: 12px; font-weight: 700;
+  text-align: left; text-transform: none; letter-spacing: 0;
+}
+.prod-modelos-wrap tbody tr { border-bottom: 1px solid #eef2f8; }
+.prod-modelos-wrap tbody td { padding: 5px 8px; }
+.prod-modelos-wrap tbody td input {
+  width: 100%; padding: 6px 10px; border: 1.5px solid #dde0e8;
+  border-radius: 7px; font-size: 13px;
+}
+.btn-add-modelo {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px; background: #f0f7ff; border: none;
+  color: #1B3A6B; cursor: pointer; font-size: 12px; font-weight: 600;
+  transition: background .2s;
+}
+.btn-add-modelo:hover { background: #ddeeff; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  z-index: 9999;
+  display: flex; align-items: center; gap: 10px;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.3s;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { background: #27ae60; }
+.toast.error { background: #D62B2B; }
+
+/* STATS ROW */
+.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px 24px;
+  display: flex; align-items: center; gap: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+}
+.stat-icon {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.stat-icon.blue { background: #e8f0fc; }
+.stat-icon.green { background: #e8f7ef; }
+.stat-icon.red { background: #ffeaea; }
+.stat-label { font-size: 12px; color: #888; font-weight: 600; text-transform: uppercase; }
+.stat-value { font-size: 26px; font-weight: 800; color: #1B3A6B; }
+
+/* TOGGLE */
+.toggle-switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+.toggle-switch input { opacity: 0; width: 0; height: 0; }
+.toggle-slider {
+  position: absolute; cursor: pointer; inset: 0;
+  background: #ccc; border-radius: 24px; transition: 0.3s;
+}
+.toggle-slider:before {
+  content: ""; position: absolute;
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background: white; border-radius: 50%; transition: 0.3s;
+}
+.toggle-switch input:checked + .toggle-slider { background: #27ae60; }
+.toggle-switch input:checked + .toggle-slider:before { transform: translateX(20px); }
+/* Sidebar override */
+body{margin-left:220px!important;}
+.topbar{display:none!important;}
+</style>
+</head>
+<body>
+{% include 'nav.html' %}
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-logo">CALOI <span>TPM</span></div>
+    <div class="topbar-sub">⚙ Painel de Configuração</div>
+  </div>
+  <div class="topbar-right">
+    <div class="nav-links">
+      <a href="/formulario">📋 Formulário</a>
+      <a href="/dashboard">📊 Dashboard</a>
+    </div>
+    <div class="user-badge">👤 {{ usuario.nome }}</div>
+    <a href="/logout" class="btn-logout">Sair</a>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="showTab('usuarios', this)">👥 Usuários</button>
+  <button class="tab-btn" onclick="showTab('tecnicos', this)">🔧 Técnicos</button>
+  <button class="tab-btn" onclick="showTab('setores', this)">🏭 Setores</button>
+  <button class="tab-btn" onclick="showTab('motivos', this)">⚠ Motivos de Parada</button>
+  <button class="tab-btn" onclick="showTab('solucoes', this)">✔ Soluções</button>
+  <button class="tab-btn" onclick="showTab('equipamentos', this)">🏭 Equipamentos</button>
+  <button class="tab-btn" onclick="showTab('producao', this)">&#128230; Produção</button>
+  <button class="tab-btn" onclick="showTab('estoque', this)">&#128230; Estoque</button>
+  <button class="tab-btn" onclick="showTab('backup', this)">&#128190; Backup</button>
+  <button class="tab-btn" onclick="showTab('importar', this)">&#128229; Importar</button>
+</div>
+
+<!-- CONTEÚDO -->
+<div class="content">
+
+  <!-- ===== ABA USUÁRIOS ===== -->
+  <div class="tab-pane active" id="tab-usuarios">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon blue">👥</div>
+        <div>
+          <div class="stat-label">Total de Usuários</div>
+          <div class="stat-value">{{ usuarios|length }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">🛡</div>
+        <div>
+          <div class="stat-label">Administradores</div>
+          <div class="stat-value">{{ usuarios|selectattr('perfil','eq','admin')|list|length }}</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">🔧</div>
+        <div>
+          <div class="stat-label">Técnicos</div>
+          <div class="stat-value">{{ usuarios|selectattr('perfil','eq','tecnico')|list|length }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">👥 Gerenciar Usuários</div>
+        <button class="btn btn-primary" onclick="abrirModalNovoUsuario()">➕ Novo Usuário</button>
+      </div>
+      <div class="card-body" style="padding:0">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th>Usuário</th>
+              <th>Perfil</th>
+              <th>Situação</th>
+              <th>Criado em</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for u in usuarios %}
+            <tr>
+              <td style="color:#aaa;font-size:12px">{{ u.id }}</td>
+              <td><strong>{{ u.nome }}</strong></td>
+              <td style="font-family:monospace;color:#555">{{ u.username }}</td>
+              <td>
+                {% if u.perfil == 'admin' %}
+                  <span class="badge badge-admin">🛡 Admin</span>
+                {% else %}
+                  <span class="badge badge-tecnico">🔧 Técnico</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if u.ativo %}
+                  <span class="badge badge-ativo">✔ Ativo</span>
+                {% else %}
+                  <span class="badge badge-inativo">✖ Inativo</span>
+                {% endif %}
+              </td>
+              <td style="color:#888;font-size:13px">{{ u.criado_em }}</td>
+              <td>
+                <button class="btn btn-secondary btn-sm"
+                  onclick="abrirModalEditarUsuario({{ u.id }}, '{{ u.nome }}', '{{ u.username }}', '{{ u.perfil }}', {{ 'true' if u.ativo else 'false' }})">
+                  ✏ Editar
+                </button>
+                {% if u.id != usuario.id %}
+                <button class="btn btn-danger btn-sm" style="margin-left:4px"
+                  onclick="confirmarExclusao({{ u.id }}, '{{ u.nome }}')">
+                  🗑 Excluir
+                </button>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABA TÉCNICOS ===== -->
+  <div class="tab-pane" id="tab-tecnicos">
+    <style>
+      #colab-body input, #colab-body select{width:100%;border:1px solid #dde0e8;border-radius:6px;padding:5px 6px;font-size:12px;background:#fff;}
+      #colab-body input:focus,#colab-body select:focus{outline:none;border-color:#1B3A6B;}
+      #colab-body td{padding:4px 5px;border-bottom:1px solid #eef2f8;vertical-align:top;}
+      #colab-tbl thead th{padding:8px;font-size:11px;letter-spacing:.3px;}
+      .cap-line{display:flex;gap:4px;margin-bottom:4px;align-items:center;}
+      .cap-line .cap-nome{flex:2;} .cap-line .cap-val{flex:1;min-width:90px;}
+      .cap-add{font-size:11px;border:1px dashed #1B3A6B;color:#1B3A6B;background:#fff;border-radius:6px;padding:3px 8px;cursor:pointer;margin-top:2px;}
+      .cap-add:hover{background:#eef4ff;}
+      .cap-wrap{min-width:330px;}
+    </style>
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🔧 Colaboradores da Manutenção</div>
+        <button class="btn btn-success" onclick="salvarColaboradores()">💾 Salvar Alterações</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:14px">
+          Cadastro do efetivo. Os <strong>nomes</strong> alimentam a lista de técnicos do formulário de OS, e tudo é gravado em <strong>Colaboradores.xlsx</strong> (lido pelo portal SGM). Datas em <strong>dd/mm/aaaa</strong>.
+        </p>
+        <div style="overflow-x:auto;border:1.5px solid #dde0e8;border-radius:10px;">
+          <table id="colab-tbl" style="border-collapse:collapse;min-width:1500px;">
+            <thead>
+              <tr style="background:#1B3A6B;color:#fff;text-align:left;">
+                <th style="min-width:160px">Nome</th>
+                <th style="min-width:150px">Função</th>
+                <th style="min-width:150px">Setor</th>
+                <th style="min-width:100px">Admissão</th>
+                <th colspan="2">Férias 1 (início / fim)</th>
+                <th colspan="2">Férias 2 (início / fim)</th>
+                <th style="min-width:340px">Capacitações (até 10 · treinamento / validade)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="colab-body"></tbody>
+          </table>
+        </div>
+        <button class="btn-add-item" onclick="addColab()" style="margin-top:12px">➕ Adicionar Colaborador</button>
+      </div>
+    </div>
+    <script>
+    (function(){
+      const COLAB = {{ colaboradores|tojson }};
+      const FUNCOES = {{ funcoes|tojson }};
+      const SETORES = {{ listas.setores|tojson }};
+      const tbody = document.getElementById('colab-body');
+      const esc = v => String(v||'').replace(/"/g,'&quot;');
+      const opt = (list,val)=> ['<option value=""></option>']
+        .concat((list||[]).map(o=>`<option ${String(o)===String(val||'')?'selected':''}>${o}</option>`)).join('');
+      const CAP_MAX=10;
+      function td(c,h,ph){return `<td><input class="ci" data-col="${h}" value="${esc(c[h])}" placeholder="${ph||''}"></td>`;}
+      function capLine(n,v){return `<div class="cap-line">
+        <input class="cap-nome" value="${esc(n)}" placeholder="Treinamento">
+        <input class="cap-val" value="${esc(v)}" placeholder="dd/mm/aaaa">
+        <button class="btn-rem" title="Remover" onclick="this.closest('.cap-line').remove()">✖</button></div>`;}
+      function caps(c){
+        let lines='';
+        for(let i=1;i<=CAP_MAX;i++){ if(c['Capacitação '+i]) lines+=capLine(c['Capacitação '+i], c['Validade '+i]); }
+        return `<td><div class="cap-wrap"><div class="cap-list">${lines}</div>
+          <button type="button" class="cap-add" onclick="addCap(this)">➕ capacitação</button></div></td>`;
+      }
+      window.addCap=function(btn){
+        const list=btn.closest('.cap-wrap').querySelector('.cap-list');
+        if(list.querySelectorAll('.cap-line').length>=CAP_MAX){ toast('Máximo de '+CAP_MAX+' capacitações por colaborador.','error'); return; }
+        list.insertAdjacentHTML('beforeend', capLine('',''));
+      };
+      function row(c){c=c||{};return `<tr>
+        ${td(c,'Nome','Nome do colaborador')}
+        <td><select class="ci" data-col="Função">${opt(FUNCOES,c['Função'])}</select></td>
+        <td><select class="ci" data-col="Setor">${opt(SETORES,c['Setor'])}</select></td>
+        ${td(c,'Admissão','dd/mm/aaaa')}
+        ${td(c,'Férias Início 1','dd/mm/aaaa')}${td(c,'Férias Fim 1','dd/mm/aaaa')}
+        ${td(c,'Férias Início 2','dd/mm/aaaa')}${td(c,'Férias Fim 2','dd/mm/aaaa')}
+        ${caps(c)}
+        <td><button class="btn-rem" title="Remover" onclick="this.closest('tr').remove()">✖</button></td>
+      </tr>`;}
+      function render(){ tbody.innerHTML = (COLAB.length?COLAB:[{}]).map(row).join(''); }
+      window.addColab=function(){ tbody.insertAdjacentHTML('beforeend', row({})); };
+      window.salvarColaboradores=async function(){
+        const rows=[...tbody.querySelectorAll('tr')].map(tr=>{
+          const o={}; tr.querySelectorAll('.ci').forEach(i=>o[i.dataset.col]=i.value.trim());
+          let n=0;
+          tr.querySelectorAll('.cap-line').forEach(l=>{
+            const nm=l.querySelector('.cap-nome').value.trim(), vl=l.querySelector('.cap-val').value.trim();
+            if(nm){ n++; o['Capacitação '+n]=nm; o['Validade '+n]=vl; }
+          });
+          return o;
+        }).filter(o=>o['Nome']);
+        if(!rows.length){ toast('Cadastre ao menos um colaborador.','error'); return; }
+        const r=await api('/admin/colaboradores/salvar',{colaboradores:rows});
+        if(r.success){ toast(r.message); sessionStorage.setItem('adminTab','tecnicos'); setTimeout(()=>location.reload(),900); }
+        else toast(r.message,'error');
+      };
+      render();
+    })();
+    </script>
+  </div>
+
+  <!-- ===== ABA SETORES ===== -->
+  <div class="tab-pane" id="tab-setores">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏭 Setores Produtivos</div>
+        <button class="btn btn-success" onclick="salvarLista('setores')">💾 Salvar Alterações</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:16px">
+          Gerencie os setores disponíveis no formulário de manutenção.
+        </p>
+        <div class="lista-editor" id="lista-setores">
+          {% for s in listas.setores %}
+          <div class="lista-item">
+            <input type="text" value="{{ s }}" placeholder="Nome do setor">
+            <button class="btn-rem" onclick="removerItem(this)" title="Remover">✖</button>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="btn-add-item" onclick="adicionarItem('lista-setores', 'Nome do setor')">
+          ➕ Adicionar Setor
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABA MOTIVOS DE PARADA ===== -->
+  <div class="tab-pane" id="tab-motivos">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">⚠ Motivos de Parada</div>
+        <button class="btn btn-success" onclick="salvarLista('motivos')">💾 Salvar Alterações</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:16px">
+          Gerencie os motivos de parada disponíveis no formulário de manutenção. Clique em <strong>+</strong> para adicionar e <strong>✖</strong> para remover.
+        </p>
+        <div class="lista-editor" id="lista-motivos">
+          {% for m in listas.motivos %}
+          <div class="lista-item">
+            <input type="text" value="{{ m }}" placeholder="Descrição do motivo">
+            <button class="btn-rem" onclick="removerItem(this)" title="Remover">✖</button>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="btn-add-item" onclick="adicionarItem('lista-motivos', 'Descrição do motivo')">
+          ➕ Adicionar Motivo
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABA SOLUÇÕES ===== -->
+  <div class="tab-pane" id="tab-solucoes">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">✔ Soluções do Problema</div>
+        <button class="btn btn-success" onclick="salvarLista('solucoes')">💾 Salvar Alterações</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:16px">
+          Gerencie as soluções disponíveis no formulário de manutenção.
+        </p>
+        <div class="lista-editor" id="lista-solucoes">
+          {% for s in listas.solucoes %}
+          <div class="lista-item">
+            <input type="text" value="{{ s }}" placeholder="Descrição da solução">
+            <button class="btn-rem" onclick="removerItem(this)" title="Remover">✖</button>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="btn-add-item" onclick="adicionarItem('lista-solucoes', 'Descrição da solução')">
+          ➕ Adicionar Solução
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== ABA EQUIPAMENTOS ===== -->
+  <div class="tab-pane" id="tab-equipamentos">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🏭 Cadastro de Equipamentos</div>
+        <button class="btn btn-success" onclick="salvarEquipamentos()">💾 Salvar Alterações</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:16px">
+          Gerencie os equipamentos cadastrados no sistema. A <strong>TAG</strong> é usada como código de busca no formulário — deve ser única por equipamento.
+        </p>
+        <div class="eq-table-wrap">
+          <table class="eq-table">
+            <thead>
+              <tr>
+                <th>Descrição</th>
+                <th class="col-tag">TAG</th>
+                <th class="col-area">Área</th>
+                <th class="col-forn">Fornecedor</th>
+                <th class="bc-cell" style="background:#1B3A6B;color:#fff;padding:10px 12px;font-size:11px;font-weight:700;letter-spacing:1px;">Código de Barras</th>
+                <th class="col-acao" style="min-width:110px;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-equipamentos">
+              {% for eq in equipamentos %}
+              <tr>
+                <td><input type="text" class="eq-desc" value="{{ eq.descricao }}" placeholder="Ex: Prensa Hidráulica #1"></td>
+                <td><input type="text" class="eq-tag input-tag" value="{{ eq.tag }}" placeholder="EQ001"></td>
+                <td><input type="text" class="eq-area" value="{{ eq.area }}" placeholder="Ex: Preparação Aço"></td>
+                <td><input type="text" class="eq-forn" value="{{ eq.fornecedor }}" placeholder="Ex: Schuler AG"></td>
+                <td class="bc-cell">
+                  <div class="bc-svg-wrap">
+                    <svg class="bc-svg" data-tag="{{ eq.tag }}"></svg>
+                    <button class="btn-bc" onclick="imprimirBarcode(this)" title="Imprimir Código de Barras">🖨 Imprimir</button>
+                  </div>
+                </td>
+                <td style="text-align:center;white-space:nowrap;">
+                  <button class="btn-qr" onclick="gerarQRCode(this)" title="Gerar QR Code">&#9638; QR</button>
+                  <button class="btn-rem" onclick="removerEquipamento(this)" title="Remover">✖</button>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <button class="eq-add-row" onclick="adicionarEquipamento()">
+          ➕ Adicionar Equipamento
+          <span class="eq-count" id="eq-count"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ===== ABA PRODUCAO / OEE ===== -->
+  <div class="tab-pane" id="tab-producao">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">&#128230; Configuracao de Producao por Equipamento</div>
+        <button class="btn btn-success" onclick="salvarProducao()">&#128190; Salvar Tudo</button>
+      </div>
+      <div class="card-body">
+        <p style="color:#888;font-size:13px;margin-bottom:20px">
+          Configure para cada equipamento: os <strong>modelos</strong> com seus volumes de producao, o
+          <strong>indice de qualidade</strong> (padrao 100%), e os <strong>tempos disponiveis</strong>
+          por turno e por mes (em horas). Esses dados sao usados nos calculos de OEE.
+        </p>
+
+        {% if equipamentos %}
+          {% for eq in equipamentos %}
+          {% set cfg = producao_por_tag.get(eq.tag, {}) %}
+          <div class="prod-card" data-tag="{{ eq.tag }}">
+            <div class="prod-card-header">
+              <span class="prod-tag">{{ eq.tag }}</span>
+              <span class="prod-desc">{{ eq.descricao }}{% if eq.area %} &mdash; {{ eq.area }}{% endif %}</span>
+            </div>
+
+            <!-- Campos escalares -->
+            <div class="prod-fields">
+              <div class="prod-field">
+                <label>&#127919; Indice de Qualidade (%)</label>
+                <input type="number" class="prod-qualidade" min="0" max="100" step="0.1"
+                       value="{{ cfg.get('indice_qualidade', 100) }}" placeholder="100">
+              </div>
+              <div class="prod-field">
+                <label>&#128337; Tempo Disponivel / Turno (h)</label>
+                <input type="number" class="prod-turno" min="0" step="0.5"
+                       value="{{ cfg.get('tempo_turno', 8) }}" placeholder="8">
+              </div>
+              <div class="prod-field">
+                <label>&#128197; Tempo Disponivel / Mes (h)</label>
+                <input type="number" class="prod-mes" min="0" step="1"
+                       value="{{ cfg.get('tempo_mes', 176) }}" placeholder="176">
+              </div>
+            </div>
+
+            <!-- Tabela de modelos -->
+            <div style="font-size:12px;font-weight:700;color:#555;margin-bottom:6px;">
+              Modelos e Volume de Producao
+            </div>
+            <div class="prod-modelos-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:60%">Modelo / Produto</th>
+                    <th>Volume (unid/turno)</th>
+                    <th style="width:46px;text-align:center">Remover</th>
+                  </tr>
+                </thead>
+                <tbody id="modelos-{{ eq.tag }}">
+                  {% for mod in cfg.get('modelos', []) %}
+                  <tr>
+                    <td><input type="text" class="mod-nome" value="{{ mod.nome }}" placeholder="Ex: Bicicleta Aro 29"></td>
+                    <td><input type="number" class="mod-vol" min="0" step="1" value="{{ mod.volume }}" placeholder="500" style="width:100%;padding:6px 10px;border:1.5px solid #dde0e8;border-radius:7px;"></td>
+                    <td style="text-align:center"><button class="btn-rem" style="width:28px;height:28px;font-size:13px;" onclick="this.closest('tr').remove()">&#10006;</button></td>
+                  </tr>
+                  {% else %}
+                  <tr>
+                    <td><input type="text" class="mod-nome" placeholder="Ex: Bicicleta Aro 29"></td>
+                    <td><input type="number" class="mod-vol" min="0" step="1" placeholder="500" style="width:100%;padding:6px 10px;border:1.5px solid #dde0e8;border-radius:7px;"></td>
+                    <td style="text-align:center"><button class="btn-rem" style="width:28px;height:28px;font-size:13px;" onclick="this.closest('tr').remove()">&#10006;</button></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              <button class="btn-add-modelo" onclick="adicionarModelo('{{ eq.tag }}')">
+                &#10133; Adicionar Modelo
+              </button>
+            </div>
+
+          </div>
+          {% endfor %}
+        {% else %}
+          <div style="text-align:center;padding:40px;color:#aaa;">
+            <div style="font-size:40px;margin-bottom:12px;">&#127981;</div>
+            <p>Nenhum equipamento cadastrado ainda.</p>
+            <p style="margin-top:6px;font-size:13px;">
+              Cadastre equipamentos na aba <strong>Equipamentos</strong> primeiro.
+            </p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+
+<!-- ===== MODAL NOVO USUÁRIO ===== -->
+<div class="modal-overlay" id="modal-novo">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>➕ Novo Usuário</h3>
+      <button class="modal-close" onclick="fecharModal('modal-novo')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome Completo *</label>
+          <input type="text" id="novo-nome" placeholder="Ex: João Silva">
+        </div>
+        <div class="form-group">
+          <label>Nome de Usuário *</label>
+          <input type="text" id="novo-username" placeholder="Ex: joao.silva">
+          <div class="form-hint">Sem espaços, letras minúsculas</div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Senha *</label>
+          <input type="password" id="novo-senha" placeholder="Mínimo 4 caracteres">
+        </div>
+        <div class="form-group">
+          <label>Perfil *</label>
+          <select id="novo-perfil">
+            <option value="tecnico">🔧 Técnico</option>
+            <option value="admin">🛡 Administrador</option>
+          </select>
+          <div class="form-hint">Admin: acessa configurações</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-novo')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarNovoUsuario()">✔ Criar Usuário</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MODAL EDITAR USUÁRIO ===== -->
+<div class="modal-overlay" id="modal-editar">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>✏ Editar Usuário</h3>
+      <button class="modal-close" onclick="fecharModal('modal-editar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="edit-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nome Completo *</label>
+          <input type="text" id="edit-nome" placeholder="Nome completo">
+        </div>
+        <div class="form-group">
+          <label>Usuário</label>
+          <input type="text" id="edit-username" disabled style="background:#f0f0f0;color:#888">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nova Senha</label>
+          <input type="password" id="edit-senha" placeholder="Deixe em branco para manter">
+          <div class="form-hint">Preencha somente para alterar a senha</div>
+        </div>
+        <div class="form-group">
+          <label>Perfil *</label>
+          <select id="edit-perfil">
+            <option value="tecnico">🔧 Técnico</option>
+            <option value="admin">🛡 Administrador</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Situação</label>
+        <label class="toggle-switch" style="margin-top:4px">
+          <input type="checkbox" id="edit-ativo" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <span id="edit-ativo-label" style="margin-left:10px;font-size:13px;color:#555">Usuário Ativo</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-editar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicaoUsuario()">&#128190; Salvar</button>
+    </div>
+  </div>
+</div>
+
+  <!-- ===== ABA ESTOQUE ===== -->
+  <div class="tab-pane" id="tab-estoque">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🔩 Estoque de Peças por Equipamento</div>
+        <div class="card-sub">Cadastre as peças disponíveis para cada equipamento. No formulário, ao selecionar a TAG, a lista de peças aparece automaticamente.</div>
+      </div>
+      <div class="card-body">
+
+        <!-- Seletor de equipamento -->
+        <div style="display:flex;gap:12px;align-items:flex-end;margin-bottom:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:200px;">
+            <label style="font-size:12px;font-weight:600;color:#6B7A8D;text-transform:uppercase;display:block;margin-bottom:6px;">TAG do Equipamento</label>
+            <select id="est-eqp-sel" onchange="carregarPecasEquipamento(this.value)"
+              style="width:100%;padding:10px 12px;border:1.5px solid #e0e6f0;border-radius:8px;font-size:14px;">
+              <option value="">Selecione o equipamento...</option>
+              {% for eq in equipamentos_lista %}
+              <option value="{{ eq.tag }}">{{ eq.tag }} — {{ eq.descricao }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button onclick="adicionarPeca()" type="button"
+            style="padding:10px 20px;background:#1B3A6B;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;">
+            + Adicionar Peça
+          </button>
+        </div>
+
+        <!-- Lista de peças do equipamento selecionado -->
+        <div id="est-pecas-container" style="display:none;">
+          <div style="font-weight:600;font-size:13px;color:#1B3A6B;margin-bottom:10px;" id="est-eqp-titulo">Peças cadastradas:</div>
+          <div id="est-pecas-lista" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;"></div>
+          <button onclick="salvarEstoque()" type="button"
+            style="padding:11px 28px;background:#1E8449;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">
+            💾 Salvar Estoque
+          </button>
+        </div>
+
+        <div id="est-empty-msg" style="color:#6B7A8D;font-size:13px;padding:16px 0;">
+          Selecione um equipamento para gerenciar suas peças.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ABA BACKUP ===== -->
+  <div class="tab-pane" id="tab-backup">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">&#128190; Backup e Download de Dados</div>
+        <div class="card-sub">Baixe os arquivos Excel diretamente do servidor para o seu computador</div>
+      </div>
+      <div class="card-body">
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:24px;">
+
+          <!-- Card Manutenção -->
+          <div style="background:#f0f4ff;border:1.5px solid #c5d3f0;border-radius:10px;padding:22px;text-align:center;">
+            <div style="font-size:42px;margin-bottom:8px;">📊</div>
+            <div style="font-weight:700;font-size:16px;color:#1B3A6B;margin-bottom:6px;">Registros de Manutenção</div>
+            <div style="font-size:12px;color:#6B7A8D;margin-bottom:16px;line-height:1.6;">
+              Banco de dados principal com todos os registros de ocorrências, paradas e manutenções.
+            </div>
+            <a href="/admin/backup/download/manutencao"
+               style="display:inline-block;padding:12px 24px;background:#1B3A6B;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;">
+              ⬇️ Baixar Manutencao_TPM.xlsx
+            </a>
+          </div>
+
+          <!-- Card Plano de Ação -->
+          <div style="background:#fffbf0;border:1.5px solid #f0dfa0;border-radius:10px;padding:22px;text-align:center;">
+            <div style="font-size:42px;margin-bottom:8px;">📋</div>
+            <div style="font-weight:700;font-size:16px;color:#7D4E00;margin-bottom:6px;">Plano de Ação</div>
+            <div style="font-size:12px;color:#6B7A8D;margin-bottom:16px;line-height:1.6;">
+              Planilha com pendências e planos de ação gerados a partir dos registros de manutenção.
+            </div>
+            <a href="/admin/backup/download/plano"
+               style="display:inline-block;padding:12px 24px;background:#7D4E00;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;">
+              ⬇️ Baixar Plano_de_Acao.xlsx
+            </a>
+          </div>
+
+          <!-- Card Config -->
+          <div style="background:#f0fff4;border:1.5px solid #a8d5b5;border-radius:10px;padding:22px;text-align:center;">
+            <div style="font-size:42px;margin-bottom:8px;">⚙️</div>
+            <div style="font-weight:700;font-size:16px;color:#1E8449;margin-bottom:6px;">Configurações do Sistema</div>
+            <div style="font-size:12px;color:#6B7A8D;margin-bottom:16px;line-height:1.6;">
+              Arquivo ZIP com listas, equipamentos, produção e configurações salvas no servidor.
+            </div>
+            <a href="/admin/backup/download/config"
+               style="display:inline-block;padding:12px 24px;background:#1E8449;color:#fff;border-radius:8px;text-decoration:none;font-weight:bold;font-size:14px;">
+              ⬇️ Baixar Config.zip
+            </a>
+          </div>
+
+        </div>
+
+        <div style="background:#fff8e1;border:1.5px solid #ffe082;border-radius:8px;padding:14px 18px;font-size:13px;color:#7D4E00;line-height:1.8;">
+          <strong>ℹ️ Informações importantes:</strong><br>
+          • Os dados ficam armazenados no volume persistente do Railway (<code>/data</code>)<br>
+          • Faça backup regularmente para ter uma cópia local dos seus dados<br>
+          • Os arquivos baixados podem ser abertos diretamente no Excel<br>
+          • O backup não apaga dados do servidor — apenas copia
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+<div class="tab-pane" id="tab-importar">
+  <div style="padding:32px 28px;">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:1020px;">
+
+      <!-- ── UPLOAD EQUIPAMENTOS ── -->
+      <div style="background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,0.08);padding:28px;border:1.5px solid #E0E5F0;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <span style="font-size:30px;">🏭</span>
+          <div>
+            <div style="font-size:16px;font-weight:800;color:#1B3A6B;">Upload Equipamentos</div>
+            <div style="font-size:12px;color:#888;">Excel · CSV · TXT</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.65;">
+          Importe equipamentos a partir de planilha ou arquivo de texto.<br>
+          Colunas reconhecidas: <strong>Descrição, TAG, Área, Fornecedor</strong>
+        </div>
+        <div style="background:#F0F4FA;border-radius:8px;padding:11px 14px;margin-bottom:16px;font-size:12px;color:#1B3A6B;line-height:1.6;">
+          <strong>Formato esperado:</strong><br>
+          Coluna A: Descrição &nbsp;|&nbsp; B: TAG &nbsp;|&nbsp; C: Área &nbsp;|&nbsp; D: Fornecedor<br>
+          Linhas de cabeçalho são detectadas e ignoradas automaticamente.
+        </div>
+        <label for="file-eqp" id="drop-eqp"
+          style="display:block;border:2px dashed #B0C0DC;border-radius:10px;padding:26px;text-align:center;cursor:pointer;background:#F8FAFD;transition:border-color 0.2s;margin-bottom:14px;"
+          ondragover="event.preventDefault();this.style.borderColor='#1B3A6B'"
+          ondragleave="this.style.borderColor='#B0C0DC'"
+          ondrop="event.preventDefault();this.style.borderColor='#B0C0DC';document.getElementById('file-eqp').files=event.dataTransfer.files;lerArquivoEquipamentos(document.getElementById('file-eqp'))">
+          <div style="font-size:34px;margin-bottom:6px;">📂</div>
+          <div style="font-size:14px;font-weight:700;color:#1B3A6B;">Clique ou arraste o arquivo aqui</div>
+          <div style="font-size:12px;color:#999;margin-top:4px;">.xlsx &nbsp; .xls &nbsp; .csv &nbsp; .txt</div>
+          <input type="file" id="file-eqp" accept=".xlsx,.xls,.csv,.txt"
+            onchange="lerArquivoEquipamentos(this)" style="display:none;">
+        </label>
+        <div id="imp-eqp-status" style="display:none;font-size:13px;padding:10px;background:#FFF8E1;border-radius:7px;color:#7B5800;margin-bottom:10px;"></div>
+        <div id="imp-eqp-preview" style="display:none;">
+          <div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;" id="imp-eqp-count"></div>
+          <div style="max-height:220px;overflow-y:auto;border:1.5px solid #E0E5F0;border-radius:8px;margin-bottom:12px;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead style="background:#F0F4FA;position:sticky;top:0;">
+                <tr>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">Descrição</th>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">TAG</th>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">Área</th>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">Fornecedor</th>
+                </tr>
+              </thead>
+              <tbody id="imp-eqp-tbody"></tbody>
+            </table>
+          </div>
+          <button onclick="confirmarImportacaoEqp()"
+            style="width:100%;padding:11px;background:linear-gradient(135deg,#1B3A6B,#2456A4);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:6px;">
+            ✅ Confirmar Importação
+          </button>
+          <button onclick="cancelarImportacaoEqp()"
+            style="width:100%;padding:9px;background:#f0f0f0;color:#555;border:1.5px solid #ddd;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">
+            ✕ Cancelar
+          </button>
+        </div>
+      </div>
+
+      <!-- ── UPLOAD ESTOQUE ── -->
+      <div style="background:#fff;border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,0.08);padding:28px;border:1.5px solid #E0E5F0;">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+          <span style="font-size:30px;">📦</span>
+          <div>
+            <div style="font-size:16px;font-weight:800;color:#1B3A6B;">Upload Estoque</div>
+            <div style="font-size:12px;color:#888;">Excel · CSV · TXT</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:#555;margin-bottom:14px;line-height:1.65;">
+          Importe peças e materiais de estoque a partir de planilha ou arquivo de texto.<br>
+          Cada linha deve conter a <strong>TAG</strong> do equipamento e o <strong>nome da peça</strong>.
+        </div>
+        <div style="background:#F0F4FA;border-radius:8px;padding:11px 14px;margin-bottom:16px;font-size:12px;color:#1B3A6B;line-height:1.6;">
+          <strong>Formato esperado:</strong><br>
+          Coluna A: TAG do Equipamento &nbsp;|&nbsp; Coluna B: Nome da Peça<br>
+          Exemplo: <code>SA-P-MAQ-044 | Correia dentada</code>
+        </div>
+        <label for="file-est" id="drop-est"
+          style="display:block;border:2px dashed #B0C0DC;border-radius:10px;padding:26px;text-align:center;cursor:pointer;background:#F8FAFD;transition:border-color 0.2s;margin-bottom:14px;"
+          ondragover="event.preventDefault();this.style.borderColor='#1B3A6B'"
+          ondragleave="this.style.borderColor='#B0C0DC'"
+          ondrop="event.preventDefault();this.style.borderColor='#B0C0DC';document.getElementById('file-est').files=event.dataTransfer.files;lerArquivoEstoque(document.getElementById('file-est'))">
+          <div style="font-size:34px;margin-bottom:6px;">📂</div>
+          <div style="font-size:14px;font-weight:700;color:#1B3A6B;">Clique ou arraste o arquivo aqui</div>
+          <div style="font-size:12px;color:#999;margin-top:4px;">.xlsx &nbsp; .xls &nbsp; .csv &nbsp; .txt</div>
+          <input type="file" id="file-est" accept=".xlsx,.xls,.csv,.txt"
+            onchange="lerArquivoEstoque(this)" style="display:none;">
+        </label>
+        <div id="imp-est-status" style="display:none;font-size:13px;padding:10px;background:#FFF8E1;border-radius:7px;color:#7B5800;margin-bottom:10px;"></div>
+        <div id="imp-est-preview" style="display:none;">
+          <div style="font-size:13px;font-weight:700;color:#1B3A6B;margin-bottom:8px;" id="imp-est-count"></div>
+          <div style="max-height:220px;overflow-y:auto;border:1.5px solid #E0E5F0;border-radius:8px;margin-bottom:12px;">
+            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+              <thead style="background:#F0F4FA;position:sticky;top:0;">
+                <tr>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">TAG</th>
+                  <th style="padding:6px 8px;text-align:left;color:#1B3A6B;border-bottom:1px solid #dde0e8;">Peça / Material</th>
+                </tr>
+              </thead>
+              <tbody id="imp-est-tbody"></tbody>
+            </table>
+          </div>
+          <button onclick="confirmarImportacaoEst()"
+            style="width:100%;padding:11px;background:linear-gradient(135deg,#1B3A6B,#2456A4);color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:6px;">
+            ✅ Confirmar Importação
+          </button>
+          <button onclick="cancelarImportacaoEst()"
+            style="width:100%;padding:9px;background:#f0f0f0;color:#555;border:1.5px solid #ddd;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">
+            ✕ Cancelar
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Aviso geral -->
+    <div style="max-width:1020px;margin-top:20px;background:#FFF3CD;border:1.5px solid #FFD54F;border-radius:10px;padding:14px 18px;font-size:13px;color:#7B5800;line-height:1.6;">
+      ⚠️ <strong>Atenção:</strong> A importação <strong>substitui</strong> os dados existentes nessa categoria.
+      Faça um <a href="/admin/backup/download/config" style="color:#1B3A6B;font-weight:700;">backup</a> antes de importar dados novos.
+    </div>
+  </div>
+</div>
+
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ---- TABS ----
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+  sessionStorage.setItem('adminTab', id);
+}
+
+// Restaurar aba ativa ao recarregar
+(function() {
+  const tab = sessionStorage.getItem('adminTab');
+  if (tab) {
+    const pane = document.getElementById('tab-' + tab);
+    const btn  = document.querySelector(`.tab-btn[onclick*="'${tab}'"]`);
+    if (pane && btn) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      pane.classList.add('active');
+      btn.classList.add('active');
+    }
+  }
+})();
+
+// ---- MODAIS ----
+function abrirModalNovoUsuario() {
+  ['novo-nome','novo-username','novo-senha'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('novo-perfil').value = 'tecnico';
+  document.getElementById('modal-novo').classList.add('open');
+}
+
+function abrirModalEditarUsuario(id, nome, username, perfil, ativo) {
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-nome').value = nome;
+  document.getElementById('edit-username').value = username;
+  document.getElementById('edit-perfil').value = perfil;
+  document.getElementById('edit-senha').value = '';
+  const chk = document.getElementById('edit-ativo');
+  chk.checked = ativo;
+  atualizarLabelAtivo();
+  document.getElementById('modal-editar').classList.add('open');
+}
+
+function fecharModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.getElementById('edit-ativo').addEventListener('change', atualizarLabelAtivo);
+function atualizarLabelAtivo() {
+  const ativo = document.getElementById('edit-ativo').checked;
+  document.getElementById('edit-ativo-label').textContent = ativo ? 'Usuario Ativo' : 'Usuario Inativo';
+  document.getElementById('edit-ativo-label').style.color = ativo ? '#27ae60' : '#c0392b';
+}
+
+// Fechar modal ao clicar fora
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open');
+  });
+});
+
+// ---- API CALLS ----
+async function api(url, body) {
+  const resp = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return resp.json();
+}
+
+function toast(msg, tipo = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = (tipo === 'success' ? '&#10004; ' : '&#10006; ') + msg;
+  el.className = `toast ${tipo} show`;
+  setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ---- USUARIOS ----
+async function salvarNovoUsuario() {
+  const nome = document.getElementById('novo-nome').value.trim();
+  const username = document.getElementById('novo-username').value.trim();
+  const senha = document.getElementById('novo-senha').value;
+  const perfil = document.getElementById('novo-perfil').value;
+
+  if (!nome || !username || !senha) { toast('Preencha todos os campos obrigatorios.', 'error'); return; }
+  if (senha.length < 4) { toast('A senha deve ter pelo menos 4 caracteres.', 'error'); return; }
+
+  const r = await api('/admin/usuarios/adicionar', { nome, username, senha, perfil });
+  if (r.success) {
+    toast(r.message);
+    fecharModal('modal-novo');
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    toast(r.message, 'error');
+  }
+}
+
+async function salvarEdicaoUsuario() {
+  const id = parseInt(document.getElementById('edit-id').value);
+  const nome = document.getElementById('edit-nome').value.trim();
+  const senha = document.getElementById('edit-senha').value;
+  const perfil = document.getElementById('edit-perfil').value;
+  const ativo = document.getElementById('edit-ativo').checked;
+
+  if (!nome) { toast('O nome e obrigatorio.', 'error'); return; }
+  if (senha && senha.length < 4) { toast('A nova senha deve ter pelo menos 4 caracteres.', 'error'); return; }
+
+  const r = await api(`/admin/usuarios/editar/${id}`, { nome, senha, perfil, ativo });
+  if (r.success) {
+    toast(r.message);
+    fecharModal('modal-editar');
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    toast(r.message, 'error');
+  }
+}
+
+function confirmarExclusao(id, nome) {
+  if (!confirm(`Deseja excluir o usuario "${nome}"?\n\nEsta acao nao pode ser desfeita.`)) return;
+  api(`/admin/usuarios/excluir/${id}`, {}).then(r => {
+    if (r.success) {
+      toast(r.message);
+      setTimeout(() => location.reload(), 1200);
+    } else {
+      toast(r.message, 'error');
+    }
+  });
+}
+
+// ---- LISTAS ----
+function adicionarItem(listaId, placeholder) {
+  const lista = document.getElementById(listaId);
+  const div = document.createElement('div');
+  div.className = 'lista-item';
+  div.innerHTML = `
+    <input type="text" placeholder="${placeholder}">
+    <button class="btn-rem" onclick="removerItem(this)" title="Remover">&#10006;</button>
+  `;
+  lista.appendChild(div);
+  const input = div.querySelector('input');
+  input.focus();
+  // Auto-salvar quando o usuário sair do campo após digitar
+  const tipo = listaId.replace('lista-', '');
+  input.addEventListener('blur', () => { if (input.value.trim()) salvarLista(tipo); });
+}
+
+function removerItem(btn) {
+  const item = btn.closest('.lista-item');
+  const listaEditor = item.closest('.lista-editor');
+  if (listaEditor.querySelectorAll('.lista-item').length <= 1) {
+    toast('Deve haver pelo menos um item na lista.', 'error');
+    return;
+  }
+  item.remove();
+  // Auto-salvar imediatamente após remoção
+  const tipo = listaEditor.id.replace('lista-', '');
+  salvarLista(tipo);
+}
+
+async function salvarLista(tipo) {
+  const listaId = 'lista-' + tipo;
+  const inputs = document.querySelectorAll(`#${listaId} input[type="text"]`);
+  const itens = Array.from(inputs).map(i => i.value.trim()).filter(v => v);
+
+  if (itens.length === 0) { toast('A lista nao pode ficar vazia.', 'error'); return; }
+
+  const body = {};
+  body[tipo] = itens;
+
+  const r = await api('/admin/listas/salvar', body);
+  if (r.success) {
+    toast(r.message);
+    sessionStorage.setItem('adminTab', tipo);
+    setTimeout(() => location.reload(), 1000);
+  } else {
+    toast(r.message, 'error');
+  }
+}
+
+// ---- EQUIPAMENTOS ----
+function adicionarEquipamento() {
+  const tbody = document.getElementById('tbody-equipamentos');
+  // Próximo número de TAG
+  const tags = Array.from(tbody.querySelectorAll('.eq-tag')).map(i => i.value.trim()).filter(Boolean);
+  let nextNum = 1;
+  tags.forEach(t => { const m = t.match(/\d+$/); if (m) nextNum = Math.max(nextNum, parseInt(m[0]) + 1); });
+  const nextTag = 'EQ' + String(nextNum).padStart(3, '0');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" class="eq-desc" placeholder="Ex: Prensa Hidraulica #1"></td>
+    <td><input type="text" class="eq-tag input-tag" placeholder="${nextTag}"></td>
+    <td><input type="text" class="eq-area" placeholder="Ex: Preparacao Aco"></td>
+    <td><input type="text" class="eq-forn" placeholder="Ex: Schuler AG"></td>
+    <td class="bc-cell">
+      <div class="bc-svg-wrap">
+        <svg class="bc-svg"></svg>
+        <button class="btn-bc" onclick="imprimirBarcode(this)" title="Imprimir Código de Barras">🖨 Imprimir</button>
+      </div>
+    </td>
+    <td style="text-align:center"><button class="btn-rem" onclick="removerEquipamento(this)" title="Remover">&#10006;</button></td>
+  `;
+  tbody.appendChild(tr);
+  const firstInput = tr.querySelector('input');
+  firstInput.focus();
+  atualizarContadorEq();
+  // Auto-salvar quando o usuário sair dos campos após preencher TAG
+  tr.querySelector('.eq-tag').addEventListener('blur', () => {
+    if (tr.querySelector('.eq-tag').value.trim()) salvarEquipamentos();
+  });
+}
+
+function removerEquipamento(btn) {
+  btn.closest('tr').remove();
+  atualizarContadorEq();
+  // Auto-salvar imediatamente após remoção
+  salvarEquipamentos();
+}
+
+function atualizarContadorEq() {
+  const n = document.querySelectorAll('#tbody-equipamentos tr').length;
+  const el = document.getElementById('eq-count');
+  if (el) el.textContent = n + ' equipamento(s)';
+}
+
+async function salvarEquipamentos() {
+  const rows = document.querySelectorAll('#tbody-equipamentos tr');
+  const equipamentos = [];
+  rows.forEach(tr => {
+    const desc = tr.querySelector('.eq-desc').value.trim();
+    const tag  = tr.querySelector('.eq-tag').value.trim().toUpperCase();
+    const area = tr.querySelector('.eq-area').value.trim();
+    const forn = tr.querySelector('.eq-forn').value.trim();
+    if (desc || tag) equipamentos.push({ descricao: desc, tag, area, fornecedor: forn });
+  });
+  if (equipamentos.length === 0) {
+    toast('Adicione pelo menos um equipamento.', 'error');
+    return;
+  }
+  const r = await api('/admin/equipamentos/salvar', { equipamentos });
+  if (r.success) {
+    toast(r.message);
+    sessionStorage.setItem('adminTab', 'equipamentos');
+    setTimeout(() => location.reload(), 1000);
+  } else {
+    toast(r.message, 'error');
+  }
+}
+
+// ---- PRODUCAO / OEE ----
+function adicionarModelo(tag) {
+  const tbody = document.getElementById('modelos-' + tag);
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" class="mod-nome" placeholder="Ex: Bicicleta Aro 29"></td>
+    <td><input type="number" class="mod-vol" min="0" step="1" placeholder="Ex: 500" style="width:100%;padding:6px 10px;border:1.5px solid #dde0e8;border-radius:7px;"></td>
+    <td style="text-align:center"><button class="btn-rem" style="width:28px;height:28px;font-size:13px;" onclick="this.closest('tr').remove()">&#10006;</button></td>
+  `;
+  tbody.appendChild(tr);
+  tr.querySelector('input').focus();
+}
+
+async function salvarProducao() {
+  const cards = document.querySelectorAll('.prod-card');
+  const producao = [];
+  cards.forEach(card => {
+    const tag = card.dataset.tag;
+    const indice_qualidade = parseFloat(card.querySelector('.prod-qualidade').value) || 100;
+    const tempo_turno = parseFloat(card.querySelector('.prod-turno').value) || 8;
+    const tempo_mes   = parseFloat(card.querySelector('.prod-mes').value) || 176;
+    const modelos = [];
+    card.querySelectorAll('tbody tr').forEach(tr => {
+      const nome = tr.querySelector('.mod-nome').value.trim();
+      const volume = parseFloat(tr.querySelector('.mod-vol').value) || 0;
+      if (nome) modelos.push({ nome, volume });
+    });
+    producao.push({ tag, modelos, indice_qualidade, tempo_turno, tempo_mes });
+  });
+  if (producao.length === 0) { toast('Nenhum equipamento para configurar.', 'error'); return; }
+  const r = await api('/admin/producao/salvar', { producao });
+  if (r.success) toast(r.message);
+  else toast(r.message, 'error');
+}
+
+// Atalho teclado ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  atualizarContadorEq();
+  initBarcodes();
+});
+
+// ---- ESTOQUE ----
+let estoqueAtual = {{ estoque | tojson }};
+let tagAtual = '';
+
+function carregarPecasEquipamento(tag) {
+  tagAtual = tag;
+  const container = document.getElementById('est-pecas-container');
+  const empty = document.getElementById('est-empty-msg');
+  const lista = document.getElementById('est-pecas-lista');
+  const titulo = document.getElementById('est-eqp-titulo');
+
+  if (!tag) {
+    container.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+
+  container.style.display = 'block';
+  empty.style.display = 'none';
+  titulo.textContent = `Peças cadastradas para ${tag}:`;
+  lista.innerHTML = '';
+
+  const pecas = estoqueAtual[tag] || [];
+  if (pecas.length === 0) {
+    lista.innerHTML = '<div style="color:#6B7A8D;font-size:13px;">Nenhuma peça cadastrada. Clique em "+ Adicionar Peça".</div>';
+  } else {
+    pecas.forEach((peca, i) => renderPecaRow(peca, i));
+  }
+}
+
+function renderPecaRow(peca, idx) {
+  const lista = document.getElementById('est-pecas-lista');
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;align-items:center;';
+  row.innerHTML = `
+    <input type="text" value="${peca}" data-idx="${idx}"
+      style="flex:1;padding:9px 12px;border:1.5px solid #e0e6f0;border-radius:7px;font-size:14px;"
+      onchange="atualizarPeca(${idx}, this.value)"
+      placeholder="Nome da peça / material">
+    <button type="button" onclick="removerPeca(${idx})"
+      style="padding:8px 14px;background:#ffeaea;color:#c0392b;border:1px solid #f5c6c6;border-radius:7px;font-size:13px;cursor:pointer;">
+      🗑
+    </button>
+  `;
+  lista.appendChild(row);
+}
+
+function adicionarPeca() {
+  if (!tagAtual) { alert('Selecione um equipamento primeiro.'); return; }
+  if (!estoqueAtual[tagAtual]) estoqueAtual[tagAtual] = [];
+  estoqueAtual[tagAtual].push('');
+  carregarPecasEquipamento(tagAtual);
+  // Foca no último input
+  setTimeout(() => {
+    const inputs = document.querySelectorAll('#est-pecas-lista input');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  }, 50);
+}
+
+function atualizarPeca(idx, valor) {
+  if (estoqueAtual[tagAtual]) estoqueAtual[tagAtual][idx] = valor;
+}
+
+function removerPeca(idx) {
+  if (estoqueAtual[tagAtual]) {
+    estoqueAtual[tagAtual].splice(idx, 1);
+    carregarPecasEquipamento(tagAtual);
+    // Auto-salvar imediatamente após remoção
+    setTimeout(() => salvarEstoque(), 100);
+  }
+}
+
+function salvarEstoque() {
+  // Coletar valores atuais dos inputs antes de salvar
+  if (tagAtual) {
+    const inputs = document.querySelectorAll('#est-pecas-lista input');
+    estoqueAtual[tagAtual] = Array.from(inputs).map(i => i.value.trim()).filter(v => v);
+  }
+
+  fetch('/admin/estoque/salvar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ estoque: estoqueAtual })
+  })
+  .then(r => r.json())
+  .then(d => {
+    toast(d.message, d.success ? 'success' : 'error');
+    if (d.success) {
+      carregarPecasEquipamento(tagAtual);
+    }
+  })
+  .catch(() => toast('Erro ao salvar estoque', 'error'));
+}
+
+// ---- CÓDIGO DE BARRAS (Code128 automático) ----
+let _jsBarcodeLoaded = false;
+let _jsBarcodeQueue  = [];
+
+function _carregarJsBarcode(cb) {
+  if (_jsBarcodeLoaded) { cb(); return; }
+  _jsBarcodeQueue.push(cb);
+  if (_jsBarcodeQueue.length > 1) return; // já está carregando
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js';
+  s.onload = () => {
+    _jsBarcodeLoaded = true;
+    _jsBarcodeQueue.forEach(fn => fn());
+    _jsBarcodeQueue = [];
+  };
+  s.onerror = () => { _jsBarcodeQueue = []; };
+  document.head.appendChild(s);
+}
+
+function renderizarBarcode(svg, tag) {
+  if (!tag || tag.length < 1) {
+    svg.innerHTML = '';
+    return;
+  }
+  _carregarJsBarcode(() => {
+    try {
+      JsBarcode(svg, tag.toUpperCase(), {
+        format: 'CODE128',
+        width: 1.6,
+        height: 36,
+        displayValue: true,
+        fontSize: 9,
+        margin: 3,
+        lineColor: '#1B3A6B',
+        background: '#ffffff'
+      });
+    } catch(e) { svg.innerHTML = ''; }
+  });
+}
+
+function initBarcodes() {
+  // Renderizar todos os barcodes existentes ao carregar a página
+  document.querySelectorAll('#tbody-equipamentos .bc-svg[data-tag]').forEach(svg => {
+    const tag = svg.dataset.tag;
+    if (tag) renderizarBarcode(svg, tag);
+  });
+
+  // Auto-atualizar barcode conforme a TAG é digitada
+  const tbody = document.getElementById('tbody-equipamentos');
+  if (tbody) {
+    tbody.addEventListener('input', e => {
+      const input = e.target;
+      if (!input.classList.contains('eq-tag')) return;
+      const tr = input.closest('tr');
+      const svg = tr ? tr.querySelector('.bc-svg') : null;
+      if (!svg) return;
+      clearTimeout(input._bcTimer);
+      input._bcTimer = setTimeout(() => {
+        renderizarBarcode(svg, input.value.trim().toUpperCase());
+      }, 450);
+    });
+  }
+}
+
+function imprimirBarcode(btn) {
+  const tr   = btn.closest('tr');
+  const tag  = tr.querySelector('.eq-tag').value.trim().toUpperCase();
+  const desc = tr.querySelector('.eq-desc').value.trim();
+  const area = tr.querySelector('.eq-area').value.trim();
+  if (!tag) { toast('Informe a TAG antes de imprimir o código de barras.', 'error'); return; }
+  const w = window.open('', '_blank', 'width=520,height=380');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>Código de Barras — ${tag}</title>
+    <style>
+      body{font-family:Arial,sans-serif;text-align:center;padding:36px 24px;background:#fff;}
+      h2{color:#1B3A6B;margin:0 0 2px;font-size:20px;letter-spacing:2px;}
+      .desc{color:#555;font-size:13px;margin:4px 0;}
+      .area{color:#999;font-size:11px;margin:2px 0;}
+      svg{margin:18px 0;display:block;}
+      .foot{font-size:10px;color:#aaa;margin-top:14px;}
+      @media print{.noprint{display:none!important}}
+    </style></head><body>
+    <h2>${tag}</h2>
+    ${desc ? `<p class="desc">${desc}</p>` : ''}
+    ${area ? `<p class="area">${area}</p>` : ''}
+    <svg id="bc-print" style="margin:18px auto;"></svg>
+    <div class="foot">Caloi TPM v2.0 — Sistema de Controle de Manutenção Industrial</div>
+    <br><button class="noprint" onclick="window.print()"
+      style="padding:9px 22px;background:#1B3A6B;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;margin-top:8px;">
+      🖨 Imprimir
+    </button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"><\/script>
+    <script>
+      window.addEventListener('load', function() {
+        JsBarcode('#bc-print','${tag}',{format:'CODE128',width:2.5,height:80,
+          displayValue:true,fontSize:14,margin:8,lineColor:'#1B3A6B',background:'#ffffff'});
+        setTimeout(function(){window.print();},700);
+      });
+    <\/script></body></html>`);
+  w.document.close();
+}
+
+// ---- QR CODE ----
+function gerarQRCode(btn) {
+  const tr   = btn.closest('tr');
+  const tag  = tr.querySelector('.eq-tag').value.trim().toUpperCase();
+  const desc = tr.querySelector('.eq-desc').value.trim();
+  const area = tr.querySelector('.eq-area').value.trim();
+  if (!tag) { toast('Informe a TAG antes de gerar o QR Code.', 'error'); return; }
+  const modal = document.getElementById('qr-modal');
+  document.getElementById('qr-modal-tag').textContent  = tag;
+  document.getElementById('qr-modal-desc').textContent = desc || '—';
+  document.getElementById('qr-modal-area').textContent = area || '—';
+  const qrDiv = document.getElementById('qr-canvas');
+  qrDiv.innerHTML = '';
+  const texto = `CALOI TPM\nTAG: ${tag}\nDesc: ${desc}\nArea: ${area}\nhttps://web-production-97918.up.railway.app/historico?tag=${encodeURIComponent(tag)}`;
+  if (window.QRCode) {
+    new QRCode(qrDiv, { text: texto, width: 220, height: 220, colorDark: '#1B3A6B', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+  } else {
+    qrDiv.innerHTML = '<p style="color:#c00;font-size:12px;">⚠ Carregando biblioteca QR…</p>';
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+    s.onload = () => {
+      qrDiv.innerHTML = '';
+      new QRCode(qrDiv, { text: texto, width: 220, height: 220, colorDark: '#1B3A6B', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M });
+    };
+    document.head.appendChild(s);
+  }
+  modal.style.display = 'flex';
+  // Renderizar barcode Code128 no modal
+  const bcSvg = document.getElementById('qr-barcode-svg');
+  if (bcSvg) {
+    bcSvg.innerHTML = '';
+    renderizarBarcode(bcSvg, tag);
+  }
+}
+
+function fecharQRModal() {
+  document.getElementById('qr-modal').style.display = 'none';
+}
+
+function imprimirQR() {
+  const tag  = document.getElementById('qr-modal-tag').textContent;
+  const desc = document.getElementById('qr-modal-desc').textContent;
+  const area = document.getElementById('qr-modal-area').textContent;
+  const img  = document.querySelector('#qr-canvas img');
+  if (!img) { toast('Aguarde o QR Code carregar.', 'error'); return; }
+  const w = window.open('', '_blank', 'width=480,height=620');
+  w.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+    <title>QR + Barcode — ${tag}</title>
+    <style>
+      body{font-family:Arial,sans-serif;text-align:center;padding:30px;background:#fff;}
+      h2{color:#1B3A6B;margin:0 0 4px;font-size:18px;letter-spacing:1px;}
+      p{color:#555;font-size:13px;margin:2px 0;}
+      .qr-img{margin:14px 0;border:2px solid #E0E5F0;border-radius:8px;}
+      .bc-section{margin:12px auto;padding:10px 16px;border:1.5px solid #E0E8F5;border-radius:10px;background:#F8FAFD;display:inline-block;}
+      .bc-label{font-size:9px;color:#888;font-weight:700;letter-spacing:1px;margin-bottom:5px;}
+      .foot{font-size:10px;color:#999;margin-top:14px;}
+      @media print{.noprint{display:none!important}}
+    </style></head>
+    <body>
+      <h2>${tag}</h2>
+      <p>${desc}</p>${area !== '—' ? `<p style="color:#888;">${area}</p>` : ''}
+      <br><img class="qr-img" src="${img.src}"><br>
+      <div class="bc-section">
+        <div class="bc-label">CÓDIGO DE BARRAS (Code 128)</div>
+        <svg id="bc-print-modal" style="display:block;max-width:240px;height:56px;"></svg>
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px;">Escaneie para ver o histórico de manutenção</p>
+      <div class="foot">Caloi TPM v2.0 — Sistema de Controle de Manutenção</div>
+      <br><button class="noprint" onclick="window.print()"
+        style="padding:9px 22px;background:#1B3A6B;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;margin-top:8px;">
+        🖨 Imprimir
+      </button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.6/JsBarcode.all.min.js"><\/script>
+    <script>
+      window.addEventListener('load', function() {
+        JsBarcode('#bc-print-modal','${tag}',{format:'CODE128',width:2,height:50,
+          displayValue:true,fontSize:11,margin:6,lineColor:'#1B3A6B',background:'#ffffff'});
+        setTimeout(function(){window.print();},700);
+      });
+    <\/script>
+    </body></html>`);
+  w.document.close();
+}
+// ================================================================
+// IMPORTAÇÃO DE DADOS (SheetJS lazy loader)
+// ================================================================
+let _sheetJsLoaded = false;
+let _sheetJsQueue  = [];
+
+function _carregarSheetJS(cb) {
+  if (_sheetJsLoaded) { cb(); return; }
+  _sheetJsQueue.push(cb);
+  if (_sheetJsQueue.length > 1) return;
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload = () => { _sheetJsLoaded = true; _sheetJsQueue.forEach(fn => fn()); _sheetJsQueue = []; };
+  s.onerror = () => { _sheetJsQueue = []; toast('Erro ao carregar biblioteca de leitura de Excel.', 'error'); };
+  document.head.appendChild(s);
+}
+
+// ──────────────────────────────────────
+// Helpers
+// ──────────────────────────────────────
+function _limparHeader(v) {
+  if (!v) return '';
+  return String(v).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
+}
+
+// Detecta se uma linha é cabeçalho (contém palavras como descrição, tag, área…)
+function _isHeader(row) {
+  const joined = row.map(c => _limparHeader(c)).join('|');
+  return /descri|descr|nome|tag|cod|area|setor|peca|pec|mater|forne/.test(joined);
+}
+
+// Mapeia colunas de uma linha de dados para {descricao, tag, area, fornecedor}
+function _mapEquipRow(row, colMap) {
+  const get = (keys) => {
+    for (const k of keys) if (colMap[k] !== undefined && String(row[colMap[k]] || '').trim()) return String(row[colMap[k]]).trim();
+    return '';
+  };
+  return {
+    descricao:   get(['descricao','descri','nome','desc']),
+    tag:         get(['tag','codigo','cod','id']),
+    area:        get(['area','setor','local','linha']),
+    fornecedor:  get(['fornecedor','forn','fabricante','supplier']),
+  };
+}
+
+// Mapeia colunas para {tag, peca}
+function _mapEstRow(row, colMap) {
+  const get = (keys) => {
+    for (const k of keys) if (colMap[k] !== undefined && String(row[colMap[k]] || '').trim()) return String(row[colMap[k]]).trim();
+    return '';
+  };
+  return {
+    tag:  get(['tag','codigo','cod','equipamento']),
+    peca: get(['peca','pec','material','item','descricao','nome','part']),
+  };
+}
+
+// Parseia CSV/TXT linha a linha (separadores: ; | , tab espaços múltiplos)
+function _parseCsv(text) {
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  return lines.map(l => l.split(/[;|,\t]/).map(c => c.trim()));
+}
+
+// Converte array de arrays (planilha) em lista de objetos usando primeira linha como header
+function _planilhaParaEquipamentos(rows) {
+  // Encontrar linha de cabeçalho
+  let headerIdx = 0;
+  for (let i = 0; i < Math.min(rows.length, 5); i++) {
+    if (_isHeader(rows[i])) { headerIdx = i; break; }
+  }
+  const header = rows[headerIdx].map(_limparHeader);
+  const colMap = {};
+  header.forEach((h, i) => { colMap[h] = i; });
+
+  // Se não tem colunas reconhecidas, assume posição fixa: descricao, tag, area, fornecedor
+  const temColNomeada = Object.keys(colMap).some(k => /descri|tag|area|forne/.test(k));
+  const eqps = [];
+  for (let i = headerIdx + 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || row.every(c => !String(c||'').trim())) continue;
+    let eq;
+    if (temColNomeada) {
+      eq = _mapEquipRow(row, colMap);
+    } else {
+      eq = {
+        descricao:  String(row[0] || '').trim(),
+        tag:        String(row[1] || '').trim().toUpperCase(),
+        area:       String(row[2] || '').trim(),
+        fornecedor: String(row[3] || '').trim(),
+      };
+    }
+    if (eq.descricao || eq.tag) {
+      eq.tag = eq.tag.toUpperCase();
+      eqps.push(eq);
+    }
+  }
+  return eqps;
+}
+
+function _planilhaParaEstoque(rows) {
+  let headerIdx = 0;
+  for (let i = 0; i < Math.min(rows.length, 5); i++) {
+    if (_isHeader(rows[i])) { headerIdx = i; break; }
+  }
+  const header = rows[headerIdx].map(_limparHeader);
+  const colMap = {};
+  header.forEach((h, i) => { colMap[h] = i; });
+  const temColNomeada = Object.keys(colMap).some(k => /tag|peca|mater|item/.test(k));
+
+  const itens = [];
+  for (let i = headerIdx + 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || row.every(c => !String(c||'').trim())) continue;
+    let item;
+    if (temColNomeada) {
+      item = _mapEstRow(row, colMap);
+    } else {
+      item = {
+        tag:  String(row[0] || '').trim().toUpperCase(),
+        peca: String(row[1] || '').trim(),
+      };
+    }
+    if (item.tag && item.peca) itens.push(item);
+  }
+  return itens;
+}
+
+// ──────────────────────────────────────
+// EQUIPAMENTOS
+// ──────────────────────────────────────
+let _eqpImportData = [];
+
+function lerArquivoEquipamentos(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const status = document.getElementById('imp-eqp-status');
+  status.style.display = 'block';
+  status.textContent = '⏳ Lendo arquivo…';
+  document.getElementById('imp-eqp-preview').style.display = 'none';
+
+  const reader = new FileReader();
+
+  if (ext === 'xlsx' || ext === 'xls') {
+    _carregarSheetJS(() => {
+      reader.onload = (e) => {
+        try {
+          const wb = XLSX.read(e.target.result, { type: 'array' });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          _eqpImportData = _planilhaParaEquipamentos(rows);
+          _mostrarPreviewEqp(status);
+        } catch(err) {
+          status.textContent = '❌ Erro ao ler o arquivo: ' + err.message;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  } else {
+    reader.onload = (e) => {
+      try {
+        const rows = _parseCsv(e.target.result);
+        _eqpImportData = _planilhaParaEquipamentos(rows);
+        _mostrarPreviewEqp(status);
+      } catch(err) {
+        status.textContent = '❌ Erro ao ler o arquivo: ' + err.message;
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+}
+
+function _mostrarPreviewEqp(status) {
+  const data = _eqpImportData;
+  if (data.length === 0) {
+    status.textContent = '⚠️ Nenhum equipamento válido encontrado. Verifique o formato do arquivo.';
+    return;
+  }
+  status.style.display = 'none';
+  const preview = document.getElementById('imp-eqp-preview');
+  document.getElementById('imp-eqp-count').textContent =
+    '📋 ' + data.length + ' equipamento(s) encontrado(s) — confira antes de confirmar:';
+  const tbody = document.getElementById('imp-eqp-tbody');
+  tbody.innerHTML = '';
+  data.slice(0, 100).forEach(eq => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #f0f0f0';
+    tr.innerHTML = `
+      <td style="padding:5px 8px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${eq.descricao}</td>
+      <td style="padding:5px 8px;font-family:monospace;color:#1B3A6B;font-weight:700;">${eq.tag}</td>
+      <td style="padding:5px 8px;">${eq.area}</td>
+      <td style="padding:5px 8px;">${eq.fornecedor}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  if (data.length > 100) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="4" style="padding:6px 8px;text-align:center;color:#888;font-style:italic;">… e mais ${data.length - 100} registro(s)</td>`;
+    tbody.appendChild(tr);
+  }
+  preview.style.display = 'block';
+}
+
+async function confirmarImportacaoEqp() {
+  if (!_eqpImportData.length) return;
+  const r = await api('/admin/equipamentos/salvar', { equipamentos: _eqpImportData });
+  if (r.success) {
+    toast(r.message);
+    sessionStorage.setItem('adminTab', 'importar');
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    toast(r.message || 'Erro ao salvar equipamentos.', 'error');
+  }
+}
+
+function cancelarImportacaoEqp() {
+  _eqpImportData = [];
+  document.getElementById('imp-eqp-preview').style.display = 'none';
+  document.getElementById('imp-eqp-status').style.display = 'none';
+  document.getElementById('file-eqp').value = '';
+}
+
+// ──────────────────────────────────────
+// ESTOQUE
+// ──────────────────────────────────────
+let _estImportData = {};   // { TAG: [peça1, peça2, ...] }
+let _estImportRows = [];   // [{tag, peca}]
+
+function lerArquivoEstoque(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const ext = file.name.split('.').pop().toLowerCase();
+  const status = document.getElementById('imp-est-status');
+  status.style.display = 'block';
+  status.textContent = '⏳ Lendo arquivo…';
+  document.getElementById('imp-est-preview').style.display = 'none';
+
+  const reader = new FileReader();
+
+  if (ext === 'xlsx' || ext === 'xls') {
+    _carregarSheetJS(() => {
+      reader.onload = (e) => {
+        try {
+          const wb = XLSX.read(e.target.result, { type: 'array' });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+          _estImportRows = _planilhaParaEstoque(rows);
+          _construirEstoqueObj();
+          _mostrarPreviewEst(status);
+        } catch(err) {
+          status.textContent = '❌ Erro ao ler o arquivo: ' + err.message;
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    });
+  } else {
+    reader.onload = (e) => {
+      try {
+        const rows = _parseCsv(e.target.result);
+        _estImportRows = _planilhaParaEstoque(rows);
+        _construirEstoqueObj();
+        _mostrarPreviewEst(status);
+      } catch(err) {
+        status.textContent = '❌ Erro ao ler o arquivo: ' + err.message;
+      }
+    };
+    reader.readAsText(file, 'UTF-8');
+  }
+}
+
+function _construirEstoqueObj() {
+  _estImportData = {};
+  _estImportRows.forEach(({tag, peca}) => {
+    const t = tag.toUpperCase();
+    if (!_estImportData[t]) _estImportData[t] = [];
+    if (peca && !_estImportData[t].includes(peca)) _estImportData[t].push(peca);
+  });
+}
+
+function _mostrarPreviewEst(status) {
+  const rows = _estImportRows;
+  if (rows.length === 0) {
+    status.textContent = '⚠️ Nenhuma peça válida encontrada. Verifique o formato do arquivo.';
+    return;
+  }
+  status.style.display = 'none';
+  const tags = Object.keys(_estImportData).length;
+  document.getElementById('imp-est-count').textContent =
+    '📋 ' + rows.length + ' peça(s) em ' + tags + ' equipamento(s) — confira antes de confirmar:';
+  const tbody = document.getElementById('imp-est-tbody');
+  tbody.innerHTML = '';
+  rows.slice(0, 100).forEach(({tag, peca}) => {
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid #f0f0f0';
+    tr.innerHTML = `
+      <td style="padding:5px 8px;font-family:monospace;color:#1B3A6B;font-weight:700;">${tag}</td>
+      <td style="padding:5px 8px;">${peca}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  if (rows.length > 100) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="2" style="padding:6px 8px;text-align:center;color:#888;font-style:italic;">… e mais ${rows.length - 100} registro(s)</td>`;
+    tbody.appendChild(tr);
+  }
+  document.getElementById('imp-est-preview').style.display = 'block';
+}
+
+async function confirmarImportacaoEst() {
+  if (!Object.keys(_estImportData).length) return;
+  const resp = await fetch('/admin/estoque/salvar', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ estoque: _estImportData })
+  });
+  const r = await resp.json();
+  if (r.success) {
+    toast(r.message || 'Estoque importado com sucesso!');
+    sessionStorage.setItem('adminTab', 'importar');
+    setTimeout(() => location.reload(), 1200);
+  } else {
+    toast(r.message || 'Erro ao salvar estoque.', 'error');
+  }
+}
+
+function cancelarImportacaoEst() {
+  _estImportData = {};
+  _estImportRows = [];
+  document.getElementById('imp-est-preview').style.display = 'none';
+  document.getElementById('imp-est-status').style.display = 'none';
+  document.getElementById('file-est').value = '';
+}
+
+</script>
+
+<!-- MODAL QR CODE -->
+<div id="qr-modal" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,20,50,0.6);backdrop-filter:blur(3px);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,0.4);width:min(92vw,380px);overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#0d1f3c,#2451A3);padding:16px 20px;display:flex;align-items:center;gap:12px;">
+      <span style="font-size:20px;">&#9638;</span>
+      <div style="flex:1;">
+        <div style="color:#fff;font-size:15px;font-weight:800;" id="qr-modal-tag">—</div>
+        <div style="color:rgba(255,255,255,0.6);font-size:11px;" id="qr-modal-desc">—</div>
+      </div>
+      <button onclick="fecharQRModal()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+    </div>
+    <div style="padding:24px;text-align:center;">
+      <div id="qr-canvas" style="display:inline-block;padding:12px;border:2px solid #E0E5F0;border-radius:10px;background:#fff;"></div>
+      <div style="margin-top:10px;padding:10px 14px;border:1.5px solid #E8F0FA;border-radius:10px;background:#F8FAFD;display:inline-block;">
+        <div style="font-size:10px;color:#888;margin-bottom:5px;font-weight:700;letter-spacing:1px;">CÓDIGO DE BARRAS (Code 128)</div>
+        <svg id="qr-barcode-svg" style="display:block;max-width:220px;height:50px;"></svg>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:#6B7A8D;">
+        Área: <strong id="qr-modal-area">—</strong>
+      </div>
+      <div style="margin-top:4px;font-size:10px;color:#B0B0B0;">Escaneie para acessar o histórico do equipamento</div>
+      <div style="display:flex;gap:10px;margin-top:16px;justify-content:center;">
+        <button onclick="imprimirQR()" style="padding:9px 20px;background:linear-gradient(135deg,#1B3A6B,#2451A3);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">🖨 QR + Barcode</button>
+        <button onclick="fecharQRModal()" style="padding:9px 20px;background:#f0f0f0;color:#555;border:1.5px solid #ddd;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

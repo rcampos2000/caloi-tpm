@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Caloi TPM</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0d1f3c 0%, #1B3A6B 50%, #0d1f3c 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  /* Engrenagens decorativas */
+  .gear {
+    position: absolute;
+    opacity: 0.04;
+    animation: spin linear infinite;
+  }
+  .gear1 { width: 300px; height: 300px; top: -80px; left: -80px; animation-duration: 30s; }
+  .gear2 { width: 200px; height: 200px; bottom: -50px; right: 10%; animation-duration: 20s; animation-direction: reverse; }
+  .gear3 { width: 150px; height: 150px; top: 30%; right: -40px; animation-duration: 25s; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .login-box {
+    background: rgba(255,255,255,0.97);
+    border-radius: 16px;
+    padding: 48px 44px 40px;
+    width: 420px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 10;
+  }
+  .logo-area {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(135deg, #1B3A6B, #2456a4);
+    border-radius: 16px;
+    margin-bottom: 16px;
+    box-shadow: 0 8px 24px rgba(27,58,107,0.4);
+  }
+  .logo-badge svg { width: 40px; height: 40px; fill: white; }
+  .logo-area h1 {
+    color: #1B3A6B;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  .logo-area p {
+    color: #888;
+    font-size: 13px;
+    margin-top: 4px;
+  }
+  .caloi-stripe {
+    height: 3px;
+    background: linear-gradient(90deg, #1B3A6B 60%, #D62B2B 100%);
+    border-radius: 2px;
+    margin-bottom: 28px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 7px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  input[type="text"], input[type="password"] {
+    width: 100%;
+    padding: 13px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 15px;
+    color: #222;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: #fafafa;
+  }
+  input[type="text"]:focus, input[type="password"]:focus {
+    outline: none;
+    border-color: #1B3A6B;
+    box-shadow: 0 0 0 3px rgba(27,58,107,0.12);
+    background: #fff;
+  }
+  .btn-login {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #1B3A6B, #2456a4);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 8px;
+    transition: transform 0.1s, box-shadow 0.2s;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 16px rgba(27,58,107,0.3);
+  }
+  .btn-login:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(27,58,107,0.4);
+  }
+  .btn-login:active { transform: translateY(0); }
+  .erro {
+    background: #ffeaea;
+    border: 1.5px solid #f5a0a0;
+    border-radius: 10px;
+    padding: 12px 16px;
+    color: #c0392b;
+    font-size: 14px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .erro::before { content: "⚠"; font-size: 16px; }
+  .footer-info {
+    text-align: center;
+    margin-top: 24px;
+    color: #aaa;
+    font-size: 12px;
+  }
+  .input-wrapper { position: relative; }
+  .toggle-senha {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #aaa;
+    font-size: 18px;
+    user-select: none;
+  }
+  .toggle-senha:hover { color: #1B3A6B; }
+</style>
+</head>
+<body>
+
+<!-- Engrenagens decorativas SVG -->
+<svg class="gear gear1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path fill="white" d="M43.3,0h13.4l2.3,9.2c2.6,0.8,5,2,7.2,3.5l8.8-4l9.5,9.5l-4,8.8c1.5,2.2,2.7,4.6,3.5,7.2l9.2,2.3v13.4
+  l-9.2,2.3c-0.8,2.6-2,5-3.5,7.2l4,8.8l-9.5,9.5l-8.8-4c-2.2,1.5-4.6,2.7-7.2,3.5l-2.3,9.2H43.3l-2.3-9.2
+  c-2.6-0.8-5-2-7.2-3.5l-8.8,4L15.5,78l4-8.8c-1.5-2.2-2.7-4.6-3.5-7.2L6.8,59.7V46.3l9.2-2.3c0.8-2.6,2-5,3.5-7.2
+  l-4-8.8l9.5-9.5l8.8,4c2.2-1.5,4.6-2.7,7.2-3.5L43.3,0z M50,34c-8.8,0-16,7.2-16,16s7.2,16,16,16s16-7.2,16-16S58.8,34,50,34z"/>
+</svg>
+<svg class="gear gear2" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <path fill="white" d="M43.3,0h13.4l2.3,9.2c2.6,0.8,5,2,7.2,3.5l8.8-4l9.5,9.5l-4,8.8c1.5,2.2,2.7,4.6,3.5,7.2l9.2,2.3v13.4
+  l-9.2,2.3c-0.8,2.6-2,5-3.5,7.2l4,8.8l-9.5,9.5l-8.8-4c-2.2,1.5-4.6,2.7-7.2,3.5l-2.3,9.2H43.3l-2.3-9.2
+  c-2.6-0.8-5-2-7.2-3.5l-8.8,4L15.5,78l4-8.8c-1.5-2.2-2.7-4.6-3.5-7.2L6.8,59.7V46.3l9.2-2.3c0.8-2.6,2-5,3.5-7.2
+  l-4-8.8l9.5-9.5l8.8,4c2.2-1.5,4.6-2.7,7.2-3.5L43.3,0z M50,34c-8.8,0-16,7.2-16,16s7.2,16,16,16s16-7.2,16-16S58.8,34,50,34z"/>
+</svg>
+
+<div class="login-box">
+  <div class="logo-area">
+    <div class="logo-badge">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+        <path d="M13.5 6.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5S11.17 5 12 5s1.5.67 1.5 1.5z"/>
+      </svg>
+    </div>
+    <h1>Caloi TPM</h1>
+    <p>Sistema de Controle de Manutenção</p>
+  </div>
+
+  <div class="caloi-stripe"></div>
+
+  {% if erro %}
+  <div class="erro">{{ erro }}</div>
+  {% endif %}
+
+  <form method="POST" action="/login">
+    <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
+    <div class="form-group">
+      <label for="username">Usuário</label>
+      <input type="text" id="username" name="username" placeholder="Digite seu usuário"
+             autocomplete="username" required autofocus>
+    </div>
+    <div class="form-group">
+      <label for="senha">Senha</label>
+      <div class="input-wrapper">
+        <input type="password" id="senha" name="senha" placeholder="Digite sua senha"
+               autocomplete="current-password" required>
+        <span class="toggle-senha" onclick="toggleSenha()">👁</span>
+      </div>
+    </div>
+    <button type="submit" class="btn-login">🔐 Entrar no Sistema</button>
+  </form>
+
+  <div class="footer-info">
+    Caloi TPM v2.0 &nbsp;|&nbsp; Acesso restrito a usuários autorizados
+  </div>
+</div>
+
+<script>
+function toggleSenha() {
+  const input = document.getElementById('senha');
+  input.type = input.type === 'password' ? 'text' : 'password';
+}
+</script>
+</body>
+</html>

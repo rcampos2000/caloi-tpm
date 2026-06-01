@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard TPM | Caloi</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --blue:   #1B3A6B;
+  --blue2:  #2451A3;
+  --red:    #D62B2B;
+  --gray:   #F0F2F8;
+  --gray2:  #E0E5F0;
+  --text:   #2C3E50;
+  --muted:  #6B7A8D;
+  --green:  #27AE60;
+  --orange: #E67E22;
+  --shadow: 0 2px 14px rgba(27,58,107,0.10);
+  --r: 12px;
+}
+body {
+  font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;
+  background: var(--gray);
+  color: var(--text);
+  min-height: 100vh;
+  margin-left: 220px;
+}
+
+/* ── HEADER ── */
+.dash-header {
+  background: linear-gradient(135deg, #0d1f3c 0%, var(--blue) 60%, var(--blue2) 100%);
+  padding: 0 28px;
+  display: flex; align-items: center; gap: 20px;
+  height: 64px;
+  box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  position: sticky; top: 0; z-index: 200;
+}
+.dash-brand { display: flex; align-items: center; gap: 14px; }
+.dash-logo-box {
+  width: 44px; height: 44px; background: var(--red); border-radius: 10px;
+  display: flex; align-items: center; justify-content: center; font-size: 26px; flex-shrink: 0;
+}
+.dash-title { color: #fff; font-size: 17px; font-weight: 800; letter-spacing: 0.5px; }
+.dash-sub   { color: rgba(255,255,255,0.55); font-size: 11px; margin-top: 1px; }
+.dash-sep   { height: 36px; width: 1px; background: rgba(255,255,255,0.2); margin: 0 6px; }
+.dash-kpi-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.1); border-radius: 8px; padding: 6px 14px;
+}
+.dash-kpi-pill .val { color: #fff; font-size: 22px; font-weight: 800; line-height: 1; }
+.dash-kpi-pill .lbl { color: rgba(255,255,255,0.6); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; }
+.dash-header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.dash-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 7px; font-size: 12px; font-weight: 700;
+  text-decoration: none; cursor: pointer; border: none; transition: all 0.18s;
+}
+.dash-btn-white { background: rgba(255,255,255,0.95); color: var(--blue); }
+.dash-btn-white:hover { background: #fff; }
+.dash-btn-red   { background: var(--red); color: #fff; }
+.dash-btn-red:hover { background: #b01f1f; }
+
+/* ── MAIN ── */
+.dash-main { padding: 20px 24px; max-width: 1400px; margin: 0 auto; }
+
+/* ── FILTROS ── */
+.filter-bar {
+  background: #fff; border-radius: var(--r); box-shadow: var(--shadow);
+  padding: 12px 20px; margin-bottom: 20px;
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end;
+  border: 1px solid var(--gray2);
+}
+.filter-group { display: flex; flex-direction: column; gap: 3px; }
+.filter-group label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.filter-group select, .filter-group input {
+  padding: 6px 10px; border: 1.5px solid var(--gray2); border-radius: 6px;
+  font-size: 12px; color: var(--text); background: #fff; min-width: 110px;
+}
+.filter-group select:focus, .filter-group input:focus { outline: none; border-color: var(--blue2); }
+.filter-divider { width: 1px; height: 36px; background: var(--gray2); align-self: flex-end; margin-bottom: 2px; }
+#filter-count { font-size: 11px; color: var(--muted); white-space: nowrap; }
+
+/* ── KPI ── */
+.kpi-row { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; margin-bottom: 20px; }
+.kpi-card {
+  background: #fff; border-radius: var(--r); box-shadow: var(--shadow);
+  border: 1px solid var(--gray2); border-top: 4px solid var(--blue);
+  padding: 18px 20px; position: relative; overflow: hidden;
+}
+.kpi-card.green  { border-top-color: var(--green); }
+.kpi-card.red    { border-top-color: var(--red); }
+.kpi-card.orange { border-top-color: var(--orange); }
+.kpi-card.purple { border-top-color: #8E44AD; }
+.kpi-icon { position: absolute; right: 14px; top: 14px; font-size: 28px; opacity: 0.10; }
+.kpi-label { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 6px; }
+.kpi-value { font-size: 34px; font-weight: 800; color: var(--blue); line-height: 1; }
+.kpi-card.green  .kpi-value { color: var(--green); }
+.kpi-card.red    .kpi-value { color: var(--red); }
+.kpi-card.orange .kpi-value { color: var(--orange); }
+.kpi-card.purple .kpi-value { color: #8E44AD; }
+.kpi-sub { font-size: 11px; color: var(--muted); margin-top: 5px; }
+.kpi-badge { display: inline-flex; align-items: center; gap: 4px; border-radius: 20px; font-size: 10px; font-weight: 700; padding: 2px 8px; margin-top: 4px; }
+.kpi-badge.warn { background: #FFF3CD; color: #856404; border: 1px solid #ffc107; }
+.kpi-badge.ok   { background: #D5F5E3; color: #1E8449; }
+
+/* ── CARDS / GRÁFICOS ── */
+.charts-top  { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin-bottom: 16px; }
+.charts-mid  { display: grid; grid-template-columns: 1fr 1fr;   gap: 16px; margin-bottom: 16px; }
+.charts-full { margin-bottom: 16px; }
+
+.card { background: #fff; border-radius: var(--r); box-shadow: var(--shadow); border: 1px solid var(--gray2); overflow: hidden; }
+.card-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 18px; border-bottom: 2px solid var(--gray2);
+}
+.card-header-title { font-size: 12px; font-weight: 800; color: var(--blue); letter-spacing: 1px; text-transform: uppercase; }
+.card-header-sub   { font-size: 11px; color: var(--muted); margin-left: auto; }
+.card-header-hint  { font-size: 10px; color: var(--muted); margin-left: 8px; font-style: italic; }
+.card-body { padding: 16px 18px; }
+.chart-wrap { position: relative; }
+.chart-wrap canvas { display: block; cursor: pointer; }
+
+/* dica de clique */
+.click-hint {
+  font-size: 10px; color: var(--muted); text-align: right;
+  padding: 4px 18px 8px; font-style: italic;
+}
+
+/* ── STATUS EQUIPAMENTOS ── */
+.status-summary { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.status-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--gray); border-radius: 8px; padding: 8px 14px;
+  border: 1px solid var(--gray2); min-width: 110px;
+}
+.status-pill .dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.status-pill .sp-val { font-size: 20px; font-weight: 800; color: var(--text); line-height: 1; }
+.status-pill .sp-lbl { font-size: 10px; color: var(--muted); }
+.eq-list { display: flex; flex-direction: column; gap: 5px; max-height: 280px; overflow-y: auto; }
+.eq-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 10px; border-radius: 8px; border-left: 4px solid #ccc; font-size: 12px;
+}
+.eq-row.pendente  { background: #FFF8E1; border-left-color: var(--orange); }
+.eq-row.concluido { background: #E8F5E9; border-left-color: var(--green); }
+.eq-row.sem-dados { background: #F5F5F5; border-left-color: #B0B0B0; }
+.eq-tag { font-weight: 800; color: var(--blue); width: 56px; flex-shrink: 0; font-size: 11px; font-family: monospace; }
+.eq-desc { flex: 1; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.eq-status-badge { font-size: 10px; font-weight: 700; white-space: nowrap; }
+
+/* ── TABELA ── */
+.table-filter {
+  padding: 12px 18px; border-bottom: 1px solid var(--gray2);
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+}
+.table-filter input, .table-filter select {
+  padding: 6px 10px; border: 1.5px solid var(--gray2); border-radius: 6px; font-size: 12px;
+}
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th { background: var(--blue); color: #fff; padding: 10px 12px; text-align: left; font-size: 10px; letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
+tbody tr { border-bottom: 1px solid #F0F3FA; transition: background 0.12s; }
+tbody tr:hover { background: #EBF5FB; }
+tbody tr.row-pendente { background: #FFFDE7; }
+tbody tr.row-pendente:hover { background: #FFF9C4; }
+tbody td { padding: 9px 12px; white-space: nowrap; color: var(--text); }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.badge-green  { background: #D5F5E3; color: #1E8449; }
+.badge-red    { background: #FDEDEC; color: #922B21; }
+.badge-blue   { background: #EBF5FB; color: #1A5276; }
+.badge-pend   { background: #FFF3CD; color: #856404; border: 1px solid #ffc107; }
+
+/* ── FOOTER ── */
+.dash-footer {
+  text-align: center; color: var(--muted); font-size: 11px;
+  padding: 16px 24px; border-top: 1px solid var(--gray2); margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+}
+
+/* ── EMPTY STATE ── */
+.empty-chart { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; color: var(--muted); gap: 8px; }
+.empty-chart .ic { font-size: 36px; opacity: 0.4; }
+.empty-chart p { font-size: 12px; }
+
+/* ════════════════════════════════════════
+   MODAL DRILL-DOWN
+════════════════════════════════════════ */
+#drill-modal {
+  display: none;
+  position: fixed; inset: 0; z-index: 1000;
+}
+.dm-overlay {
+  position: absolute; inset: 0;
+  background: rgba(10, 20, 50, 0.55);
+  backdrop-filter: blur(2px);
+}
+.dm-box {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(92vw, 900px);
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.dm-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 22px;
+  background: linear-gradient(135deg, #0d1f3c, var(--blue2));
+  color: #fff; flex-shrink: 0;
+}
+.dm-icon  { font-size: 22px; }
+.dm-title { font-size: 15px; font-weight: 800; flex: 1; letter-spacing: 0.3px; }
+.dm-close {
+  background: rgba(255,255,255,0.15); border: none; color: #fff;
+  width: 32px; height: 32px; border-radius: 50%; cursor: pointer;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.dm-close:hover { background: rgba(255,255,255,0.3); }
+.dm-body {
+  display: flex; flex-direction: column; gap: 0;
+  overflow-y: auto; flex: 1;
+}
+.dm-chart-area {
+  padding: 20px 22px 8px;
+  border-bottom: 1px solid var(--gray2);
+  flex-shrink: 0;
+}
+.dm-chart-area canvas { max-height: 260px; }
+.dm-stats {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--gray2);
+  background: #F8FAFD;
+}
+.dm-stat {
+  display: flex; flex-direction: column; gap: 2px;
+  min-width: 90px;
+}
+.dm-stat .dsv { font-size: 22px; font-weight: 800; color: var(--blue); line-height: 1; }
+.dm-stat .dsl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.dm-table-wrap { overflow-x: auto; flex: 1; }
+.dm-table-wrap table { font-size: 11px; }
+.dm-table-wrap thead th { font-size: 9px; padding: 8px 10px; }
+.dm-table-wrap tbody td { padding: 7px 10px; }
+
+/* ── RESPONSIVO ── */
+@media (max-width:1100px) {
+  .kpi-row { grid-template-columns: repeat(3,1fr); }
+  .charts-top, .charts-mid { grid-template-columns: 1fr; }
+}
+@media (max-width:700px) {
+  body { margin-left: 0; }
+  .kpi-row { grid-template-columns: repeat(2,1fr); }
+  .dash-header { height: auto; flex-wrap: wrap; padding: 12px; gap: 10px; }
+}
+</style>
+</head>
+<body>
+{% include 'nav.html' %}
+
+<!-- ══ HEADER ══ -->
+<header class="dash-header">
+  <div class="dash-brand">
+    <div class="dash-logo-box">🚲</div>
+    <div>
+      <div class="dash-title">CALOI <span style="color:#D62B2B;">TPM</span></div>
+      <div class="dash-sub">Dashboard de Manutenção</div>
+    </div>
+  </div>
+  <div class="dash-sep"></div>
+  <div class="dash-kpi-pill">
+    <div><div class="val">{{ total }}</div><div class="lbl">Total OS</div></div>
+  </div>
+  <div class="dash-kpi-pill" style="background:rgba(39,174,96,0.2);">
+    <div><div class="val" style="color:#7DCEA0;">{{ finalizadas }}</div><div class="lbl">Finalizadas</div></div>
+  </div>
+  <div class="dash-kpi-pill" style="background:rgba(214,43,43,0.2);">
+    <div><div class="val" style="color:#F1948A;">{{ em_aberto }}</div><div class="lbl">Em Aberto</div></div>
+  </div>
+  <div class="dash-header-right">
+    <a href="/formulario" class="dash-btn dash-btn-red">📋 Nova OS</a>
+    <a href="/download"   class="dash-btn dash-btn-white">⬇ Excel</a>
+  </div>
+</header>
+
+<!-- ══ MAIN ══ -->
+<div class="dash-main">
+
+  <!-- FILTROS -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>📅 Ano</label>
+      <select id="f-ano" onchange="aplicarFiltro()">
+        <option value="">Todos</option>
+        {% for ano in anos %}
+        <option value="{{ ano }}">{{ ano }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>🗓 Mês</label>
+      <select id="f-mes" onchange="aplicarFiltro()">
+        <option value="">Todos</option>
+        <option value="01">Janeiro</option>
+        <option value="02">Fevereiro</option>
+        <option value="03">Março</option>
+        <option value="04">Abril</option>
+        <option value="05">Maio</option>
+        <option value="06">Junho</option>
+        <option value="07">Julho</option>
+        <option value="08">Agosto</option>
+        <option value="09">Setembro</option>
+        <option value="10">Outubro</option>
+        <option value="11">Novembro</option>
+        <option value="12">Dezembro</option>
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>📆 Semana</label>
+      <select id="f-semana" onchange="aplicarFiltro()">
+        <option value="">Todas</option>
+        {% for s in range(1,53) %}
+        <option value="{{ s }}">Semana {{ s }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter-divider"></div>
+
+    <div class="filter-group">
+      <label>🏭 Setor</label>
+      <select id="f-setor" onchange="aplicarFiltro()">
+        <option value="">Todos</option>
+        {% for setor in por_setor.keys() %}
+        <option value="{{ setor }}">{{ setor }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="filter-group">
+      <label>🔧 Tipo</label>
+      <select id="f-tipo" onchange="aplicarFiltro()">
+        <option value="">Todos</option>
+        <option value="Corretiva">Corretiva</option>
+        <option value="Preventiva">Preventiva</option>
+        <option value="Preditiva">Preditiva</option>
+        <option value="Melhoria">Melhoria</option>
+      </select>
+    </div>
+
+    <div style="margin-left:auto; display:flex; gap:8px; align-items:flex-end;">
+      <button onclick="limparFiltros()" style="padding:6px 14px;border:1.5px solid var(--gray2);border-radius:6px;background:#fff;font-size:12px;cursor:pointer;color:var(--muted);">
+        ✕ Limpar
+      </button>
+      <span id="filter-count" style="font-size:11px;color:var(--muted);white-space:nowrap;padding-bottom:4px;"></span>
+    </div>
+  </div>
+
+  <!-- KPI CARDS -->
+  <div class="kpi-row">
+    <div class="kpi-card blue">
+      <div class="kpi-icon">📋</div>
+      <div class="kpi-label">Total de OS</div>
+      <div class="kpi-value" id="kpi-total">{{ total }}</div>
+      <div class="kpi-sub">Ocorrências registradas</div>
+    </div>
+    <div class="kpi-card green">
+      <div class="kpi-icon">✅</div>
+      <div class="kpi-label">OS Finalizadas</div>
+      <div class="kpi-value" id="kpi-finalizadas">{{ finalizadas }}</div>
+      <div class="kpi-sub" id="kpi-fin-pct">
+        {% if total > 0 %}{{ "%.0f"|format(finalizadas/total*100) }}% do total{% else %}—{% endif %}
+      </div>
+    </div>
+    <div class="kpi-card red">
+      <div class="kpi-icon">⚠</div>
+      <div class="kpi-label">OS em Aberto</div>
+      <div class="kpi-value" id="kpi-aberto">{{ em_aberto }}</div>
+      <div class="kpi-sub">
+        {% if em_aberto > 0 %}<span class="kpi-badge warn">⚠ Atenção requerida</span>
+        {% else %}<span class="kpi-badge ok">✓ Tudo em dia</span>{% endif %}
+      </div>
+    </div>
+    <div class="kpi-card orange">
+      <div class="kpi-icon">⏱</div>
+      <div class="kpi-label">Tempo Médio</div>
+      <div class="kpi-value" id="kpi-tempo">{{ tempo_medio }}h</div>
+      <div class="kpi-sub">Horas por ocorrência</div>
+    </div>
+    <div class="kpi-card purple">
+      <div class="kpi-icon">🏭</div>
+      <div class="kpi-label">Total Horas Paradas</div>
+      <div class="kpi-value" id="kpi-horas">{{ total_horas }}h</div>
+      <div class="kpi-sub">Acumulado geral</div>
+    </div>
+  </div>
+
+  <!-- LINHA 1: OS por Mês + Tipos de Manutenção -->
+  <div class="charts-top">
+    <div class="card">
+      <div class="card-header">
+        <span>📈</span>
+        <span class="card-header-title">OS por Mês</span>
+        <span class="card-header-sub">Últimos 12 meses</span>
+        <span class="card-header-hint">· clique para detalhar</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:220px;"><canvas id="chartMes"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span>🔧</span>
+        <span class="card-header-title">Tipos de Manutenção</span>
+        <span class="card-header-hint">· clique para detalhar</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:220px;"><canvas id="chartTipos"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINHA 2: Por Setor + Top Equipamentos -->
+  <div class="charts-mid">
+    <div class="card">
+      <div class="card-header">
+        <span>🏭</span>
+        <span class="card-header-title">Ocorrências por Setor</span>
+        <span class="card-header-hint">· clique para detalhar</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:240px;"><canvas id="chartSetor"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <span>⚙</span>
+        <span class="card-header-title">Top 10 Equipamentos</span>
+        <span class="card-header-sub">Mais ocorrências</span>
+        <span class="card-header-hint">· clique para detalhar</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:240px;"><canvas id="chartEquip"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LINHA 3: Horas por Colaborador (NOVO) -->
+  <div class="card charts-full">
+    <div class="card-header">
+      <span>👷</span>
+      <span class="card-header-title">Horas Trabalhadas por Colaborador</span>
+      <span class="card-header-sub">Total de horas paradas atendidas</span>
+      <span class="card-header-hint">· clique para detalhar</span>
+    </div>
+    <div class="card-body">
+      <div class="chart-wrap" style="height:280px;"><canvas id="chartColab"></canvas></div>
+    </div>
+  </div>
+
+  <!-- STATUS EQUIPAMENTOS -->
+  {% if grafico_maquinas %}
+  <div class="card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <span>🏭</span>
+      <span class="card-header-title">Status dos Equipamentos</span>
+      <a href="/plano-acao" style="margin-left:auto;font-size:11px;font-weight:700;color:var(--red);text-decoration:none;display:flex;align-items:center;gap:4px;">
+        ⚠ Plano de Ação →
+      </a>
+    </div>
+    <div class="card-body">
+      <div class="status-summary">
+        <div class="status-pill"><div class="dot" style="background:var(--orange);"></div><div><div class="sp-val" style="color:var(--orange);">{{ n_pendente }}</div><div class="sp-lbl">Pendente</div></div></div>
+        <div class="status-pill"><div class="dot" style="background:var(--green);"></div><div><div class="sp-val" style="color:var(--green);">{{ n_ok }}</div><div class="sp-lbl">Concluído</div></div></div>
+        <div class="status-pill"><div class="dot" style="background:#B0B0B0;"></div><div><div class="sp-val" style="color:#888;">{{ n_sem_dados }}</div><div class="sp-lbl">Sem Registros</div></div></div>
+      </div>
+      <div class="eq-list">
+        {% for m in grafico_maquinas %}
+          {% if m.status=='Pendente' %}{% set cls='pendente' %}{% set scor='var(--orange)' %}{% set ico='⚠' %}
+          {% elif m.status=='Concluído' %}{% set cls='concluido' %}{% set scor='var(--green)' %}{% set ico='✓' %}
+          {% else %}{% set cls='sem-dados' %}{% set scor='#B0B0B0' %}{% set ico='—' %}{% endif %}
+          <div class="eq-row {{ cls }}">
+            <span style="font-size:14px;width:18px;text-align:center;">{{ ico }}</span>
+            <span class="eq-tag">{{ m.tag }}</span>
+            <span class="eq-desc">{{ m.descricao }}</span>
+            <span class="eq-status-badge" style="color:{{ scor }};">{{ m.status }}</span>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- TABELA -->
+  <div class="card" style="margin-bottom:24px;">
+    <div class="card-header">
+      <span>📋</span>
+      <span class="card-header-title">Últimos Registros</span>
+      <span class="card-header-sub">Até 50 mais recentes</span>
+    </div>
+    <div class="table-filter">
+      <input type="text" id="tab-busca" placeholder="🔍  Buscar equipamento, técnico, setor…" oninput="filtrarTabela()" style="min-width:240px;">
+      <select id="tab-status" onchange="filtrarTabela()">
+        <option value="">Todos os status</option>
+        <option value="Concluído">Concluído</option>
+        <option value="Pendente">Pendente</option>
+      </select>
+      <button onclick="limparTabela()" style="padding:6px 12px;border:1.5px solid var(--gray2);border-radius:6px;background:#fff;font-size:11px;cursor:pointer;color:var(--muted);">✕</button>
+    </div>
+    <div class="table-wrap">
+      {% if records %}
+      <table id="tbl-registros">
+        <thead>
+          <tr>
+            <th>ID</th><th>Data</th><th>TAG / Equipamento</th><th>Técnico</th>
+            <th>Setor</th><th>Horas</th><th>Tipo / Motivo</th><th>Assinatura</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbl-body">
+          {% for r in records | reverse %}
+          <tr {% if r.get('Status')=='Pendente' %}class="row-pendente"{% endif %}
+              data-txt="{{ (r.get('Equipamento','')|string ~ r.get('Código do Equipamento','')|string ~ r.get('Técnico Responsável','')|string ~ r.get('Setor Produtivo','')|string)|lower }}"
+              data-status="{{ r.get('Status','Concluído') }}">
+            <td><strong style="color:var(--blue);">#{{ "%04d"|format(r.get('ID') or 0) }}</strong></td>
+            <td style="color:var(--muted);">{{ r.get('Data/Hora Registro','—') }}</td>
+            <td>
+              <strong>{{ (r.get('Equipamento','') or '—')[:22] }}{% if (r.get('Equipamento','')|string)|length > 22 %}…{% endif %}</strong>
+              {% if r.get('Código do Equipamento') %}<br><small style="color:var(--muted);font-family:monospace;">{{ r.get('Código do Equipamento') }}</small>{% endif %}
+            </td>
+            <td>{{ r.get('Técnico Responsável','—') }}</td>
+            <td><span class="badge badge-blue">{{ r.get('Setor Produtivo','—') }}</span></td>
+            <td>
+              {% set h = r.get('Total Horas Paradas') or 0 %}
+              {% if h and h > 4 %}<span style="color:var(--red);font-weight:700;">{{ h }}h ⚠</span>
+              {% elif h %}<span style="color:var(--green);font-weight:600;">{{ h }}h</span>
+              {% else %}—{% endif %}
+            </td>
+            <td>
+              {% set mp = r.get('Motivo da Parada','') or '' %}
+              <span style="font-size:11px;">{{ mp.split(' - ')[0][:20] }}{% if mp|length > 20 %}…{% endif %}</span>
+            </td>
+            <td>
+              {% if r.get('Assinatura Técnico')=='SIM' %}<span class="badge badge-green">✓ Sim</span>
+              {% else %}<span class="badge badge-red">✗ Não</span>{% endif %}
+            </td>
+            <td>
+              {% set st = r.get('Status','Concluído') %}
+              {% if st=='Pendente' %}<span class="badge badge-pend">⚠ Pendente</span>
+              {% else %}<span class="badge badge-green">✓ {{ st }}</span>{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-chart" style="padding:60px;">
+        <div class="ic">📋</div><p>Nenhum registro encontrado.</p>
+        <a href="/formulario" style="margin-top:12px;padding:8px 20px;background:var(--blue);color:#fff;border-radius:8px;text-decoration:none;font-size:13px;font-weight:700;">📝 Registrar OS</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="dash-footer">
+    <span><strong>CALOI S.A.</strong> &nbsp;·&nbsp; Sistema TPM v2.0</span>
+    <span id="dash-time"></span>
+    <span>
+      <a href="/download" style="color:var(--blue);text-decoration:none;font-weight:600;">⬇ Exportar Excel</a>
+      &nbsp;·&nbsp;
+      <a href="/download/plano-acao" style="color:var(--red);text-decoration:none;font-weight:600;">⚠ Plano de Ação</a>
+    </span>
+  </div>
+</div><!-- /dash-main -->
+
+<!-- ══════════════════════════════════════════════
+     MODAL DRILL-DOWN
+══════════════════════════════════════════════ -->
+<div id="drill-modal">
+  <div class="dm-overlay" onclick="fecharDrill()"></div>
+  <div class="dm-box">
+    <div class="dm-header">
+      <span class="dm-icon" id="dm-icon">📊</span>
+      <span class="dm-title" id="dm-title">Detalhamento</span>
+      <button class="dm-close" onclick="fecharDrill()">✕</button>
+    </div>
+    <div class="dm-body">
+      <div class="dm-stats" id="dm-stats"></div>
+      <div class="dm-chart-area">
+        <canvas id="dm-chart" style="max-height:240px;"></canvas>
+      </div>
+      <div class="dm-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Data</th><th>Equipamento</th><th>Técnico</th>
+              <th>Setor</th><th>Tipo</th><th>Horas</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="dm-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     JAVASCRIPT
+══════════════════════════════════════════════ -->
+<script>
+/* ─── dados do servidor ─── */
+const SERVER = {
+  total:       {{ total }},
+  finalizadas: {{ finalizadas }},
+  em_aberto:   {{ em_aberto }},
+  tempo_medio: {{ tempo_medio }},
+  total_horas: {{ total_horas }},
+  por_setor:   {{ por_setor   | tojson }},
+  por_tipo:    {{ por_tipo    | tojson }},
+  top_eq:      {{ top_equipamentos | tojson }},
+  por_mes:     {{ por_mes_lista    | tojson }},
+  records_all: {{ records_json     | tojson }}
+};
+
+/* ─── paleta ─── */
+const C = {
+  blue:   '#1B3A6B', blue2: '#2451A3', red:   '#D62B2B',
+  green:  '#27AE60', orange:'#E67E22', purple:'#8E44AD',
+  teal:   '#16A085', pink:  '#C0392B', sky:   '#2980B9',
+  yellow: '#F39C12', gray:  '#7F8C8D'
+};
+const PAL = [C.blue2,C.red,C.green,C.orange,C.purple,C.teal,C.pink,C.sky,C.yellow,C.gray];
+
+Chart.defaults.font.family = "Arial,'Helvetica Neue',sans-serif";
+Chart.defaults.font.size   = 12;
+Chart.defaults.color       = '#6B7A8D';
+
+/* ─── helpers ─── */
+function getWeek(dateStr) {
+  // dateStr: "dd/mm/yyyy ..." ou "dd/mm/yyyy"
+  const p = String(dateStr || '').split('/');
+  if (p.length < 3) return null;
+  const d = new Date(p[2].slice(0,4), parseInt(p[1])-1, parseInt(p[0]));
+  if (isNaN(d)) return null;
+  const oneJan = new Date(d.getFullYear(), 0, 1);
+  return Math.ceil(((d - oneJan) / 86400000 + oneJan.getDay() + 1) / 7);
+}
+
+function getMes(dateStr) {
+  const p = String(dateStr || '').split('/');
+  return p.length >= 2 ? p[1].padStart(2,'0') : null;
+}
+
+function getAno(dateStr) {
+  const p = String(dateStr || '').split('/');
+  return p.length >= 3 ? p[2].slice(0,4) : null;
+}
+
+function inferirTipo(r) {
+  const m = String(r['Motivo da Parada'] || r['Tipo Manutenção'] || '');
+  if (m.includes('Preventiva') || m.includes('Lubrif') || m.includes('5S')) return 'Preventiva';
+  if (m.includes('Melhoria'))  return 'Melhoria';
+  if (m.includes('Preditiva')) return 'Preditiva';
+  return 'Corretiva';
+}
+
+function calcColab(recs) {
+  const obj = {};
+  recs.forEach(r => {
+    const tec = r['Técnico Responsável'] || 'N/I';
+    const h   = Number(r['Total Horas Paradas'] || 0);
+    obj[tec] = (obj[tec] || 0) + h;
+  });
+  return Object.entries(obj).sort((a,b) => b[1]-a[1]).slice(0,15);
+}
+
+/* ─── instâncias dos gráficos ─── */
+let chMes, chTipos, chSetor, chEquip, chColab, chDrill;
+
+/* ─── registros atualmente filtrados ─── */
+let filtrados = SERVER.records_all.slice();
+
+/* ════════════════════════════
+   CRIAR / ATUALIZAR GRÁFICOS
+════════════════════════════ */
+function criarGraficos(recs) {
+  filtrados = recs;
+
+  /* ── por mês ── */
+  const mesObj = {};
+  recs.forEach(r => {
+    const ds = String(r['Data/Hora Registro'] || '');
+    const p  = ds.split('/');
+    if (p.length >= 3) {
+      const key = p[1].padStart(2,'0') + '/' + p[2].slice(0,4);
+      mesObj[key] = (mesObj[key]||0)+1;
+    }
+  });
+  const mesOrd = Object.keys(mesObj).sort((a,b) => {
+    const [ma,ya] = a.split('/'); const [mb,yb] = b.split('/');
+    return ya !== yb ? ya.localeCompare(yb) : ma.localeCompare(mb);
+  }).slice(-12);
+  const mesDados = mesOrd.map(m => ({ mes: m, qtd: mesObj[m] }));
+
+  /* ── por tipo ── */
+  const tipoObj = { Corretiva:0, Preventiva:0, Preditiva:0, Melhoria:0 };
+  recs.forEach(r => { tipoObj[inferirTipo(r)]++; });
+
+  /* ── por setor ── */
+  const setorObj = {};
+  recs.forEach(r => { const s = r['Setor Produtivo'] || 'N/A'; setorObj[s] = (setorObj[s]||0)+1; });
+
+  /* ── top equipamentos ── */
+  const eqObj = {};
+  recs.forEach(r => { const e = r['Equipamento'] || r['Código do Equipamento'] || 'N/A'; eqObj[e] = (eqObj[e]||0)+1; });
+  const topEq = Object.entries(eqObj).sort((a,b)=>b[1]-a[1]).slice(0,10);
+
+  /* ── colaboradores ── */
+  const colab = calcColab(recs);
+
+  /* helper destruir/criar */
+  function rebuild(ref, canvasId, config) {
+    if (ref) ref.destroy();
+    const cv = document.getElementById(canvasId);
+    if (!cv) return null;
+    return new Chart(cv, config);
+  }
+
+  /* ── GRÁFICO: OS POR MÊS ── */
+  chMes = rebuild(chMes, 'chartMes', {
+    type: 'bar',
+    data: {
+      labels: mesDados.map(m => m.mes),
+      datasets: [{
+        label: 'OS', data: mesDados.map(m => m.qtd),
+        backgroundColor: C.blue2, borderRadius: 5, borderSkipped: false
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+        y: { beginAtZero: true, grid: { color: '#E8ECF5' }, ticks: { precision: 0 } }
+      },
+      onClick(e, els) {
+        if (!els.length) return;
+        const label = mesDados[els[0].index].mes;
+        const sub   = recs.filter(r => {
+          const ds = String(r['Data/Hora Registro']||'').split('/');
+          return ds.length>=3 && ds[1].padStart(2,'0')+'/'+ds[2].slice(0,4) === label;
+        });
+        abrirDrillDown({ icon:'📅', titulo:`Mês: ${label}`, tipo:'mes', label }, sub);
+      }
+    }
+  });
+
+  /* ── GRÁFICO: TIPOS (donut) ── */
+  chTipos = rebuild(chTipos, 'chartTipos', {
+    type: 'doughnut',
+    data: {
+      labels: Object.keys(tipoObj),
+      datasets: [{ data: Object.values(tipoObj), backgroundColor: [C.red,C.blue2,C.green,C.orange], borderWidth: 2, borderColor: '#fff', hoverOffset: 6 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: '62%',
+      plugins: { legend: { position:'bottom', labels: { padding:12, font:{size:11} } } },
+      onClick(e, els) {
+        if (!els.length) return;
+        const label = Object.keys(tipoObj)[els[0].index];
+        const sub   = recs.filter(r => inferirTipo(r) === label);
+        abrirDrillDown({ icon:'🔧', titulo:`Tipo: ${label}`, tipo:'tipo', label }, sub);
+      }
+    }
+  });
+
+  /* ── GRÁFICO: POR SETOR (barras horizontais) ── */
+  const setorOrd = Object.entries(setorObj).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  chSetor = rebuild(chSetor, 'chartSetor', {
+    type: 'bar',
+    data: {
+      labels: setorOrd.map(x=>x[0]),
+      datasets: [{ label:'OS', data: setorOrd.map(x=>x[1]), backgroundColor: setorOrd.map((_,i)=>PAL[i%PAL.length]), borderRadius:4, borderSkipped:false }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display:false } },
+      scales: {
+        x: { beginAtZero:true, grid:{color:'#E8ECF5'}, ticks:{precision:0} },
+        y: { grid:{display:false}, ticks:{font:{size:11}} }
+      },
+      onClick(e, els) {
+        if (!els.length) return;
+        const label = setorOrd[els[0].index][0];
+        const sub   = recs.filter(r => (r['Setor Produtivo']||'') === label);
+        abrirDrillDown({ icon:'🏭', titulo:`Setor: ${label}`, tipo:'setor', label }, sub);
+      }
+    }
+  });
+
+  /* ── GRÁFICO: TOP EQUIPAMENTOS ── */
+  chEquip = rebuild(chEquip, 'chartEquip', {
+    type: 'bar',
+    data: {
+      labels: topEq.map(x => x[0].length>18 ? x[0].slice(0,18)+'…' : x[0]),
+      datasets: [{ label:'OS', data: topEq.map(x=>x[1]), backgroundColor: topEq.map((_,i)=>i===0?C.red:C.blue2), borderRadius:4, borderSkipped:false }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{display:false} },
+      scales: {
+        x: { beginAtZero:true, grid:{color:'#E8ECF5'}, ticks:{precision:0} },
+        y: { grid:{display:false}, ticks:{font:{size:11}} }
+      },
+      onClick(e, els) {
+        if (!els.length) return;
+        const label = topEq[els[0].index][0];
+        const sub   = recs.filter(r => (r['Equipamento']||r['Código do Equipamento']||'') === label);
+        abrirDrillDown({ icon:'⚙', titulo:`Equipamento: ${label}`, tipo:'equipamento', label }, sub);
+      }
+    }
+  });
+
+  /* ── GRÁFICO: HORAS POR COLABORADOR ── */
+  chColab = rebuild(chColab, 'chartColab', {
+    type: 'bar',
+    data: {
+      labels: colab.map(x=>x[0]),
+      datasets: [{
+        label:'Horas', data: colab.map(x=>parseFloat(x[1].toFixed(1))),
+        backgroundColor: colab.map((_,i)=>PAL[i%PAL.length]),
+        borderRadius:5, borderSkipped:false
+      }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend:{display:false},
+        tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.x}h` } }
+      },
+      scales: {
+        x: { beginAtZero:true, grid:{color:'#E8ECF5'}, ticks:{ callback: v => v+'h' } },
+        y: { grid:{display:false}, ticks:{font:{size:11}} }
+      },
+      onClick(e, els) {
+        if (!els.length) return;
+        const label = colab[els[0].index][0];
+        const sub   = recs.filter(r => (r['Técnico Responsável']||'N/I') === label);
+        abrirDrillDown({ icon:'👷', titulo:`Colaborador: ${label}`, tipo:'colab', label }, sub);
+      }
+    }
+  });
+}
+
+/* ════════════════════════════
+   DRILL-DOWN MODAL
+════════════════════════════ */
+function abrirDrillDown(meta, recs) {
+  const modal = document.getElementById('drill-modal');
+  modal.style.display = 'block';
+  document.getElementById('dm-icon').textContent  = meta.icon;
+  document.getElementById('dm-title').textContent = meta.titulo;
+
+  /* ── stats ── */
+  const totH   = recs.reduce((a,r)=>a+Number(r['Total Horas Paradas']||0),0);
+  const fins   = recs.filter(r=>String(r['Status']||'').trim()==='Concluído').length;
+  const pend   = recs.filter(r=>String(r['Status']||'').trim()==='Pendente').length;
+  const tmed   = recs.length ? (totH/recs.length).toFixed(1) : 0;
+  document.getElementById('dm-stats').innerHTML = `
+    <div class="dm-stat"><div class="dsv">${recs.length}</div><div class="dsl">Total OS</div></div>
+    <div class="dm-stat"><div class="dsv" style="color:var(--green);">${fins}</div><div class="dsl">Concluídas</div></div>
+    <div class="dm-stat"><div class="dsv" style="color:var(--orange);">${pend}</div><div class="dsl">Pendentes</div></div>
+    <div class="dm-stat"><div class="dsv" style="color:var(--blue2);">${totH.toFixed(1)}h</div><div class="dsl">Total Horas</div></div>
+    <div class="dm-stat"><div class="dsv" style="color:var(--purple);">${tmed}h</div><div class="dsl">Média/OS</div></div>
+  `;
+
+  /* ── gráfico de detalhe (varia por tipo de agrupamento) ── */
+  if (chDrill) chDrill.destroy();
+  const cv = document.getElementById('dm-chart');
+  let drillCfg;
+
+  if (meta.tipo === 'mes') {
+    /* detalhar por tipo */
+    const t = { Corretiva:0, Preventiva:0, Preditiva:0, Melhoria:0 };
+    recs.forEach(r => t[inferirTipo(r)]++);
+    drillCfg = {
+      type: 'doughnut',
+      data: { labels:Object.keys(t), datasets:[{ data:Object.values(t), backgroundColor:[C.red,C.blue2,C.green,C.orange], borderWidth:2, borderColor:'#fff' }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'right'} } }
+    };
+  } else if (meta.tipo === 'tipo') {
+    /* detalhar por setor */
+    const s = {};
+    recs.forEach(r => { const v=r['Setor Produtivo']||'N/A'; s[v]=(s[v]||0)+1; });
+    const ord = Object.entries(s).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    drillCfg = barH(ord, 'Ocorrências', C.blue2);
+  } else if (meta.tipo === 'setor') {
+    /* detalhar por equipamento */
+    const e = {};
+    recs.forEach(r => { const v=r['Equipamento']||r['Código do Equipamento']||'N/A'; e[v]=(e[v]||0)+1; });
+    const ord = Object.entries(e).sort((a,b)=>b[1]-a[1]).slice(0,8);
+    drillCfg = barH(ord, 'OS', C.teal);
+  } else if (meta.tipo === 'equipamento') {
+    /* detalhar por mês */
+    const m = {};
+    recs.forEach(r => {
+      const ds=String(r['Data/Hora Registro']||'').split('/');
+      if (ds.length>=3){ const k=ds[1].padStart(2,'0')+'/'+ds[2].slice(0,4); m[k]=(m[k]||0)+1; }
+    });
+    const ord = Object.keys(m).sort().map(k=>([k,m[k]]));
+    drillCfg = barV(ord, 'OS', C.blue2);
+  } else if (meta.tipo === 'colab') {
+    /* detalhar por tipo */
+    const t = { Corretiva:0, Preventiva:0, Preditiva:0, Melhoria:0 };
+    recs.forEach(r => t[inferirTipo(r)]++);
+    const hObj = {};
+    recs.forEach(r => { const tp=inferirTipo(r); hObj[tp]=(hObj[tp]||0)+Number(r['Total Horas Paradas']||0); });
+    drillCfg = {
+      type: 'bar',
+      data: { labels:Object.keys(hObj), datasets:[{ label:'Horas', data:Object.values(hObj).map(v=>parseFloat(v.toFixed(1))), backgroundColor:[C.red,C.blue2,C.green,C.orange], borderRadius:5, borderSkipped:false }] },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
+        scales:{ x:{grid:{display:false}}, y:{beginAtZero:true, ticks:{callback:v=>v+'h'}} } }
+    };
+  }
+  if (drillCfg) chDrill = new Chart(cv, drillCfg);
+
+  /* ── tabela ── */
+  const tbody = document.getElementById('dm-tbody');
+  tbody.innerHTML = recs.slice().reverse().slice(0,50).map(r => {
+    const h   = Number(r['Total Horas Paradas']||0);
+    const st  = String(r['Status']||'Concluído');
+    const stB = st==='Pendente'
+      ? '<span class="badge badge-pend">⚠ Pendente</span>'
+      : '<span class="badge badge-green">✓ '+st+'</span>';
+    const hB  = h>4 ? `<span style="color:var(--red);font-weight:700;">${h}h</span>`
+                    : h ? `<span style="color:var(--green);">${h}h</span>` : '—';
+    const eq  = String(r['Equipamento']||r['Código do Equipamento']||'—');
+    const mp  = String(r['Motivo da Parada']||'').split(' - ')[0].slice(0,20);
+    return `<tr>
+      <td><strong>#${String(r['ID']||0).padStart(4,'0')}</strong></td>
+      <td style="color:var(--muted);">${r['Data/Hora Registro']||'—'}</td>
+      <td>${eq.slice(0,22)}${eq.length>22?'…':''}</td>
+      <td>${r['Técnico Responsável']||'—'}</td>
+      <td><span class="badge badge-blue">${r['Setor Produtivo']||'—'}</span></td>
+      <td>${mp}${mp.length>=20?'…':''}</td>
+      <td>${hB}</td>
+      <td>${stB}</td>
+    </tr>`;
+  }).join('');
+}
+
+function barH(entries, label, color) {
+  return {
+    type:'bar',
+    data:{
+      labels: entries.map(x=>x[0].length>20?x[0].slice(0,20)+'…':x[0]),
+      datasets:[{ label, data:entries.map(x=>x[1]), backgroundColor:entries.map((_,i)=>PAL[i%PAL.length]), borderRadius:4, borderSkipped:false }]
+    },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}}, scales:{ x:{beginAtZero:true,ticks:{precision:0}}, y:{grid:{display:false}} } }
+  };
+}
+
+function barV(entries, label, color) {
+  return {
+    type:'bar',
+    data:{
+      labels: entries.map(x=>x[0]),
+      datasets:[{ label, data:entries.map(x=>x[1]), backgroundColor:color, borderRadius:4, borderSkipped:false }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{beginAtZero:true,ticks:{precision:0}} } }
+  };
+}
+
+function fecharDrill() {
+  document.getElementById('drill-modal').style.display = 'none';
+  if (chDrill) { chDrill.destroy(); chDrill = null; }
+}
+document.addEventListener('keydown', e => { if (e.key==='Escape') fecharDrill(); });
+
+/* ════════════════════════════
+   FILTROS
+════════════════════════════ */
+function aplicarFiltro() {
+  const ano    = document.getElementById('f-ano').value;
+  const mes    = document.getElementById('f-mes').value;
+  const semana = parseInt(document.getElementById('f-semana').value) || 0;
+  const setor  = document.getElementById('f-setor').value.toLowerCase();
+  const tipo   = document.getElementById('f-tipo').value.toLowerCase();
+
+  const filt = SERVER.records_all.filter(r => {
+    const ds = String(r['Data/Hora Registro']||'');
+    if (ano    && getAno(ds) !== ano)                      return false;
+    if (mes    && getMes(ds) !== mes)                      return false;
+    if (semana && getWeek(ds) !== semana)                  return false;
+    if (setor  && String(r['Setor Produtivo']||'').toLowerCase() !== setor) return false;
+    if (tipo   && !inferirTipo(r).toLowerCase().includes(tipo)) return false;
+    return true;
+  });
+
+  const n = filt.length;
+  const fc = document.getElementById('filter-count');
+  const hasFilter = ano || mes || semana || setor || tipo;
+  if (fc) fc.textContent = hasFilter ? `${n} registro${n!==1?'s':''} filtrado${n!==1?'s':''}` : '';
+
+  criarGraficos(filt);
+
+  /* KPIs */
+  const fins = filt.filter(r=>String(r['Status']||'').trim()==='Concluído').length;
+  const abt  = filt.filter(r=>String(r['Status']||'').trim()==='Pendente').length;
+  const hLst = filt.map(r=>Number(r['Total Horas Paradas']||0)).filter(h=>h>0);
+  const totH = hLst.reduce((a,b)=>a+b,0);
+  const med  = hLst.length ? (totH/hLst.length).toFixed(1) : 0;
+
+  document.getElementById('kpi-total').textContent      = n;
+  document.getElementById('kpi-finalizadas').textContent = fins;
+  document.getElementById('kpi-aberto').textContent     = abt;
+  document.getElementById('kpi-tempo').textContent      = med+'h';
+  document.getElementById('kpi-horas').textContent      = totH.toFixed(1)+'h';
+}
+
+function limparFiltros() {
+  ['f-ano','f-mes','f-semana','f-setor','f-tipo'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  aplicarFiltro();
+}
+
+/* ════════════════════════════
+   FILTRO DA TABELA
+════════════════════════════ */
+function filtrarTabela() {
+  const busca  = document.getElementById('tab-busca').value.toLowerCase();
+  const status = document.getElementById('tab-status').value;
+  document.querySelectorAll('#tbl-body tr').forEach(tr => {
+    const txt = tr.dataset.txt||'';
+    const st  = tr.dataset.status||'';
+    tr.style.display = ((!busca||txt.includes(busca)) && (!status||st===status)) ? '' : 'none';
+  });
+}
+function limparTabela() {
+  document.getElementById('tab-busca').value = '';
+  document.getElementById('tab-status').value = '';
+  filtrarTabela();
+}
+
+/* ── init ── */
+criarGraficos(SERVER.records_all);
+document.getElementById('dash-time').textContent =
+  'Atualizado em: ' + new Date().toLocaleString('pt-BR');
+</script>
+</body>
+</html>
