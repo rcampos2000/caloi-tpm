@@ -235,7 +235,7 @@ body::before {
 .fg label .req { color:var(--red); font-size:13px; }
 
 /* ── Multi-select técnicos ── */
-.multi-tec-wrapper { position:relative; width:100%; }
+.multi-tec-wrapper { position:relative; width:100%; z-index:100; }
 .multi-tec-display {
   width:100%; padding:10px 13px;
   border:1.5px solid var(--gray2);
@@ -257,7 +257,7 @@ body::before {
   display:none; position:absolute; top:calc(100% + 4px); left:0; right:0;
   background:#fff; border:1.5px solid var(--blue2);
   border-radius:var(--rs); box-shadow:0 4px 16px rgba(0,0,0,.12);
-  z-index:999; max-height:200px; overflow-y:auto;
+  z-index:9999; max-height:200px; overflow-y:auto;
 }
 .multi-tec-wrapper.open .multi-tec-dropdown { display:block; }
 .multi-tec-option {

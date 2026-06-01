@@ -108,6 +108,43 @@ html, body { height: 100%; background: var(--gray); font-family: Arial, Helvetic
 .fg textarea { min-height: 90px; resize: vertical; line-height: 1.5; }
 .fg select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%236B7A8D'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 36px; }
 
+/* ── Multi-select técnicos (mobile) ── */
+.multi-tec-wrapper { position: relative; width: 100%; z-index: 100; }
+.multi-tec-display {
+  width: 100%; padding: 13px 14px;
+  font-size: 16px;
+  border: 1.5px solid var(--gray2);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer;
+  transition: border-color .2s;
+  user-select: none;
+}
+.multi-tec-wrapper.open .multi-tec-display {
+  border-color: var(--blue2);
+  box-shadow: 0 0 0 3px rgba(36,81,163,.12);
+}
+.multi-tec-arrow { font-size: 12px; color: var(--muted); }
+.multi-tec-dropdown {
+  display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+  background: #fff; border: 1.5px solid var(--blue2);
+  border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  z-index: 9999; max-height: 220px; overflow-y: auto;
+}
+.multi-tec-wrapper.open .multi-tec-dropdown { display: block; }
+.multi-tec-option {
+  display: flex; align-items: center; gap: 12px;
+  padding: 13px 14px; font-size: 16px; color: var(--text);
+  cursor: pointer; border-bottom: 1px solid var(--gray2);
+}
+.multi-tec-option:last-child { border-bottom: none; }
+.multi-tec-option:active { background: #f0f4ff; }
+.multi-tec-option input[type=checkbox] { accent-color: var(--blue2); width: 18px; height: 18px; flex-shrink: 0; }
+#tecnico-placeholder { color: var(--muted); font-size: 16px; }
+#tecnico-placeholder.has-value { color: var(--text); font-weight: 500; }
+
 .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
 /* ── CHIP EQUIPAMENTO ── */
@@ -438,11 +475,22 @@ body::after {
 
         <div class="fg" id="fg-tecnico">
           <label>👷 Técnico Responsável <span class="req">*</span></label>
-          <select id="tecnico" required>
-            {% for t in tecnicos %}
-            <option value="{{ t }}" {% if loop.first %}disabled selected{% endif %}>{{ t }}</option>
-            {% endfor %}
-          </select>
+          <div class="multi-tec-wrapper" id="tecnico-wrapper">
+            <div class="multi-tec-display" id="tecnico-display" onclick="toggleTecDropdown(event)">
+              <span id="tecnico-placeholder">Selecione o(s) técnico(s)...</span>
+              <span class="multi-tec-arrow">&#9660;</span>
+            </div>
+            <div class="multi-tec-dropdown" id="tecnico-dropdown">
+              {% for t in tecnicos %}
+              {% if not loop.first %}
+              <label class="multi-tec-option">
+                <input type="checkbox" class="tec-cb" value="{{ t }}" onchange="updateTecSelection()"> {{ t }}
+              </label>
+              {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          <input type="hidden" id="tecnico">
           <span class="err-msg">Selecione o técnico responsável</span>
         </div>
 
@@ -735,14 +783,34 @@ function tagACKey(e) {
 atualizarRelogio();
 setInterval(atualizarRelogio, 30000);
 
+// Multi-select técnicos
+function toggleTecDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('tecnico-wrapper').classList.toggle('open');
+}
+function updateTecSelection() {
+  const checked = Array.from(document.querySelectorAll('.tec-cb:checked')).map(c => c.value);
+  const hidden = document.getElementById('tecnico');
+  const placeholder = document.getElementById('tecnico-placeholder');
+  if (checked.length === 0) {
+    hidden.value = '';
+    placeholder.textContent = 'Selecione o(s) técnico(s)...';
+    placeholder.classList.remove('has-value');
+  } else {
+    hidden.value = checked.join(', ');
+    placeholder.textContent = checked.join(', ');
+    placeholder.classList.add('has-value');
+  }
+}
+document.addEventListener('click', (e) => {
+  const w = document.getElementById('tecnico-wrapper');
+  if (w && !w.contains(e.target)) w.classList.remove('open');
+});
+
 // Pré-selecionar técnico logado
 if (TECNICO_LOGADO) {
-  const selTec = document.getElementById('tecnico');
-  if (selTec) {
-    for (const opt of selTec.options) {
-      if (opt.value === TECNICO_LOGADO) { selTec.value = TECNICO_LOGADO; break; }
-    }
-  }
+  const cb = Array.from(document.querySelectorAll('.tec-cb')).find(c => c.value === TECNICO_LOGADO);
+  if (cb) { cb.checked = true; updateTecSelection(); }
 }
 
 // ── Busca equipamento ──
@@ -908,7 +976,6 @@ function validar() {
   const campos = [
     { id: 'eqp_cod',    fg: 'fg-eqp-cod' },
     { id: 'eqp_nome',   fg: 'fg-eqp-nome' },
-    { id: 'tecnico',    fg: 'fg-tecnico' },
     { id: 'setor',      fg: 'fg-setor' },
     { id: 'motivo_parada', fg: 'fg-motivo' },
   ];
@@ -922,6 +989,19 @@ function validar() {
       fg.classList.remove('err');
     }
   });
+
+  // Validar técnico multi-select
+  const tecHidden = document.getElementById('tecnico');
+  const fgTec = document.getElementById('fg-tecnico');
+  const tecDisplay = document.getElementById('tecnico-display');
+  if (!tecHidden || !tecHidden.value) {
+    fgTec.classList.add('err');
+    if (tecDisplay) tecDisplay.style.borderColor = '#E53935';
+    ok = false;
+  } else {
+    fgTec.classList.remove('err');
+    if (tecDisplay) tecDisplay.style.borderColor = '';
+  }
 
   // Descrição do problema
   const desc = document.getElementById('descricao_problema');
