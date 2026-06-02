@@ -1269,4 +1269,98 @@ function buscaEqpImediato(tag) {
           }
         }
         carregarMateriais(d.codigo);
-        document.getE
+        document.getElementById('fg-eqp-cod').classList.remove('err');
+        document.getElementById('fg-eqp-nome').classList.remove('err');
+      }
+    })
+    .catch(() => {});
+}
+
+// ── Fechar formulário ──────────────────────────────────────────────────────
+function fecharFormulario() {
+  document.getElementById('modal-bg').classList.remove('show');
+  // Tenta fechar a aba nativamente
+  try { window.close(); } catch(e) {}
+  // Fallback: exibe banner "pode fechar esta aba"
+  setTimeout(() => {
+    if (!document.hidden) {
+      novoRegistro();
+      const sb = document.createElement('div');
+      sb.id = 'sb-fechado';
+      sb.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#1E8449;color:#fff;'
+        + 'text-align:center;padding:16px 12px;font-size:15px;font-weight:bold;'
+        + 'z-index:9999;box-shadow:0 2px 12px rgba(0,0,0,.3);letter-spacing:.3px;';
+      sb.innerHTML = '\u2705 Formulário encerrado &nbsp;|&nbsp; '
+        + '<span style="font-size:13px;opacity:.85">Você pode fechar esta aba agora</span>';
+      document.body.appendChild(sb);
+    }
+  }, 200);
+}
+
+
+/* ═══════════════════════════════════════════
+   RECONHECIMENTO DE VOZ  (Web Speech API)
+   Chrome Android, Safari iOS 15+
+═══════════════════════════════════════════ */
+let _vozAtiva = null;
+
+function toggleVoz(targetId, btnId) {
+  if (_vozAtiva && _vozAtiva.targetId === targetId) {
+    _vozAtiva.recognition.stop();
+    return;
+  }
+  if (_vozAtiva) _vozAtiva.recognition.abort();
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    alert('Reconhecimento de voz não suportado.\nUse Chrome ou Safari atualizado.');
+    return;
+  }
+
+  const rec = new SpeechRecognition();
+  rec.lang = 'pt-BR';
+  rec.continuous = true;
+  rec.interimResults = true;
+
+  const btn      = document.getElementById(btnId);
+  const textarea = document.getElementById(targetId);
+  const textoBase = textarea.value;
+
+  btn.classList.add('recording');
+  btn.title = 'Gravando... toque para parar';
+  btn.textContent = '⏹️';
+  _vozAtiva = { recognition: rec, targetId, btnId };
+
+  rec.onresult = (e) => {
+    let final = '', interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      if (e.results[i].isFinal) final += e.results[i][0].transcript;
+      else interim += e.results[i][0].transcript;
+    }
+    const base = textoBase + (textoBase && (final || interim) ? ' ' : '');
+    textarea.value = (base + final + (interim ? interim : '')).trim();
+    textarea.scrollTop = textarea.scrollHeight;
+  };
+
+  rec.onerror = (e) => {
+    if (e.error === 'not-allowed')
+      alert('Permissão de microfone negada.\nLibere o microfone nas configurações do navegador.');
+    pararVoz(btnId);
+  };
+
+  rec.onend = () => pararVoz(btnId);
+  rec.start();
+}
+
+function pararVoz(btnId) {
+  _vozAtiva = null;
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    btn.classList.remove('recording');
+    btn.title = 'Falar';
+    btn.textContent = '🎙️';
+  }
+}
+</script>
+</body>
+</html>

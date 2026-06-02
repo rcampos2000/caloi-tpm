@@ -1031,4 +1031,125 @@ function abrirDrillDown(meta, recs) {
     const h   = Number(r['Total Horas Paradas']||0);
     const st  = String(r['Status']||'Concluído');
     const stB = st==='Pendente'
-      ? '<span class="badge badge-pend">⚠ Pendente</span
+      ? '<span class="badge badge-pend">⚠ Pendente</span>'
+      : '<span class="badge badge-green">✓ '+st+'</span>';
+    const hB  = h>4 ? `<span style="color:var(--red);font-weight:700;">${h}h</span>`
+                    : h ? `<span style="color:var(--green);">${h}h</span>` : '—';
+    const eq  = String(r['Equipamento']||r['Código do Equipamento']||'—');
+    const mp  = String(r['Motivo da Parada']||'').split(' - ')[0].slice(0,20);
+    return `<tr>
+      <td><strong>#${String(r['ID']||0).padStart(4,'0')}</strong></td>
+      <td style="color:var(--muted);">${r['Data/Hora Registro']||'—'}</td>
+      <td>${eq.slice(0,22)}${eq.length>22?'…':''}</td>
+      <td>${r['Técnico Responsável']||'—'}</td>
+      <td><span class="badge badge-blue">${r['Setor Produtivo']||'—'}</span></td>
+      <td>${mp}${mp.length>=20?'…':''}</td>
+      <td>${hB}</td>
+      <td>${stB}</td>
+    </tr>`;
+  }).join('');
+}
+
+function barH(entries, label, color) {
+  return {
+    type:'bar',
+    data:{
+      labels: entries.map(x=>x[0].length>20?x[0].slice(0,20)+'…':x[0]),
+      datasets:[{ label, data:entries.map(x=>x[1]), backgroundColor:entries.map((_,i)=>PAL[i%PAL.length]), borderRadius:4, borderSkipped:false }]
+    },
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}}, scales:{ x:{beginAtZero:true,ticks:{precision:0}}, y:{grid:{display:false}} } }
+  };
+}
+
+function barV(entries, label, color) {
+  return {
+    type:'bar',
+    data:{
+      labels: entries.map(x=>x[0]),
+      datasets:[{ label, data:entries.map(x=>x[1]), backgroundColor:color, borderRadius:4, borderSkipped:false }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false,
+      plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{beginAtZero:true,ticks:{precision:0}} } }
+  };
+}
+
+function fecharDrill() {
+  document.getElementById('drill-modal').style.display = 'none';
+  if (chDrill) { chDrill.destroy(); chDrill = null; }
+}
+document.addEventListener('keydown', e => { if (e.key==='Escape') fecharDrill(); });
+
+/* ════════════════════════════
+   FILTROS
+════════════════════════════ */
+function aplicarFiltro() {
+  const ano    = document.getElementById('f-ano').value;
+  const mes    = document.getElementById('f-mes').value;
+  const semana = parseInt(document.getElementById('f-semana').value) || 0;
+  const setor  = document.getElementById('f-setor').value.toLowerCase();
+  const tipo   = document.getElementById('f-tipo').value.toLowerCase();
+
+  const filt = SERVER.records_all.filter(r => {
+    const ds = String(r['Data/Hora Registro']||'');
+    if (ano    && getAno(ds) !== ano)                      return false;
+    if (mes    && getMes(ds) !== mes)                      return false;
+    if (semana && getWeek(ds) !== semana)                  return false;
+    if (setor  && String(r['Setor Produtivo']||'').toLowerCase() !== setor) return false;
+    if (tipo   && !inferirTipo(r).toLowerCase().includes(tipo)) return false;
+    return true;
+  });
+
+  const n = filt.length;
+  const fc = document.getElementById('filter-count');
+  const hasFilter = ano || mes || semana || setor || tipo;
+  if (fc) fc.textContent = hasFilter ? `${n} registro${n!==1?'s':''} filtrado${n!==1?'s':''}` : '';
+
+  criarGraficos(filt);
+
+  /* KPIs */
+  const fins = filt.filter(r=>String(r['Status']||'').trim()==='Concluído').length;
+  const abt  = filt.filter(r=>String(r['Status']||'').trim()==='Pendente').length;
+  const hLst = filt.map(r=>Number(r['Total Horas Paradas']||0)).filter(h=>h>0);
+  const totH = hLst.reduce((a,b)=>a+b,0);
+  const med  = hLst.length ? (totH/hLst.length).toFixed(1) : 0;
+
+  document.getElementById('kpi-total').textContent      = n;
+  document.getElementById('kpi-finalizadas').textContent = fins;
+  document.getElementById('kpi-aberto').textContent     = abt;
+  document.getElementById('kpi-tempo').textContent      = med+'h';
+  document.getElementById('kpi-horas').textContent      = totH.toFixed(1)+'h';
+}
+
+function limparFiltros() {
+  ['f-ano','f-mes','f-semana','f-setor','f-tipo'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  aplicarFiltro();
+}
+
+/* ════════════════════════════
+   FILTRO DA TABELA
+════════════════════════════ */
+function filtrarTabela() {
+  const busca  = document.getElementById('tab-busca').value.toLowerCase();
+  const status = document.getElementById('tab-status').value;
+  document.querySelectorAll('#tbl-body tr').forEach(tr => {
+    const txt = tr.dataset.txt||'';
+    const st  = tr.dataset.status||'';
+    tr.style.display = ((!busca||txt.includes(busca)) && (!status||st===status)) ? '' : 'none';
+  });
+}
+function limparTabela() {
+  document.getElementById('tab-busca').value = '';
+  document.getElementById('tab-status').value = '';
+  filtrarTabela();
+}
+
+/* ── init ── */
+criarGraficos(SERVER.records_all);
+document.getElementById('dash-time').textContent =
+  'Atualizado em: ' + new Date().toLocaleString('pt-BR');
+</script>
+</body>
+</html>
