@@ -1125,18 +1125,51 @@ def dashboard():
         equipamentos_info = carregar_equipamentos()
         eq_map = {eq['tag']: eq.get('descricao', eq['tag']) for eq in equipamentos_info if eq.get('tag')}
 
+        # Técnico responsável pela OS pendente mais recente por equipamento
+        tec_pendente_eq = {}
+        for r in records:
+            if str(r.get('Status', '')).strip() == 'Pendente':
+                tag = str(r.get('Código do Equipamento') or r.get('Equipamento') or '').strip()
+                if tag:
+                    tec_pendente_eq[tag] = str(r.get('Técnico Responsável') or '').strip()
+
         grafico_maquinas = []
         for tag, status in status_eq.items():
             grafico_maquinas.append({
                 'tag': tag,
                 'descricao': eq_map.get(tag, tag),
-                'status': status
+                'status': status,
+                'tecnico_pendente': tec_pendente_eq.get(tag, '')
             })
         grafico_maquinas.sort(key=lambda x: (x['status'] == 'Sem registros', x['status'] == 'Concluído', str(x['tag'] or '')))
 
         n_pendente  = sum(1 for m in grafico_maquinas if m['status'] == 'Pendente')
         n_ok        = sum(1 for m in grafico_maquinas if m['status'] == 'Concluído')
         n_sem_dados = sum(1 for m in grafico_maquinas if m['status'] == 'Sem registros')
+
+        # Dados do Plano de Ação para drill-down
+        plano_records = []
+        if PLANO_ACAO_FILE.exists():
+            try:
+                wb_p = openpyxl.load_workbook(PLANO_ACAO_FILE, read_only=True, data_only=True)
+                ws_p = wb_p.worksheets[0]
+                h_p = [str(c.value or '').strip() for c in next(ws_p.iter_rows(max_row=1))]
+                for row in ws_p.iter_rows(min_row=2, values_only=True):
+                    if any(v is not None for v in row):
+                        plano_records.append({k: v for k, v in zip(h_p, row) if k})
+                wb_p.close()
+            except Exception:
+                pass
+
+        # Status dos técnicos: disponível vs em atendimento
+        tecs_em_atendimento = set()
+        for r in records:
+            if str(r.get('Status', '')).strip() == 'Pendente':
+                tec = str(r.get('Técnico Responsável') or '').strip()
+                if tec:
+                    tecs_em_atendimento.add(tec)
+        todos_tecs = sorted({str(r.get('Técnico Responsável') or '').strip() for r in records if r.get('Técnico Responsável')})
+        tec_status = [{'nome': t, 'status': 'Em Atendimento' if t in tecs_em_atendimento else 'Disponível'} for t in todos_tecs]
 
         # Anos disponíveis para filtro
         anos_set = set()
@@ -1153,6 +1186,8 @@ def dashboard():
             'dashboard.html',
             records=records[-50:],
             records_json=records,
+            plano_json=plano_records,
+            tec_status=tec_status,
             total=total,
             finalizadas=finalizadas,
             em_aberto=em_aberto,
@@ -1507,244 +1542,4 @@ def calcular_horas(inicio, fim):
             return None
         fmt = '%H:%M'
         t_inicio = datetime.strptime(inicio, fmt)
-        t_fim = datetime.strptime(fim, fmt)
-        delta = t_fim - t_inicio
-        if delta.total_seconds() < 0:
-            delta += timedelta(days=1)
-        return delta.total_seconds() / 3600
-    except Exception:
-        return None
-
-
-def salvar_assinatura(base64_data, nome_arquivo):
-    try:
-        if not base64_data or base64_data == 'data:,':
-            return None
-        if ',' in base64_data:
-            base64_data = base64_data.split(',', 1)[1]
-        if not base64_data.strip():
-            return None
-        img_data = base64.b64decode(base64_data)
-        filepath = ASSINATURAS_DIR / f"{nome_arquivo}.png"
-        with open(filepath, 'wb') as f:
-            f.write(img_data)
-        return str(filepath)
-    except Exception:
-        return None
-
-
-def obter_proximo_id():
-    wb = openpyxl.load_workbook(DB_FILE)
-    ws = wb["Registros"]
-    ultima_linha = 1
-    for row in ws.iter_rows(min_row=2, values_only=True):
-        if any(v is not None for v in row):
-            ultima_linha += 1
-    wb.close()
-    return ultima_linha, ultima_linha + 1
-
-
-def salvar_registro_excel(row_data, next_row, record_id, total_horas):
-    align_center = Alignment(horizontal="center", vertical="center", wrap_text=True)
-    border_thin = Border(
-        left=Side(style='thin', color='CCCCCC'),
-        right=Side(style='thin', color='CCCCCC'),
-        top=Side(style='thin', color='CCCCCC'),
-        bottom=Side(style='thin', color='CCCCCC')
-    )
-    fill_color = "EBF1F8" if record_id % 2 == 0 else "FFFFFF"
-    row_fill = PatternFill(start_color=fill_color, end_color=fill_color, fill_type="solid")
-
-    max_tentativas = 5
-    ultimo_erro = None
-
-    for tentativa in range(1, max_tentativas + 1):
-        temp_path = DB_FILE.parent / f"_temp_registro_{record_id}.xlsx"
-        try:
-            wb = openpyxl.load_workbook(DB_FILE)
-            ws = wb["Registros"]
-            linha_real = ws.max_row + 1
-
-            for col, value in enumerate(row_data, 1):
-                cell = ws.cell(row=linha_real, column=col, value=value)
-                cell.fill = row_fill
-                cell.alignment = align_center
-                cell.border = border_thin
-
-            wb.save(temp_path)
-            wb.close()
-            os.replace(temp_path, DB_FILE)
-            return True
-
-        except PermissionError as e:
-            ultimo_erro = e
-            if tentativa < max_tentativas:
-                time.sleep(1.5)
-            if temp_path.exists():
-                try:
-                    temp_path.unlink()
-                except Exception:
-                    pass
-
-        except Exception as e:
-            ultimo_erro = e
-            if temp_path.exists():
-                try:
-                    temp_path.unlink()
-                except Exception:
-                    pass
-            break
-
-    print(f"[ERRO] salvar_registro_excel falhou apos {max_tentativas} tentativas: {ultimo_erro}")
-    return False
-
-
-@app.route('/plano-acao')
-@login_required
-def plano_acao():
-    registros = []
-    if PLANO_ACAO_FILE.exists():
-        try:
-            wb = openpyxl.load_workbook(PLANO_ACAO_FILE, read_only=True)
-            ws = wb.active
-            headers = [cell.value for cell in ws[1]]
-            for row in ws.iter_rows(min_row=2, values_only=True):
-                if any(v is not None for v in row):
-                    registros.append(dict(zip(headers, row)))
-            wb.close()
-        except Exception:
-            pass
-    return render_template('plano_acao.html', registros=registros)
-
-
-@app.route('/admin/producao/salvar', methods=['POST'])
-@admin_required
-def admin_salvar_producao():
-    try:
-        dados = request.get_json()
-        lista = dados.get('producao', [])
-        resultado = []
-        for item in lista:
-            tag = item.get('tag', '').strip().upper()
-            if not tag:
-                continue
-            modelos = []
-            for m in item.get('modelos', []):
-                nome = m.get('nome', '').strip()
-                try:
-                    volume = float(m.get('volume', 0) or 0)
-                except (ValueError, TypeError):
-                    volume = 0
-                if nome:
-                    modelos.append({'nome': nome, 'volume': volume})
-            try:
-                indice_qualidade = float(item.get('indice_qualidade', 100) or 100)
-            except (ValueError, TypeError):
-                indice_qualidade = 100
-            try:
-                tempo_turno = float(item.get('tempo_turno', 8) or 8)
-            except (ValueError, TypeError):
-                tempo_turno = 8
-            try:
-                tempo_mes = float(item.get('tempo_mes', 176) or 176)
-            except (ValueError, TypeError):
-                tempo_mes = 176
-            resultado.append({
-                'tag': tag,
-                'modelos': modelos,
-                'indice_qualidade': indice_qualidade,
-                'tempo_turno': tempo_turno,
-                'tempo_mes': tempo_mes
-            })
-        salvar_producao(resultado)
-        return jsonify({'success': True, 'message': f'{len(resultado)} equipamento(s) configurados!'})
-    except Exception as e:
-        return jsonify({'success': False, 'message': str(e)}), 500
-
-
-# ============================================================
-# ROTAS: BACKUP / DOWNLOAD
-# ============================================================
-@app.route('/admin/backup/download/manutencao')
-@admin_required
-def backup_manutencao():
-    if not DB_FILE.exists():
-        return "Arquivo não encontrado no servidor.", 404
-    return send_file(
-        str(DB_FILE),
-        as_attachment=True,
-        download_name=f"Manutencao_TPM_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-
-
-@app.route('/admin/backup/download/plano')
-@admin_required
-def backup_plano():
-    if not PLANO_ACAO_FILE.exists():
-        return "Arquivo não encontrado no servidor.", 404
-    return send_file(
-        str(PLANO_ACAO_FILE),
-        as_attachment=True,
-        download_name=f"Plano_de_Acao_{datetime.now().strftime('%Y%m%d_%H%M')}.xlsx",
-        mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    )
-
-
-@app.route('/admin/backup/download/config')
-@admin_required
-def backup_config():
-    import zipfile, io
-    buf = io.BytesIO()
-    with zipfile.ZipFile(buf, 'w', zipfile.ZIP_DEFLATED) as zf:
-        for f in CONFIG_DIR.glob('*.json'):
-            zf.write(f, f.name)
-    buf.seek(0)
-    return send_file(
-        buf,
-        as_attachment=True,
-        download_name=f"Config_TPM_{datetime.now().strftime('%Y%m%d_%H%M')}.zip",
-        mimetype='application/zip'
-    )
-
-
-# ============================================================
-# API DE LEITURA (consumida pelo portal SGM) — protegida por chave
-# ============================================================
-SGM_API_KEY = os.environ.get('SGM_API_KEY', 'caloi-sgm-2026')
-
-@app.route('/api/dados/<dataset>')
-def api_dados(dataset):
-    if request.args.get('key', '') != SGM_API_KEY:
-        return jsonify({'error': 'unauthorized'}), 401
-    mapa = {'os': DB_FILE, 'plano': PLANO_ACAO_FILE, 'colaboradores': COLAB_FILE}
-    path = mapa.get(dataset)
-    if not path or not path.exists():
-        return jsonify([])
-    try:
-        wb = openpyxl.load_workbook(path, read_only=True, data_only=True)
-        ws = wb.active
-        linhas = list(ws.iter_rows(values_only=True))
-        wb.close()
-        if not linhas:
-            return jsonify([])
-        headers = [str(h).strip() if h is not None else '' for h in linhas[0]]
-        out = []
-        for r in linhas[1:]:
-            if any(v is not None for v in r):
-                out.append({headers[i]: (None if i >= len(r) or r[i] is None else str(r[i]))
-                            for i in range(len(headers))})
-        return jsonify(out)
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-
-# Inicializar banco e config sempre que o processo sobe (local + nuvem)
-init_database()
-init_config()
-
-if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
-    debug = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
-    print(f"=== Caloi TPM v2.0 === porta {port}")
-    app.run(debug=debug, host='0.0.0.0', port=port)
+        t_fim = datetime.strptime(fim

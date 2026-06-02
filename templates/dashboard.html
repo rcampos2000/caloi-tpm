@@ -454,16 +454,28 @@ tbody td { padding: 9px 12px; white-space: nowrap; color: var(--text); }
     </div>
   </div>
 
-  <!-- LINHA 3: Horas por Colaborador (NOVO) -->
-  <div class="card charts-full">
-    <div class="card-header">
-      <span>👷</span>
-      <span class="card-header-title">Horas Trabalhadas por Colaborador</span>
-      <span class="card-header-sub">Total de horas paradas atendidas</span>
-      <span class="card-header-hint">· clique para detalhar</span>
+  <!-- LINHA 3: Horas por Colaborador + Status Técnicos -->
+  <div class="charts-mid" style="grid-template-columns:1.2fr 0.8fr;">
+    <div class="card">
+      <div class="card-header">
+        <span>👷</span>
+        <span class="card-header-title">Horas Trabalhadas por Colaborador</span>
+        <span class="card-header-sub">Total de horas paradas atendidas</span>
+        <span class="card-header-hint">· clique para detalhar</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:280px;"><canvas id="chartColab"></canvas></div>
+      </div>
     </div>
-    <div class="card-body">
-      <div class="chart-wrap" style="height:280px;"><canvas id="chartColab"></canvas></div>
+    <div class="card">
+      <div class="card-header">
+        <span>🟢</span>
+        <span class="card-header-title">Status dos Técnicos</span>
+        <span class="card-header-sub">Disponível · Em Atendimento</span>
+      </div>
+      <div class="card-body">
+        <div class="chart-wrap" style="height:280px;"><canvas id="chartTecDisp"></canvas></div>
+      </div>
     </div>
   </div>
 
@@ -485,14 +497,20 @@ tbody td { padding: 9px 12px; white-space: nowrap; color: var(--text); }
       </div>
       <div class="eq-list">
         {% for m in grafico_maquinas %}
-          {% if m.status=='Pendente' %}{% set cls='pendente' %}{% set scor='var(--orange)' %}{% set ico='⚠' %}
+          {% if m.status=='Pendente' %}{% set cls='pendente' %}{% set scor='var(--red)' %}{% set ico='🔴' %}
           {% elif m.status=='Concluído' %}{% set cls='concluido' %}{% set scor='var(--green)' %}{% set ico='✓' %}
           {% else %}{% set cls='sem-dados' %}{% set scor='#B0B0B0' %}{% set ico='—' %}{% endif %}
           <div class="eq-row {{ cls }}">
             <span style="font-size:14px;width:18px;text-align:center;">{{ ico }}</span>
             <span class="eq-tag">{{ m.tag }}</span>
             <span class="eq-desc">{{ m.descricao }}</span>
-            <span class="eq-status-badge" style="color:{{ scor }};">{{ m.status }}</span>
+            {% if m.status=='Pendente' and m.tecnico_pendente %}
+              <span class="eq-status-badge" style="color:{{ scor }};display:flex;align-items:center;gap:6px;">
+                <span style="background:#fdecea;color:var(--red);border:1px solid rgba(212,35,42,.3);border-radius:6px;padding:1px 8px;font-size:11px;font-weight:700;">🔴 {{ m.tecnico_pendente }}</span>
+              </span>
+            {% else %}
+              <span class="eq-status-badge" style="color:{{ scor }};">{{ m.status }}</span>
+            {% endif %}
           </div>
         {% endfor %}
       </div>
@@ -628,7 +646,9 @@ const SERVER = {
   por_tipo:    {{ por_tipo    | tojson }},
   top_eq:      {{ top_equipamentos | tojson }},
   por_mes:     {{ por_mes_lista    | tojson }},
-  records_all: {{ records_json     | tojson }}
+  records_all: {{ records_json     | tojson }},
+  plano_all:   {{ plano_json       | tojson }},
+  tec_status:  {{ tec_status       | tojson }}
 };
 
 /* ─── paleta ─── */
@@ -684,7 +704,7 @@ function calcColab(recs) {
 }
 
 /* ─── instâncias dos gráficos ─── */
-let chMes, chTipos, chSetor, chEquip, chColab, chDrill;
+let chMes, chTipos, chSetor, chEquip, chColab, chTecDisp, chDrill;
 
 /* ─── registros atualmente filtrados ─── */
 let filtrados = SERVER.records_all.slice();
@@ -858,6 +878,26 @@ function criarGraficos(recs) {
       }
     }
   });
+
+  /* ── GRÁFICO: STATUS DOS TÉCNICOS ── */
+  const tecStatus = D.tec_status || [];
+  const tecLabels = tecStatus.map(t => t.nome);
+  const tecCores  = tecStatus.map(t => t.status === 'Em Atendimento' ? C.red : C.green);
+  chTecDisp = rebuild(chTecDisp, 'chartTecDisp', {
+    type: 'bar',
+    data: {
+      labels: tecLabels,
+      datasets: [{ data: tecLabels.map(()=>1), backgroundColor: tecCores, borderRadius:6, barThickness:18 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => tecStatus[ctx.dataIndex]?.status === 'Em Atendimento' ? '🔴 Em Atendimento' : '🟢 Disponível' } }
+      },
+      scales: { x: { display:false, max:1.5 }, y: { grid:{display:false}, ticks:{font:{size:11}} } }
+    }
+  });
 }
 
 /* ════════════════════════════
@@ -868,6 +908,9 @@ function abrirDrillDown(meta, recs) {
   modal.style.display = 'block';
   document.getElementById('dm-icon').textContent  = meta.icon;
   document.getElementById('dm-title').textContent = meta.titulo;
+  /* Restaurar cabeçalho padrão */
+  const thead = document.querySelector('#drill-modal thead tr');
+  if (thead) thead.innerHTML = `<th>ID</th><th>Data</th><th>Equipamento</th><th>Técnico</th><th>Setor</th><th>Motivo</th><th>Horas</th><th>Status</th>`;
 
   /* ── stats ── */
   const totH   = recs.reduce((a,r)=>a+Number(r['Total Horas Paradas']||0),0);
@@ -917,6 +960,56 @@ function abrirDrillDown(meta, recs) {
     });
     const ord = Object.keys(m).sort().map(k=>([k,m[k]]));
     drillCfg = barV(ord, 'OS', C.blue2);
+
+    /* ── tabela detalhada para equipamento ── */
+    const planoMap = {};
+    (D.plano_all||[]).forEach(p => {
+      const eq = String(p['Equipamento']||p['Código']||'').trim().toLowerCase();
+      if (!planoMap[eq]) planoMap[eq] = [];
+      planoMap[eq].push(p);
+    });
+    const eqKey = meta.label.toLowerCase();
+    const planoEq = planoMap[eqKey] || [];
+
+    const tbody = document.getElementById('dm-tbody');
+    tbody.innerHTML = recs.slice().reverse().map((r,i) => {
+      const h   = Number(r['Total Horas Paradas']||0);
+      const st  = String(r['Status']||'Concluído');
+      const isPend = st.trim()==='Pendente';
+      const stB = isPend
+        ? '<span class="badge badge-pend">🔴 Pendente</span>'
+        : '<span class="badge badge-green">✓ Concluído</span>';
+      const hB  = h>4 ? `<span style="color:var(--red);font-weight:700;">${h}h</span>`
+                      : h ? `<span style="color:var(--green);">${h}h</span>` : '—';
+      const fotos = Number(r['Fotos Registradas']||0);
+      const fotoB = fotos>0 ? `<span style="background:#e8f0fe;color:#1B3A6B;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:600;">📷 ${fotos}</span>` : '—';
+      const motivo = String(r['Motivo da Parada']||'—');
+      const solucao = String(r['Solução do Problema']||r['Solucao do Problema']||'—');
+      const obs = String(r['Observações']||r['Observacoes']||'—');
+      const plRow = planoEq[i] || planoEq[0] || null;
+      const outros = plRow ? String(plRow['Outros Problemas Encontrados']||'—') : '—';
+      const pecas  = plRow ? String(plRow['Peças Necessárias']||plRow['Pecas Necessarias']||'—') : '—';
+      return `<tr style="${isPend?'background:#fff8f8;border-left:3px solid var(--red);':''}">
+        <td style="color:var(--muted);white-space:nowrap;">${r['Data/Hora Registro']||'—'}</td>
+        <td><strong>${r['Técnico Responsável']||'—'}</strong></td>
+        <td>${hB}</td>
+        <td style="max-width:140px;word-break:break-word;">${motivo}</td>
+        <td>${stB}</td>
+        <td>${fotoB}</td>
+        <td style="max-width:180px;word-break:break-word;">${solucao}</td>
+        <td style="max-width:140px;word-break:break-word;">${obs}</td>
+        <td style="max-width:140px;word-break:break-word;color:var(--orange);">${outros}</td>
+        <td style="max-width:140px;word-break:break-word;color:var(--purple);">${pecas}</td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px;">Sem registros</td></tr>';
+
+    /* Substituir cabeçalho da tabela para modo equipamento */
+    const thead = document.querySelector('#drill-modal thead tr');
+    if (thead) thead.innerHTML = `
+      <th>Data</th><th>Técnico</th><th>Horas</th><th>Tipo/Motivo</th>
+      <th>Status</th><th>Fotos</th><th>Solução/Descrição</th>
+      <th>Observações</th><th>Outros Problemas</th><th>Peças Necessárias</th>`;
+    return; /* pula o render padrão da tabela abaixo */
   } else if (meta.tipo === 'colab') {
     /* detalhar por tipo */
     const t = { Corretiva:0, Preventiva:0, Preditiva:0, Melhoria:0 };
@@ -938,125 +1031,4 @@ function abrirDrillDown(meta, recs) {
     const h   = Number(r['Total Horas Paradas']||0);
     const st  = String(r['Status']||'Concluído');
     const stB = st==='Pendente'
-      ? '<span class="badge badge-pend">⚠ Pendente</span>'
-      : '<span class="badge badge-green">✓ '+st+'</span>';
-    const hB  = h>4 ? `<span style="color:var(--red);font-weight:700;">${h}h</span>`
-                    : h ? `<span style="color:var(--green);">${h}h</span>` : '—';
-    const eq  = String(r['Equipamento']||r['Código do Equipamento']||'—');
-    const mp  = String(r['Motivo da Parada']||'').split(' - ')[0].slice(0,20);
-    return `<tr>
-      <td><strong>#${String(r['ID']||0).padStart(4,'0')}</strong></td>
-      <td style="color:var(--muted);">${r['Data/Hora Registro']||'—'}</td>
-      <td>${eq.slice(0,22)}${eq.length>22?'…':''}</td>
-      <td>${r['Técnico Responsável']||'—'}</td>
-      <td><span class="badge badge-blue">${r['Setor Produtivo']||'—'}</span></td>
-      <td>${mp}${mp.length>=20?'…':''}</td>
-      <td>${hB}</td>
-      <td>${stB}</td>
-    </tr>`;
-  }).join('');
-}
-
-function barH(entries, label, color) {
-  return {
-    type:'bar',
-    data:{
-      labels: entries.map(x=>x[0].length>20?x[0].slice(0,20)+'…':x[0]),
-      datasets:[{ label, data:entries.map(x=>x[1]), backgroundColor:entries.map((_,i)=>PAL[i%PAL.length]), borderRadius:4, borderSkipped:false }]
-    },
-    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}}, scales:{ x:{beginAtZero:true,ticks:{precision:0}}, y:{grid:{display:false}} } }
-  };
-}
-
-function barV(entries, label, color) {
-  return {
-    type:'bar',
-    data:{
-      labels: entries.map(x=>x[0]),
-      datasets:[{ label, data:entries.map(x=>x[1]), backgroundColor:color, borderRadius:4, borderSkipped:false }]
-    },
-    options:{ responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:false}}, scales:{ x:{grid:{display:false}}, y:{beginAtZero:true,ticks:{precision:0}} } }
-  };
-}
-
-function fecharDrill() {
-  document.getElementById('drill-modal').style.display = 'none';
-  if (chDrill) { chDrill.destroy(); chDrill = null; }
-}
-document.addEventListener('keydown', e => { if (e.key==='Escape') fecharDrill(); });
-
-/* ════════════════════════════
-   FILTROS
-════════════════════════════ */
-function aplicarFiltro() {
-  const ano    = document.getElementById('f-ano').value;
-  const mes    = document.getElementById('f-mes').value;
-  const semana = parseInt(document.getElementById('f-semana').value) || 0;
-  const setor  = document.getElementById('f-setor').value.toLowerCase();
-  const tipo   = document.getElementById('f-tipo').value.toLowerCase();
-
-  const filt = SERVER.records_all.filter(r => {
-    const ds = String(r['Data/Hora Registro']||'');
-    if (ano    && getAno(ds) !== ano)                      return false;
-    if (mes    && getMes(ds) !== mes)                      return false;
-    if (semana && getWeek(ds) !== semana)                  return false;
-    if (setor  && String(r['Setor Produtivo']||'').toLowerCase() !== setor) return false;
-    if (tipo   && !inferirTipo(r).toLowerCase().includes(tipo)) return false;
-    return true;
-  });
-
-  const n = filt.length;
-  const fc = document.getElementById('filter-count');
-  const hasFilter = ano || mes || semana || setor || tipo;
-  if (fc) fc.textContent = hasFilter ? `${n} registro${n!==1?'s':''} filtrado${n!==1?'s':''}` : '';
-
-  criarGraficos(filt);
-
-  /* KPIs */
-  const fins = filt.filter(r=>String(r['Status']||'').trim()==='Concluído').length;
-  const abt  = filt.filter(r=>String(r['Status']||'').trim()==='Pendente').length;
-  const hLst = filt.map(r=>Number(r['Total Horas Paradas']||0)).filter(h=>h>0);
-  const totH = hLst.reduce((a,b)=>a+b,0);
-  const med  = hLst.length ? (totH/hLst.length).toFixed(1) : 0;
-
-  document.getElementById('kpi-total').textContent      = n;
-  document.getElementById('kpi-finalizadas').textContent = fins;
-  document.getElementById('kpi-aberto').textContent     = abt;
-  document.getElementById('kpi-tempo').textContent      = med+'h';
-  document.getElementById('kpi-horas').textContent      = totH.toFixed(1)+'h';
-}
-
-function limparFiltros() {
-  ['f-ano','f-mes','f-semana','f-setor','f-tipo'].forEach(id => {
-    document.getElementById(id).value = '';
-  });
-  aplicarFiltro();
-}
-
-/* ════════════════════════════
-   FILTRO DA TABELA
-════════════════════════════ */
-function filtrarTabela() {
-  const busca  = document.getElementById('tab-busca').value.toLowerCase();
-  const status = document.getElementById('tab-status').value;
-  document.querySelectorAll('#tbl-body tr').forEach(tr => {
-    const txt = tr.dataset.txt||'';
-    const st  = tr.dataset.status||'';
-    tr.style.display = ((!busca||txt.includes(busca)) && (!status||st===status)) ? '' : 'none';
-  });
-}
-function limparTabela() {
-  document.getElementById('tab-busca').value = '';
-  document.getElementById('tab-status').value = '';
-  filtrarTabela();
-}
-
-/* ── init ── */
-criarGraficos(SERVER.records_all);
-document.getElementById('dash-time').textContent =
-  'Atualizado em: ' + new Date().toLocaleString('pt-BR');
-</script>
-</body>
-</html>
+      ? '<span class="badge badge-pend">⚠ Pendente</span
