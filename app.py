@@ -877,7 +877,13 @@ def dashboard():
         n_ok        = sum(1 for m in grafico_maquinas if m['status'] == 'Concluído')
         n_sem_dados = sum(1 for m in grafico_maquinas if m['status'] == 'Sem registros')
 
-        # Plano de Ação para drill-down
+        # Plano de Ação para drill-down (serializar tudo como string para evitar erro no tojson)
+        def _safe(v):
+            if v is None: return None
+            if isinstance(v, (int, float)): return v
+            if hasattr(v, 'isoformat'): return str(v)
+            return str(v)
+
         plano_records = []
         if PLANO_ACAO_FILE.exists():
             try:
@@ -886,7 +892,7 @@ def dashboard():
                 h_p = [str(c.value or '').strip() for c in next(ws_p.iter_rows(max_row=1))]
                 for row in ws_p.iter_rows(min_row=2, values_only=True):
                     if any(v is not None for v in row):
-                        plano_records.append({k: v for k, v in zip(h_p, row) if k})
+                        plano_records.append({k: _safe(v) for k, v in zip(h_p, row) if k})
                 wb_p.close()
             except Exception:
                 pass
