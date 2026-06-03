@@ -370,6 +370,162 @@ body::after {
   z-index: 0;
 }
 
+/* ══════════════════════════════════════════════════
+   MODO GUIADO (blocos)
+══════════════════════════════════════════════════ */
+
+/* Seletor de modo */
+.modo-selector-wrap {
+  display: flex;
+  gap: 0;
+  background: #fff;
+  border-radius: 12px;
+  padding: 5px;
+  margin-bottom: 14px;
+  box-shadow: 0 2px 10px rgba(27,58,107,.12);
+  border: 1.5px solid var(--gray2);
+}
+.modo-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  background: transparent;
+  color: var(--muted);
+  transition: all .25s;
+  -webkit-tap-highlight-color: transparent;
+  letter-spacing: .2px;
+  line-height: 1.3;
+}
+.modo-btn .modo-ico { font-size: 18px; display: block; margin-bottom: 2px; }
+.modo-btn.ativo {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(27,58,107,.3);
+}
+
+/* Ocultar todos os cards e botão submit no modo blocos */
+.page.modo-blocos .card { display: none !important; }
+.page.modo-blocos .card.bloco-ativo { display: block !important; animation: slideInRight .28s cubic-bezier(.25,.46,.45,.94); }
+.page.modo-blocos .card.bloco-ativo.slide-left { animation: slideInLeft .28s cubic-bezier(.25,.46,.45,.94); }
+.page.modo-blocos .btn-submit { display: none !important; }
+.page.modo-blocos { padding-bottom: 108px; }
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-48px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Card no modo blocos — mais espaçoso */
+.page.modo-blocos .card-body { padding: 20px 16px 28px; gap: 20px; }
+.page.modo-blocos .fg input,
+.page.modo-blocos .fg select,
+.page.modo-blocos .fg textarea { font-size: 18px; padding: 16px 16px; }
+.page.modo-blocos .fg label { font-size: 13px; }
+.page.modo-blocos .fg textarea { min-height: 130px; }
+.page.modo-blocos .tipo-btn { padding: 20px 8px; font-size: 15px; }
+.page.modo-blocos .tipo-btn .ico { font-size: 30px; margin-bottom: 6px; }
+.page.modo-blocos .multi-tec-display,
+.page.modo-blocos .multi-tec-option { font-size: 18px; padding: 16px 16px; }
+.page.modo-blocos .btn-scan { font-size: 17px; padding: 16px; }
+
+/* Barra de navegação inferior — fixa */
+.bloco-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #fff;
+  border-top: 2px solid var(--gray2);
+  padding: 10px 14px 14px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  z-index: 300;
+  box-shadow: 0 -4px 24px rgba(27,58,107,.13);
+}
+.bloco-nav.show { display: flex; }
+
+.bloco-btn-voltar {
+  padding: 15px 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  background: var(--gray);
+  color: var(--text);
+  min-width: 80px;
+  text-align: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: background .15s;
+}
+.bloco-btn-voltar:active { background: var(--gray2); }
+.bloco-btn-voltar.oculto { visibility: hidden; }
+
+.bloco-progress-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+.bloco-progress-bar {
+  width: 64px; height: 5px;
+  background: var(--gray2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bloco-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--blue), var(--blue2));
+  border-radius: 3px;
+  transition: width .4s ease;
+}
+.bloco-progress-txt {
+  font-size: 11px;
+  color: var(--muted);
+  font-weight: bold;
+  letter-spacing: .3px;
+}
+
+.bloco-btn-proximo {
+  flex: 1;
+  padding: 15px 10px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--blue) 0%, var(--blue2) 100%);
+  color: #fff;
+  box-shadow: 0 3px 14px rgba(27,58,107,.28);
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .15s, transform .1s;
+  text-align: center;
+}
+.bloco-btn-proximo.final { background: linear-gradient(135deg, #1E8449 0%, #27AE60 100%); box-shadow: 0 3px 14px rgba(30,132,73,.3); }
+.bloco-btn-proximo:active { opacity: .88; transform: scale(.98); }
+
+/* Aviso de tipo obrigatório */
+.aviso-tipo {
+  display: none;
+  background: #FFF5F5;
+  border: 1.5px solid var(--red);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--red);
+  font-weight: bold;
+  text-align: center;
+  margin-top: 6px;
+}
+
 /* ── Botão de voz ───────────────────────────── */
 .voice-wrap { position: relative; }
 .voice-wrap textarea { padding-right: 50px; }
@@ -415,10 +571,21 @@ body::after {
 
 <!-- FORMULÁRIO -->
 <div class="page">
+
+  <!-- SELETOR DE MODO -->
+  <div class="modo-selector-wrap">
+    <button type="button" class="modo-btn modo-btn-normal ativo" onclick="ativarModo('normal')">
+      <span class="modo-ico">📋</span>Normal
+    </button>
+    <button type="button" class="modo-btn modo-btn-guiado" onclick="ativarModo('blocos')">
+      <span class="modo-ico">🎯</span>Guiado
+    </button>
+  </div>
+
   <form id="form" novalidate>
 
     <!-- SEÇÃO 1: EQUIPAMENTO -->
-    <div class="card">
+    <div class="card" id="card-equipamento">
       <div class="card-hdr">
         <span class="ico">⚙️</span> Equipamento
         <span class="step">1 / 5</span>
@@ -466,7 +633,7 @@ body::after {
     </div>
 
     <!-- SEÇÃO 2: DADOS DA OCORRÊNCIA -->
-    <div class="card">
+    <div class="card" id="card-ocorrencia">
       <div class="card-hdr">
         <span class="ico">📋</span> Dados da Ocorrência
         <span class="step">2 / 5</span>
@@ -525,7 +692,7 @@ body::after {
     </div>
 
     <!-- SEÇÃO 3: TIPO E MOTIVO -->
-    <div class="card">
+    <div class="card" id="card-tipo">
       <div class="card-hdr">
         <span class="ico">🔍</span> Tipo e Motivo
         <span class="step">3 / 5</span>
@@ -551,6 +718,8 @@ body::after {
           <input type="hidden" id="tipo_manutencao" name="tipo_manutencao">
         </div>
 
+        <div id="aviso-tipo" class="aviso-tipo">⚠️ Selecione o Tipo de Manutenção</div>
+
         <div class="fg" id="fg-motivo">
           <label>❓ Motivo da Parada <span class="req">*</span></label>
           <select id="motivo_parada" required>
@@ -565,7 +734,7 @@ body::after {
     </div>
 
     <!-- SEÇÃO 4: DESCRIÇÃO E SOLUÇÃO -->
-    <div class="card">
+    <div class="card" id="card-descricao">
       <div class="card-hdr">
         <span class="ico">📝</span> Descrição e Solução
         <span class="step">4 / 5</span>
@@ -629,7 +798,7 @@ body::after {
     </div>
 
     <!-- SEÇÃO 5: PLANO DE AÇÃO -->
-    <div class="card">
+    <div class="card" id="card-plano">
       <div class="card-hdr">
         <span class="ico">📋</span> Plano de Ação (Opcional)
         <span class="step">5 / 5</span>
@@ -669,6 +838,16 @@ body::after {
     </button>
 
   </form>
+</div>
+
+<!-- BARRA DE NAVEGAÇÃO — MODO GUIADO -->
+<div class="bloco-nav" id="bloco-nav">
+  <button type="button" class="bloco-btn-voltar oculto" id="bloco-btn-voltar" onclick="voltarBloco()">← Voltar</button>
+  <div class="bloco-progress-wrap">
+    <div class="bloco-progress-bar"><div class="bloco-progress-fill" id="bloco-progress-fill" style="width:20%"></div></div>
+    <span class="bloco-progress-txt" id="bloco-progress-txt">1 / 5</span>
+  </div>
+  <button type="button" class="bloco-btn-proximo" id="bloco-btn-proximo" onclick="proxBloco()">Próximo →</button>
 </div>
 
 <!-- MODAL SCANNER -->
@@ -1360,6 +1539,194 @@ function pararVoz(btnId) {
     btn.title = 'Falar';
     btn.textContent = '🎙️';
   }
+}
+
+/* ═══════════════════════════════════════════════════════
+   MODO GUIADO — navegação por blocos
+═══════════════════════════════════════════════════════ */
+const BLOCOS_CONFIG = [
+  {
+    id: 'card-equipamento',
+    titulo: 'Equipamento',
+    // Valida: TAG e descrição preenchidos
+    validar: () => {
+      let ok = true;
+      const codEl  = document.getElementById('eqp_cod');
+      const nomeEl = document.getElementById('eqp_nome');
+      const fgCod  = document.getElementById('fg-eqp-cod');
+      const fgNome = document.getElementById('fg-eqp-nome');
+      if (!codEl.value.trim()) { fgCod.classList.add('err'); ok = false; }
+      else fgCod.classList.remove('err');
+      if (!nomeEl.value.trim()) { fgNome.classList.add('err'); ok = false; }
+      else fgNome.classList.remove('err');
+      if (!ok) {
+        if (navigator.vibrate) navigator.vibrate([100, 60, 100]);
+        (codEl.value.trim() ? nomeEl : codEl).scrollIntoView({ behavior:'smooth', block:'center' });
+      }
+      return ok;
+    }
+  },
+  {
+    id: 'card-ocorrencia',
+    titulo: 'Dados da Ocorrência',
+    validar: () => {
+      let ok = true;
+      // Técnico
+      const tecHidden  = document.getElementById('tecnico');
+      const fgTec      = document.getElementById('fg-tecnico');
+      const tecDisplay = document.getElementById('tecnico-display');
+      if (!tecHidden.value.trim()) {
+        fgTec.classList.add('err');
+        if (tecDisplay) tecDisplay.style.borderColor = '#E53935';
+        ok = false;
+      } else {
+        fgTec.classList.remove('err');
+        if (tecDisplay) tecDisplay.style.borderColor = '';
+      }
+      // Setor
+      const setorEl = document.getElementById('setor');
+      const fgSetor = document.getElementById('fg-setor');
+      if (!setorEl.value) {
+        fgSetor.classList.add('err'); ok = false;
+      } else {
+        fgSetor.classList.remove('err');
+      }
+      if (!ok) {
+        if (navigator.vibrate) navigator.vibrate([100, 60, 100]);
+        fgTec.scrollIntoView({ behavior:'smooth', block:'center' });
+      }
+      return ok;
+    }
+  },
+  {
+    id: 'card-tipo',
+    titulo: 'Tipo e Motivo',
+    validar: () => {
+      let ok = true;
+      // Tipo de manutenção
+      if (!document.getElementById('tipo_manutencao').value) {
+        const aviso = document.getElementById('aviso-tipo');
+        if (aviso) { aviso.style.display = 'block'; setTimeout(() => aviso.style.display = 'none', 2800); }
+        ok = false;
+      }
+      // Motivo da parada
+      const motivoEl = document.getElementById('motivo_parada');
+      const fgMotivo = document.getElementById('fg-motivo');
+      if (!motivoEl.value || (motivoEl.options[0]?.disabled && motivoEl.selectedIndex === 0)) {
+        fgMotivo.classList.add('err'); ok = false;
+      } else {
+        fgMotivo.classList.remove('err');
+      }
+      if (!ok) {
+        if (navigator.vibrate) navigator.vibrate([100, 60, 100]);
+        document.getElementById('card-tipo').querySelector('.card-body').scrollIntoView({ behavior:'smooth', block:'start' });
+      }
+      return ok;
+    }
+  },
+  {
+    id: 'card-descricao',
+    titulo: 'Descrição e Solução',
+    validar: () => {
+      const el = document.getElementById('descricao_problema');
+      if (!el.value.trim()) {
+        el.parentElement.classList.add('err');
+        if (navigator.vibrate) navigator.vibrate([100, 60, 100]);
+        el.scrollIntoView({ behavior:'smooth', block:'center' });
+        return false;
+      }
+      el.parentElement.classList.remove('err');
+      return true;
+    }
+  },
+  {
+    id: 'card-plano',
+    titulo: 'Plano de Ação',
+    validar: () => true  // todos opcionais
+  }
+];
+
+let modoAtual  = 'normal';
+let blocoAtual = 0;
+
+function ativarModo(modo) {
+  modoAtual = modo;
+  const page      = document.querySelector('.page');
+  const btnNormal = document.querySelector('.modo-btn-normal');
+  const btnGuiado = document.querySelector('.modo-btn-guiado');
+  const blocoNav  = document.getElementById('bloco-nav');
+
+  if (modo === 'blocos') {
+    page.classList.add('modo-blocos');
+    btnNormal.classList.remove('ativo');
+    btnGuiado.classList.add('ativo');
+    blocoNav.classList.add('show');
+    blocoAtual = 0;
+    _irParaBloco(0, 'right');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    page.classList.remove('modo-blocos');
+    btnNormal.classList.add('ativo');
+    btnGuiado.classList.remove('ativo');
+    blocoNav.classList.remove('show');
+    document.querySelectorAll('.card').forEach(c => {
+      c.classList.remove('bloco-ativo', 'slide-left');
+    });
+  }
+}
+
+function _irParaBloco(idx, dir) {
+  // Esconde todos os cards
+  document.querySelectorAll('.card').forEach(c => c.classList.remove('bloco-ativo', 'slide-left'));
+
+  // Mostra o card ativo com animação
+  const bloco = BLOCOS_CONFIG[idx];
+  const card  = document.getElementById(bloco.id);
+  if (!card) return;
+  card.classList.add('bloco-ativo');
+  if (dir === 'left') card.classList.add('slide-left');
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Atualiza barra de progresso
+  const total = BLOCOS_CONFIG.length;
+  const pct   = ((idx + 1) / total) * 100;
+  document.getElementById('bloco-progress-fill').style.width = pct + '%';
+  document.getElementById('bloco-progress-txt').textContent  = (idx + 1) + ' / ' + total;
+
+  // Botão Voltar
+  const btnVoltar = document.getElementById('bloco-btn-voltar');
+  if (idx === 0) btnVoltar.classList.add('oculto');
+  else btnVoltar.classList.remove('oculto');
+
+  // Botão Próximo / Registrar
+  const btnProximo = document.getElementById('bloco-btn-proximo');
+  if (idx === total - 1) {
+    btnProximo.textContent = '✅ Registrar';
+    btnProximo.classList.add('final');
+  } else {
+    btnProximo.textContent = 'Próximo →';
+    btnProximo.classList.remove('final');
+  }
+}
+
+function proxBloco() {
+  const bloco = BLOCOS_CONFIG[blocoAtual];
+  if (!bloco.validar()) return;
+
+  if (blocoAtual === BLOCOS_CONFIG.length - 1) {
+    // Último bloco — dispara envio normal
+    enviarForm();
+    return;
+  }
+  blocoAtual++;
+  _irParaBloco(blocoAtual, 'right');
+}
+
+function voltarBloco() {
+  if (blocoAtual === 0) return;
+  blocoAtual--;
+  _irParaBloco(blocoAtual, 'left');
 }
 </script>
 </body>
