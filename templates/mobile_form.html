@@ -788,7 +788,7 @@ body::after {
           <label id="fotos-btn"
             style="display:inline-flex;align-items:center;gap:6px;padding:13px 18px;background:var(--blue);color:#fff;border-radius:8px;cursor:pointer;font-size:15px;font-weight:bold;width:100%;justify-content:center;">
             📷 Tirar / Selecionar Fotos
-            <input type="file" id="fotos-input" accept="image/*" multiple style="display:none"
+            <input type="file" id="fotos-input" accept="image/*" capture="environment" style="display:none"
                    onchange="processarFotos(this)">
           </label>
           <span id="fotos-count" style="text-align:center;display:block;margin-top:6px;font-size:12px;color:var(--muted);">0/3 fotos</span>
@@ -1296,6 +1296,21 @@ function novoRegistro() {
   document.getElementById('tipo_manutencao').value = '';
   limparEqp();
   document.querySelectorAll('.fg.err').forEach(f => f.classList.remove('err'));
+  // Limpar fotos
+  fotosB64 = [];
+  atualizarPreviewFotos();
+  // Limpar materiais
+  const lista = document.getElementById('materiais-lista');
+  const empty = document.getElementById('materiais-empty');
+  if (lista) lista.innerHTML = '';
+  if (empty) { empty.textContent = 'Selecione a TAG do equipamento para ver as peças disponíveis.'; empty.style.display = 'block'; }
+  // Resetar técnico
+  document.querySelectorAll('.tec-cb').forEach(cb => cb.checked = false);
+  updateTecSelection();
+  if (TECNICO_LOGADO) {
+    const cb = Array.from(document.querySelectorAll('.tec-cb')).find(c => c.value === TECNICO_LOGADO);
+    if (cb) { cb.checked = true; updateTecSelection(); }
+  }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
