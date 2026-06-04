@@ -967,20 +967,6 @@ function toggleTecDropdown(e) {
   e.stopPropagation();
   document.getElementById('tecnico-wrapper').classList.toggle('open');
 }
-function updateTecSelection() {
-  const checked = Array.from(document.querySelectorAll('.tec-cb:checked')).map(c => c.value);
-  const hidden = document.getElementById('tecnico');
-  const placeholder = document.getElementById('tecnico-placeholder');
-  if (checked.length === 0) {
-    hidden.value = '';
-    placeholder.textContent = 'Selecione o(s) técnico(s)...';
-    placeholder.classList.remove('has-value');
-  } else {
-    hidden.value = checked.join(', ');
-    placeholder.textContent = checked.join(', ');
-    placeholder.classList.add('has-value');
-  }
-}
 document.addEventListener('click', (e) => {
   const w = document.getElementById('tecnico-wrapper');
   if (w && !w.contains(e.target)) w.classList.remove('open');
@@ -1268,6 +1254,7 @@ function enviarForm() {
     spin.style.display = 'none';
 
     if (res.success) {
+      _pararHeartbeat(true); // form registrado — remove do status
       const info = document.getElementById('modal-info');
       info.innerHTML =
         '<strong>Registro:</strong> ' + res.message + '<br>' +
@@ -1555,6 +1542,66 @@ function pararVoz(btnId) {
     btn.textContent = '🎙️';
   }
 }
+
+/* ═══════════════════════════════════════════════════════
+   HEARTBEAT — sinaliza formulário aberto ao dashboard
+═══════════════════════════════════════════════════════ */
+let _hbInterval = null;
+
+function _tecnicoAtual() {
+  return document.getElementById('tecnico')?.value?.trim() || '';
+}
+
+function _iniciarHeartbeat() {
+  if (_hbInterval) return;
+  _enviarPing();
+  _hbInterval = setInterval(_enviarPing, 25000);
+}
+
+function _pararHeartbeat(fechar = false) {
+  if (_hbInterval) { clearInterval(_hbInterval); _hbInterval = null; }
+  const tec = _tecnicoAtual();
+  if (fechar && tec) {
+    fetch('/api/form-ping', {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tecnico: tec }),
+      keepalive: true
+    }).catch(() => {});
+  }
+}
+
+function _enviarPing() {
+  const tec = _tecnicoAtual();
+  if (!tec) return;
+  fetch('/api/form-ping', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ tecnico: tec })
+  }).catch(() => {});
+}
+
+// Inicia heartbeat assim que técnico for selecionado
+function updateTecSelection() {
+  const checked = Array.from(document.querySelectorAll('.tec-cb:checked')).map(c => c.value);
+  const hidden = document.getElementById('tecnico');
+  const placeholder = document.getElementById('tecnico-placeholder');
+  if (checked.length === 0) {
+    hidden.value = '';
+    placeholder.textContent = 'Selecione o(s) técnico(s)...';
+    placeholder.classList.remove('has-value');
+    _pararHeartbeat(true);
+  } else {
+    hidden.value = checked.join(', ');
+    placeholder.textContent = checked.join(', ');
+    placeholder.classList.add('has-value');
+    _iniciarHeartbeat();
+  }
+}
+
+// Para heartbeat ao sair da página
+window.addEventListener('pagehide', () => _pararHeartbeat(true));
+window.addEventListener('beforeunload', () => _pararHeartbeat(true));
 
 /* ═══════════════════════════════════════════════════════
    MODO GUIADO — navegação por blocos
