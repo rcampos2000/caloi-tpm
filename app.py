@@ -1161,15 +1161,27 @@ def dashboard():
             except Exception:
                 pass
 
-        # Status dos técnicos: disponível vs em atendimento
-        tecs_em_atendimento = set()
+        # Status dos técnicos: 3 estados (Em Atendimento / Form Aberto / Disponível)
+        forms_abertos = _get_forms_abertos()
+        tecs_pendente = set()
         for r in records:
             if str(r.get('Status', '')).strip() == 'Pendente':
                 tec = str(r.get('Técnico Responsável') or '').strip()
                 if tec:
-                    tecs_em_atendimento.add(tec)
-        todos_tecs = sorted({str(r.get('Técnico Responsável') or '').strip() for r in records if r.get('Técnico Responsável')})
-        tec_status = [{'nome': t, 'status': 'Em Atendimento' if t in tecs_em_atendimento else 'Disponível'} for t in todos_tecs]
+                    tecs_pendente.add(tec)
+        todos_tecs = sorted(
+            {str(r.get('Técnico Responsável') or '').strip() for r in records if r.get('Técnico Responsável')}
+            | forms_abertos
+        )
+        tec_status = []
+        for t in todos_tecs:
+            if t in tecs_pendente:
+                status = 'Em Atendimento'
+            elif t in forms_abertos:
+                status = 'Form Aberto'
+            else:
+                status = 'Disponível'
+            tec_status.append({'nome': t, 'status': status})
 
         # Anos disponíveis para filtro
         anos_set = set()
@@ -1337,6 +1349,93 @@ def api_registros():
         return jsonify({'success': True, 'total': len(records), 'registros': records[-100:]})
     except Exception as e:
         return jsonify({'success': False, 'message': str(e)}), 500
+
+
+# ============================================================
+# FORMULÁRIOS ABERTOS — rastreamento em tempo real
+# ============================================================
+# Dict em memória: { 'Nome Tecnico': timestamp_last_ping }
+_forms_abertos = {}
+_FORM_TIMEOUT = 60  # segundos sem ping = form considerado fechado
+
+@app.route('/api/form-ping', methods=['POST'])
+@login_required
+def api_form_ping():
+    """Mobile form faz ping a cada 25s enquanto está aberto."""
+    import time
+    data = request.get_json(silent=True) or {}
+    tecnico = str(data.get('tecnico', '')).strip()
+    if tecnico:
+        _forms_abertos[tecnico] = time.time()
+    return jsonify({'ok': True})
+
+@app.route('/api/form-ping', methods=['DELETE'])
+@login_required
+def api_form_close():
+    """Mobile form notifica que foi fechado/submetido."""
+    data = request.get_json(silent=True) or {}
+    tecnico = str(data.get('tecnico', '')).strip()
+    _forms_abertos.pop(tecnico, None)
+    return jsonify({'ok': True})
+
+def _get_forms_abertos():
+    """Retorna set de técnicos com form aberto (ping recente)."""
+    import time
+    agora = time.time()
+    return {t for t, ts in list(_forms_abertos.items()) if agora - ts < _FORM_TIMEOUT}
+
+@app.route('/api/dashboard-json')
+@login_required
+def api_dashboard_json():
+    """Retorna dados resumidos do dashboard para polling em tempo real."""
+    try:
+        records = []
+        if DB_FILE.exists():
+            wb = openpyxl.load_workbook(DB_FILE, read_only=True, data_only=True)
+            if 'Registros' in wb.sheetnames:
+                ws = wb['Registros']
+                headers = [str(c.value or '').strip() for c in next(ws.iter_rows(max_row=1))]
+                for row in ws.iter_rows(min_row=2, values_only=True):
+                    if any(v is not None for v in row):
+                        records.append({k: v for k, v in zip(headers, row) if k})
+            wb.close()
+
+        total = len(records)
+        finalizadas = sum(1 for r in records if str(r.get('Status', '')).strip() == 'Concluído')
+        em_aberto   = total - finalizadas
+
+        # Status dos técnicos com 3 estados
+        forms_abertos = _get_forms_abertos()
+        tecs_pendente = set()
+        for r in records:
+            if str(r.get('Status', '')).strip() == 'Pendente':
+                t = str(r.get('Técnico Responsável') or '').strip()
+                if t:
+                    tecs_pendente.add(t)
+
+        todos_tecs = sorted(
+            {str(r.get('Técnico Responsável') or '').strip() for r in records if r.get('Técnico Responsável')}
+            | forms_abertos
+        )
+
+        tec_status = []
+        for t in todos_tecs:
+            if t in tecs_pendente:
+                status = 'Em Atendimento'
+            elif t in forms_abertos:
+                status = 'Form Aberto'
+            else:
+                status = 'Disponível'
+            tec_status.append({'nome': t, 'status': status})
+
+        return jsonify({
+            'total': total,
+            'finalizadas': finalizadas,
+            'em_aberto': em_aberto,
+            'tec_status': tec_status,
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 
 # ============================================================
